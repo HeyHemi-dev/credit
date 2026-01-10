@@ -1,35 +1,54 @@
-Tech stack
+# Tech Stack
 
-Framework/UI: TanStack Start (Vite), TanStack Form (+ other TanStack libs), shadcn/ui
+## Framework/UI
+- **TanStack Start** (Vite)
+- **TanStack Form** (+ other TanStack libs)
+- **shadcn/ui**
+- **Tailwind**
 
-Hosting: Vercel
+## Hosting
+- **Vercel**
 
-DB: Neon (Postgres)
+## Database
+- **Neon** (Postgres)
+- **Drizzle ORM** (queries, migrations)
 
-DB access: Drizzle ORM + Drizzle migrations
+## Validation
+- **Zod**
 
-Auth (web app): Neon Auth (Better Auth) + Google OAuth
+## Authentication
+- **Neon Auth** (Better Auth) + Google OAuth (web app)
 
-Email: Resend (transactional)
+## Email
+- **Resend** (transactional)
 
-CI/CD: GitHub Actions
+## CI/CD
+- **GitHub Actions**
 
-Testing: Vitest
+## Testing
+- **Vitest**
 
-Implementation notes
+# Implementation Notes
 
-Sessions: cookie-based DB-backed sessions (store/rotate/revoke in Postgres)
+## Sessions
+Cookie-based DB-backed sessions (store/rotate/revoke in Postgres)
 
-Auth enforcement: TanStack Start middleware for route protection + server-fn checks for anything sensitive
+## Auth Enforcement
+TanStack Start middleware for route protection + server-fn checks for anything sensitive
 
-DB connections: use Neon pooled connection string for runtime (serverless-safe)
+## DB Connections
+Use Neon pooled connection string for runtime (serverless-safe)
 
-Drizzle client pattern: one client per serverless invocation (module-level) using pooled connection; not “new client per query”
+## Drizzle Client Pattern
+One client per serverless invocation (module-level) using pooled connection; not "new client per query"
 
-Migrations: run via GitHub Actions on main only
+## Migrations
+Run via GitHub Actions on `main` only
 
-Two auth modes by design
+## Two Auth Modes by Design
 
-Browser app: cookie sessions
+### Browser App
+Cookie sessions
 
-Automations API (soon after v1): API key auth for Zapier/Make/etc.
+### Automations API (soon after v1)
+API key auth for Zapier/Make/etc.
