@@ -16,3 +16,4 @@ todos.json
 .env*
 .vercel/
 .drizzle/
+.env*.local
