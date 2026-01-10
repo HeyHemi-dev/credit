@@ -6,4 +6,6 @@ if (!VITE_NEON_AUTH_URL) {
   throw new Error('VITE_NEON_AUTH_URL is not set')
 }
 
-export const authClient = createAuthClient(VITE_NEON_AUTH_URL, { adapter: BetterAuthReactAdapter() })
+export const authClient = createAuthClient(VITE_NEON_AUTH_URL, {
+  adapter: BetterAuthReactAdapter(),
+})

@@ -14,7 +14,8 @@ function Auth() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-      }}>
+      }}
+    >
       <AuthView pathname={pathname} />
     </div>
   )

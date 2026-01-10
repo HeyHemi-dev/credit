@@ -14,7 +14,8 @@ function Account() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-      }}>
+      }}
+    >
       <AccountView pathname={pathname} />
     </div>
   )
