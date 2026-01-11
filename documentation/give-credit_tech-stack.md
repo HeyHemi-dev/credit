@@ -2,7 +2,9 @@
 
 ## Framework/UI
 - **TanStack Start** (Vite)
-- **TanStack Form** (+ other TanStack libs)
+- **TanStack Query**
+- **TanStack Form** 
+- **Tanstack Pacer** (Debouncer, Throttler, Rate Limiter, Queuer, Batcher)
 - **shadcn/ui**
 - **Tailwind**
 
