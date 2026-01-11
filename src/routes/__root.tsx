@@ -5,6 +5,7 @@ import { NeonAuthUIProvider } from '@neondatabase/neon-js/auth/react'
 import { authClient } from '../auth'
 
 import appCss from '../styles.css?url'
+import { Header } from '@/components/Header'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -43,9 +44,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <HeadContent />
         </head>
         <body className=" grid bg-muted text-foreground grid-cols-[auto_minmax(0,32rem)_auto]">
-          <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen shadow-2xl">
-            <header></header>
-            <main className="flex flex-col">{children}</main>
+          <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen shadow-2xl bg-background">
+            <header className="py-2 border-b">
+              <Header />
+            </header>
+            <main className="flex flex-col overflow-x-clip gap-4">
+              {children}
+            </main>
             <footer></footer>
           </div>
           <TanStackDevtools
