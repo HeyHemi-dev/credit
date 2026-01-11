@@ -8,14 +8,7 @@ export const Route = createFileRoute('/auth/$pathname')({
 function Auth() {
   const { pathname } = Route.useParams()
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-      }}
-    >
+    <div className="flex justify-center items-center min-h-screen bg-primary/10">
       <AuthView pathname={pathname} />
     </div>
   )
