@@ -18,9 +18,13 @@ export function BackButton() {
   }
 
   return (
-    <Button variant="outline" size="icon" onClick={handleBack}>
+    <Button
+      variant="ghost"
+      onClick={handleBack}
+      className="flex items-center gap-2"
+    >
       <HugeiconsIcon icon={ArrowLeft01Icon} />
-      <span>Back</span>
+      <span className="text-xs font-normal uppercase">Back</span>
     </Button>
   )
 }

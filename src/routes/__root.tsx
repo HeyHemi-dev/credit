@@ -45,7 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <body className=" grid bg-muted text-foreground grid-cols-[auto_minmax(0,32rem)_auto]">
           <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen shadow-2xl">
             <header></header>
-            <main className="grid">{children}</main>
+            <main className="flex flex-col">{children}</main>
             <footer></footer>
           </div>
           <TanStackDevtools

@@ -10,8 +10,10 @@ export const Route = createFileRoute('/account/$pathname')({
 function Account() {
   const { pathname } = Route.useParams()
   return (
-    <Section className="bg-primary/10">
-      <BackButton />
+    <Section className="bg-primary/10 flex-1">
+      <div className="flex justify-start">
+        <BackButton />
+      </div>
       <AccountView
         pathname={pathname}
         classNames={{
