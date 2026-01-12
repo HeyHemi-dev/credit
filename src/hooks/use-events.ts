@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import queryKeys from './query-keys'
 import type { CreateEvent } from '@/lib/types/validation-schema'
@@ -10,7 +14,7 @@ export function useEvents(userId: string) {
   const listEvents = useServerFn(listEventsFn)
   const createEvent = useServerFn(createEventFn)
 
-  const eventsQuery = useQuery({
+  const eventsQuery = useSuspenseQuery({
     queryKey: queryKeys.events(userId),
     queryFn: async () => await listEvents(),
   })

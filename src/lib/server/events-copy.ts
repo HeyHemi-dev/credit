@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseStatus } from '@tanstack/react-start/server'
+
 import type { EventListItem } from '@/lib/types/front-end'
 import { SHARE_LINK } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
@@ -8,11 +8,10 @@ import { createEvent, getEventsByUserId } from '@/db/queries/events'
 import { authUserId } from '@/lib/server/auth-client'
 
 export const listEventsFn = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<Array<EventListItem> | void> => {
+  async (): Promise<Array<EventListItem>> => {
     const userId = await authUserId()
     if (!userId) {
-      setResponseStatus(401)
-      return
+      throw ERROR.NOT_AUTHENTICATED()
     }
     const events = await getEventsByUserId(userId)
     return events.map((event) => ({
@@ -30,8 +29,7 @@ export const createEventFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }): Promise<EventListItem | void> => {
     const userId = await authUserId()
     if (!userId) {
-      setResponseStatus(401)
-      return
+      throw ERROR.NOT_AUTHENTICATED()
     }
 
     const eventId = crypto.randomUUID()
@@ -49,8 +47,6 @@ export const createEventFn = createServerFn({ method: 'POST' })
       region: data.region,
       shareToken,
     })
-
-    setResponseStatus(200)
 
     return {
       id: event.id,
