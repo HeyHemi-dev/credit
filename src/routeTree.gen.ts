@@ -10,12 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoupleTokenRouteImport } from './routes/couple.$token'
 import { Route as AuthPathnameRouteImport } from './routes/auth.$pathname'
 import { Route as AccountPathnameRouteImport } from './routes/account.$pathname'
+import { Route as CoupleTokenSuppliersNewRouteImport } from './routes/couple.$token.suppliers.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoupleTokenRoute = CoupleTokenRouteImport.update({
+  id: '/couple/$token',
+  path: '/couple/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthPathnameRoute = AuthPathnameRouteImport.update({
@@ -28,35 +35,63 @@ const AccountPathnameRoute = AccountPathnameRouteImport.update({
   path: '/account/$pathname',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoupleTokenSuppliersNewRoute = CoupleTokenSuppliersNewRouteImport.update({
+  id: '/suppliers/new',
+  path: '/suppliers/new',
+  getParentRoute: () => CoupleTokenRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
+  '/couple/$token': typeof CoupleTokenRouteWithChildren
+  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
+  '/couple/$token': typeof CoupleTokenRouteWithChildren
+  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
+  '/couple/$token': typeof CoupleTokenRouteWithChildren
+  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/account/$pathname' | '/auth/$pathname'
+  fullPaths:
+    | '/'
+    | '/account/$pathname'
+    | '/auth/$pathname'
+    | '/couple/$token'
+    | '/couple/$token/suppliers/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/account/$pathname' | '/auth/$pathname'
-  id: '__root__' | '/' | '/account/$pathname' | '/auth/$pathname'
+  to:
+    | '/'
+    | '/account/$pathname'
+    | '/auth/$pathname'
+    | '/couple/$token'
+    | '/couple/$token/suppliers/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/account/$pathname'
+    | '/auth/$pathname'
+    | '/couple/$token'
+    | '/couple/$token/suppliers/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountPathnameRoute: typeof AccountPathnameRoute
   AuthPathnameRoute: typeof AuthPathnameRoute
+  CoupleTokenRoute: typeof CoupleTokenRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +101,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/couple/$token': {
+      id: '/couple/$token'
+      path: '/couple/$token'
+      fullPath: '/couple/$token'
+      preLoaderRoute: typeof CoupleTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/$pathname': {
@@ -82,13 +124,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountPathnameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/couple/$token/suppliers/new': {
+      id: '/couple/$token/suppliers/new'
+      path: '/suppliers/new'
+      fullPath: '/couple/$token/suppliers/new'
+      preLoaderRoute: typeof CoupleTokenSuppliersNewRouteImport
+      parentRoute: typeof CoupleTokenRoute
+    }
   }
 }
+
+interface CoupleTokenRouteChildren {
+  CoupleTokenSuppliersNewRoute: typeof CoupleTokenSuppliersNewRoute
+}
+
+const CoupleTokenRouteChildren: CoupleTokenRouteChildren = {
+  CoupleTokenSuppliersNewRoute: CoupleTokenSuppliersNewRoute,
+}
+
+const CoupleTokenRouteWithChildren = CoupleTokenRoute._addFileChildren(
+  CoupleTokenRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountPathnameRoute: AccountPathnameRoute,
   AuthPathnameRoute: AuthPathnameRoute,
+  CoupleTokenRoute: CoupleTokenRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
