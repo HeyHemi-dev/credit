@@ -5,7 +5,7 @@ import { NeonAuthUIProvider } from '@neondatabase/neon-js/auth/react'
 import { authClient } from '../auth'
 
 import appCss from '../styles.css?url'
-import { Header } from '@/components/Header'
+import { Header } from '@/components/header'
 
 export const Route = createRootRoute({
   head: () => ({
