@@ -19,7 +19,7 @@ export function BackButton() {
 
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       onClick={handleBack}
       className="flex items-center gap-2"
     >

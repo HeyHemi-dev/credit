@@ -6,10 +6,10 @@ export function Header() {
     <Section>
       <div className="grid grid-cols-[1fr_auto] gap-4 items-center content-center">
         <p id="brand" className="font-bold uppercase tracking-wide">
-          Credit
+          Give Credit
         </p>
         <SignedIn>
-          <UserButton variant={'ghost'} size={'sm'} />
+          <UserButton variant={'ghost'} size={'icon'} />
         </SignedIn>
       </div>
     </Section>

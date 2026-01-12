@@ -53,15 +53,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <HeadContent />
         </head>
         <body className="grid bg-muted text-foreground grid-cols-[auto_minmax(0,32rem)_auto]">
-          <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen shadow-2xl bg-background">
-            {isCoupleView ? null : (
-              <header className="py-2 border-b">
+          <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen bg-muted p-1">
+            {!isCoupleView && (
+              <header className="py-4">
                 <Header />
               </header>
             )}
-            <main className="flex flex-col overflow-x-clip gap-4">
-              {children}
-            </main>
+
+            {children}
+
             <footer></footer>
           </div>
           <TanStackDevtools

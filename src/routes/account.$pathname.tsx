@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AccountView } from '@neondatabase/neon-js/auth/react/ui'
-import { Section } from '@/components/ui/section'
+import { Main, Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 
 export const Route = createFileRoute('/account/$pathname')({
@@ -10,17 +10,20 @@ export const Route = createFileRoute('/account/$pathname')({
 function Account() {
   const { pathname } = Route.useParams()
   return (
-    <Section className="bg-primary/10 flex-1">
-      <div className="flex justify-start">
-        <BackButton />
-      </div>
-      <AccountView
-        pathname={pathname}
-        classNames={{
-          base: 'grid gap-4 content-start !w-auto',
-          sidebar: { base: 'flex flex-row justify-center !w-auto' },
-        }}
-      />
-    </Section>
+    <Main className="">
+      <Section className="flex-1">
+        <div className="flex justify-start">
+          <BackButton />
+        </div>
+        <AccountView
+          pathname={pathname}
+          classNames={{
+            base: 'grid gap-4 content-start !w-auto',
+            sidebar: { base: 'flex flex-row justify-center !w-auto' },
+          }}
+          hideNav={false}
+        />
+      </Section>
+    </Main>
   )
 }
