@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
+  RedirectToSignIn,
   SignedIn,
   UserButton,
-  RedirectToSignIn,
 } from '@neondatabase/neon-js/auth/react/ui'
 
 import { Section } from '@/components/ui/section'

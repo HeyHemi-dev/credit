@@ -1,4 +1,4 @@
-import { ConstEnum } from './generic-types'
+import type { ConstEnum } from './generic-types'
 
 export const ERROR_MESSAGE = {
   // Authentication errors (401)

@@ -1,8 +1,8 @@
 import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon } from '@hugeicons/core-free-icons'
+import { Button } from '@/components/ui/button'
 
 export function BackButton() {
   const navigate = useNavigate()

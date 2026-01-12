@@ -1,22 +1,22 @@
 import {
+  boolean,
+  date,
+  foreignKey,
+  index,
+  jsonb,
+  pgEnum,
+  pgSchema,
   pgTable,
+  primaryKey,
   text,
   timestamp,
-  pgEnum,
-  index,
-  uuid,
-  date,
-  primaryKey,
-  pgSchema,
-  boolean,
-  foreignKey,
-  jsonb,
   unique,
   uniqueIndex,
+  uuid,
 } from 'drizzle-orm/pg-core'
 
-import { REGION, SERVICE } from '@/lib/constants'
 import { sql } from 'drizzle-orm'
+import { REGION, SERVICE } from '@/lib/constants'
 
 // Enum for service types
 // Using SERVICE object directly (pgEnum accepts Record<string, string>)

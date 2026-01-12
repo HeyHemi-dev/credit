@@ -39,7 +39,7 @@ export const SERVICE = {
 } as const satisfies ConstEnum
 
 export type ServiceKey = keyof typeof SERVICE
-export const SERVICE_KEYS = Object.keys(SERVICE) as ServiceKey[]
+export const SERVICE_KEYS = Object.keys(SERVICE) as Array<ServiceKey>
 export type Service = (typeof SERVICE)[ServiceKey]
 export const SERVICES = Object.values(SERVICE)
 
@@ -63,6 +63,6 @@ export const REGION = {
 } as const satisfies ConstEnum
 
 export type RegionKey = keyof typeof REGION
-export const REGION_KEYS = Object.keys(REGION) as RegionKey[]
+export const REGION_KEYS = Object.keys(REGION) as Array<RegionKey>
 export type Region = (typeof REGION)[RegionKey]
 export const REGIONS = Object.values(REGION)

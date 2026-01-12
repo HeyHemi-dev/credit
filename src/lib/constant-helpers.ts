@@ -1,6 +1,6 @@
-import { SERVICE, REGION } from '@/lib/constants'
-import type { Service, ServiceKey, Region, RegionKey } from '@/lib/constants'
-import { ConstEnum } from '@/lib/generic-types'
+import type { Region, RegionKey, Service, ServiceKey } from '@/lib/constants'
+import type { ConstEnum } from '@/lib/generic-types'
+import { REGION, SERVICE } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 
 export const serviceHelper = {
@@ -46,7 +46,7 @@ export function keyToParam(key: string): string {
  * @example Bay of Plenty -> bay-of-plenty
  */
 export function valueToParam(value: string, constant: ConstEnum): string {
-  const key = Object.keys(constant).find((key) => constant[key] === value)
+  const key = Object.keys(constant).find((k) => constant[k] === value)
   if (!key) throw ERROR.RESOURCE_NOT_FOUND(`${value} not found`)
   return keyToParam(key)
 }
@@ -67,9 +67,7 @@ export function paramToKey<T extends ConstEnum>(
   param: string,
   constant: T,
 ): keyof T {
-  const key = Object.keys(constant).find(
-    (key) => key === paramToKeyFormat(param),
-  )
+  const key = Object.keys(constant).find((k) => k === paramToKeyFormat(param))
   if (!key) throw ERROR.RESOURCE_NOT_FOUND(`${param} not found`)
   return key as keyof T
 }
@@ -82,9 +80,7 @@ export function paramToValue<T extends ConstEnum>(
   param: string,
   constant: T,
 ): T[keyof T] {
-  const key = Object.keys(constant).find(
-    (key) => key === paramToKeyFormat(param),
-  )
+  const key = Object.keys(constant).find((k) => k === paramToKeyFormat(param))
   if (!key) throw ERROR.RESOURCE_NOT_FOUND(`${param} not found`)
   return constant[key as keyof T]
 }

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { userInNeonAuth, sessionInNeonAuth, accountInNeonAuth, organizationInNeonAuth, memberInNeonAuth, invitationInNeonAuth, events, eventSuppliers, suppliers } from "./schema";
+import { accountInNeonAuth, eventSuppliers, events, invitationInNeonAuth, memberInNeonAuth, organizationInNeonAuth, sessionInNeonAuth, suppliers, userInNeonAuth } from "./schema";
 
 export const sessionInNeonAuthRelations = relations(sessionInNeonAuth, ({one}) => ({
 	userInNeonAuth: one(userInNeonAuth, {
