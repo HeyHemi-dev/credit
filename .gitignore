@@ -17,3 +17,4 @@ todos.json
 .vercel/
 .drizzle/
 .env*.local
+.pnpm-store/
