@@ -16,6 +16,19 @@ export async function requireUserId(request: Request): Promise<string> {
   fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run1',hypothesisId:'A',location:'src/lib/server/auth.ts:requireUserId',message:'requireUserId entry',data:{hasAuthUrl:!!authUrl,hasCookie:!!request.headers.get('cookie'),cookieLen:(request.headers.get('cookie')??'').length},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
 
+  // #region agent log
+  (() => {
+    const raw = request.headers.get('cookie') ?? ''
+    const cookieNames = raw
+      .split(';')
+      .map((p) => p.trim().split('=')[0])
+      .filter(Boolean)
+      .slice(0, 12)
+    const joined = cookieNames.join('|').toLowerCase()
+    fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run1',hypothesisId:'F',location:'src/lib/server/auth.ts:requireUserId',message:'cookie names summary',data:{cookieNameCount:cookieNames.length,cookieNames,looksLikeNeonAuth:joined.includes('neon')||joined.includes('auth'),looksLikeSession:joined.includes('session')||joined.includes('token')},timestamp:Date.now()})}).catch(()=>{});
+  })()
+  // #endregion
+
   if (!authUrl) throw ERROR.INVALID_STATE('VITE_NEON_AUTH_URL is not set')
 
   // Use Vanilla adapter on the server (promise-based API, includes getSession()).
@@ -39,6 +52,11 @@ export async function requireUserId(request: Request): Promise<string> {
   }
 
   const { data, error } = await auth.getSession()
+
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run1',hypothesisId:'G',location:'src/lib/server/auth.ts:requireUserId',message:'getSession flags',data:{hasData:!!data,hasError:!!error,hasSession:!!(data as any)?.session,hasUser:!!(data as any)?.session?.user},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+
   if (error) throw ERROR.NOT_AUTHENTICATED()
 
   const userId = data?.session?.user?.id

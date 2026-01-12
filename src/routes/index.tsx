@@ -1,24 +1,30 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import * as React from 'react'
+import { RedirectToSignIn, SignedIn, SignedOut } from '@neondatabase/neon-js/auth/react/ui'
 
 import { Section } from '@/components/ui/section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { UI_TEXT, SHARE_LINK } from '@/lib/constants'
+import { SHARE_LINK, UI_TEXT } from '@/lib/constants'
 import { listEventsFn } from '@/lib/server/events'
 import { CreateEventDrawer } from '@/components/events/CreateEventDrawer'
 import { EventDetailDrawer } from '@/components/events/EventDetailDrawer'
+import { authClient } from '@/auth'
 
 export const Route = createFileRoute('/')({ component: App })
 
 function App() {
+  const { data: sessionData } = authClient.useSession()
+  const isSignedIn = !!sessionData?.session
+
   const [createOpen, setCreateOpen] = React.useState(false)
   const [detailOpen, setDetailOpen] = React.useState(false)
   const [selectedEventId, setSelectedEventId] = React.useState<string | null>(
     null,
   )
   const eventsQuery = useQuery({
+    enabled: isSignedIn,
     queryKey: ['events'],
     queryFn: async () => await listEventsFn(),
   })
@@ -32,7 +38,13 @@ function App() {
   }
 
   return (
-    <Section className="pb-20">
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+
+      <SignedIn>
+        <Section className="pb-20">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">Events</h1>
       </div>
@@ -120,6 +132,8 @@ function App() {
         }}
         eventId={selectedEventId}
       />
-    </Section>
+        </Section>
+      </SignedIn>
+    </>
   )
 }

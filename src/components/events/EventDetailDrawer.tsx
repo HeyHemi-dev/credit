@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { formatEmailList, formatInstagramCredits } from '@/lib/formatters'
 
 type EventRow = Awaited<ReturnType<typeof getEventFn>>
 
@@ -55,17 +56,18 @@ export function EventDetailDrawer({
   const rows = suppliersQuery.data?.rows ?? []
 
   const instagramText = React.useMemo(() => {
-    return rows
-      .map((r) => {
-        const handle = r.supplier.instagramHandle
-        const value = handle ? `@${handle}` : r.supplier.name
-        return `${r.service} - ${value}`
-      })
-      .join('\n')
+    return formatInstagramCredits(
+      rows.map((r) => ({
+        name: r.supplier.name,
+        email: r.supplier.email,
+        instagramHandle: r.supplier.instagramHandle ?? null,
+        service: r.service,
+      })),
+    )
   }, [rows])
 
   const emailText = React.useMemo(() => {
-    return rows.map((r) => r.supplier.email).join(', ')
+    return formatEmailList(rows.map((r) => ({ email: r.supplier.email })))
   }, [rows])
 
   const copy = async (text: string) => {

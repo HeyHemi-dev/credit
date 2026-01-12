@@ -2,7 +2,6 @@ import {
   HeadContent,
   Scripts,
   createRootRoute,
-  redirect,
   useRouterState,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
@@ -13,7 +12,6 @@ import { authClient } from '../auth'
 import appCss from '../styles.css?url'
 import { Header } from '@/components/header'
 import { SHARE_LINK } from '@/lib/constants'
-import { getCurrentUserFn } from '@/lib/server/auth'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -36,22 +34,6 @@ export const Route = createRootRoute({
       },
     ],
   }),
-
-  beforeLoad: async ({ location }) => {
-    // Public couple flow is accessible via private link (share token).
-    if (location.pathname.startsWith(SHARE_LINK.PATH_PREFIX)) return
-    // Auth routes must remain public.
-    if (location.pathname.startsWith('/auth')) return
-
-    try {
-      await getCurrentUserFn()
-    } catch {
-      throw redirect({
-        to: '/auth/sign-in',
-        search: { redirect: location.href },
-      })
-    }
-  },
 
   shellComponent: RootDocument,
 })
