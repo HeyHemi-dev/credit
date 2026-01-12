@@ -38,17 +38,50 @@ export function CreateEventDrawer({
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      return await createEventFn({
-        data: {
-          eventName,
-          weddingDate,
-          region,
-        },
-      })
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE1',location:'src/components/events/CreateEventDrawer.tsx:createMutation',message:'createEvent mutationFn called',data:{eventNameLen:eventName.trim().length,weddingDate,regionValue:region||'(empty)'},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      try {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE1b',location:'src/components/events/CreateEventDrawer.tsx:createMutation',message:'about to call createEvent (useServerFn)',data:{createEventType:typeof createEvent},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE1f',location:'src/components/events/CreateEventDrawer.tsx:createMutation',message:'about to call createEventFn directly',data:{createEventFnType:typeof createEventFn},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+
+        // In this codebase, serverFns are called directly (see couple routes).
+        const ev = await createEventFn({
+          data: {
+            eventName,
+            weddingDate,
+            region,
+          },
+        } as any)
+
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE1c',location:'src/components/events/CreateEventDrawer.tsx:createMutation',message:'createEvent returned',data:{isUndefined:ev===undefined,evType:typeof ev,keys:(ev&&typeof ev==='object')?Object.keys(ev as any).slice(0,8):[]},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+
+        return ev as any
+      } catch (err) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE1e',location:'src/components/events/CreateEventDrawer.tsx:createMutation',message:'createEvent threw',data:{name:(err as any)?.name,message:(err as any)?.message},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        throw err
+      }
     },
     onSuccess: async (ev) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE2',location:'src/components/events/CreateEventDrawer.tsx:onSuccess',message:'createEvent success',data:{isUndefined:ev===undefined,evType:typeof ev,keys:(ev&&typeof ev==='object')?Object.keys(ev as any).slice(0,8):[],hasId:!!(ev as any)?.id},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setCreated(ev)
       await queryClient.invalidateQueries({ queryKey: ['events'] })
+    },
+    onError: (err) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE3',location:'src/components/events/CreateEventDrawer.tsx:onError',message:'createEvent error',data:{name:(err as any)?.name,message:(err as any)?.message},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
     },
   })
 
@@ -99,6 +132,9 @@ export function CreateEventDrawer({
             className="grid gap-3"
             onSubmit={(e) => {
               e.preventDefault()
+              // #region agent log
+              fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'run_create_event',hypothesisId:'CE0',location:'src/components/events/CreateEventDrawer.tsx:onSubmit',message:'createEvent form submitted',data:{eventNameLen:eventName.trim().length,weddingDate,regionValue:region||'(empty)'},timestamp:Date.now()})}).catch(()=>{});
+              // #endregion
               createMutation.mutate()
             }}
           >

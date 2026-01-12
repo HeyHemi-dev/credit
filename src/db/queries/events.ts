@@ -25,7 +25,10 @@ export async function getEventsByUserId(
       shareToken: events.shareToken,
       createdAt: events.createdAt,
       updatedAt: events.updatedAt,
-      supplierCount: db.$count(eventSuppliers, eq(eventSuppliers.eventId, events.id)),
+      supplierCount: db.$count(
+        eventSuppliers,
+        eq(eventSuppliers.eventId, events.id),
+      ),
     })
     .from(events)
     .where(eq(events.createdByUserId, createdByUserId))
@@ -65,4 +68,3 @@ export async function deleteEvent(
     .delete(events)
     .where(and(eq(events.id, id), eq(events.createdByUserId, createdByUserId)))
 }
-

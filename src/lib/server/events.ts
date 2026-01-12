@@ -23,6 +23,27 @@ export const createEventFn = createServerFn({ method: 'POST' })
   .handler(async ({ request, data }) => {
     const userId = await requireUserId(request)
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/17037db5-3e4a-43c3-8a86-d6aac6646a48', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'run_create_event',
+        hypothesisId: 'CE4',
+        location: 'src/lib/server/events.ts:createEventFn',
+        message: 'createEventFn handler entry',
+        data: {
+          hasUserId: !!userId,
+          eventNameLen: data.eventName.trim().length,
+          weddingDate: data.weddingDate,
+          hasRegion: !!data.region,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion
+
     const eventId = crypto.randomUUID()
     const shareToken = crypto.randomUUID()
 
@@ -64,4 +85,3 @@ export const deleteEventFn = createServerFn({ method: 'POST' })
     await deleteEvent(data.eventId, userId)
     return { ok: true }
   })
-

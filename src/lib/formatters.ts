@@ -8,7 +8,7 @@ export type CreditSupplier = {
   service: Service
 }
 
-export function formatInstagramCredits(items: CreditSupplier[]): string {
+export function formatInstagramCredits(items: Array<CreditSupplier>): string {
   const serviceOrder = new Map(SERVICES.map((s, i) => [s, i]))
 
   const sorted = [...items].sort((a, b) => {
@@ -23,14 +23,16 @@ export function formatInstagramCredits(items: CreditSupplier[]): string {
       const value = i.instagramHandle
         ? `${CREDIT_OUTPUT.INSTAGRAM.VALUE_PREFIX}${i.instagramHandle}`
         : i.name
-      return CREDIT_OUTPUT.INSTAGRAM.LINE_TEMPLATE
-        .replace('[service]', i.service)
-        .replace('[value]', value)
+      return CREDIT_OUTPUT.INSTAGRAM.LINE_TEMPLATE.replace(
+        '[service]',
+        i.service,
+      ).replace('[value]', value)
     })
     .join(CREDIT_OUTPUT.INSTAGRAM.LINE_SEPARATOR)
 }
 
-export function formatEmailList(items: Pick<CreditSupplier, 'email'>[]): string {
+export function formatEmailList(
+  items: Array<Pick<CreditSupplier, 'email'>>,
+): string {
   return items.map((i) => i.email).join(CREDIT_OUTPUT.EMAIL.SEPARATOR)
 }
-

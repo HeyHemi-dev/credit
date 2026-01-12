@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { and, eq } from 'drizzle-orm'
 import { AUTOSAVE, RATE_LIMITS } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { getEventByShareToken } from '@/db/queries/events'
@@ -13,7 +14,6 @@ import {
 import { upsertEventSupplierInputSchema } from '@/lib/validations'
 import { db } from '@/db/connection'
 import { eventSuppliers, suppliers } from '@/db/schema'
-import { and, eq } from 'drizzle-orm'
 
 export const getEventSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(
@@ -85,4 +85,3 @@ export const removeEventSupplierForCoupleFn = createServerFn({ method: 'POST' })
     await removeSupplierFromEvent(event.id, data.supplierId)
     return { ok: true }
   })
-

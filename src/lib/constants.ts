@@ -133,8 +133,7 @@ export const UI_TEXT = {
 
   COUPLE_INTRO: {
     TITLE: 'Help us credit your suppliers',
-    BODY:
-      "Add the suppliers you used so your photographer can credit and thank them properly. No login needed — you can come back anytime. We'll auto-save as you go.",
+    BODY: "Add the suppliers you used so your photographer can credit and thank them properly. No login needed — you can come back anytime. We'll auto-save as you go.",
     CTA: 'Start adding suppliers',
   },
 
@@ -145,6 +144,7 @@ export const UI_TEXT = {
   },
 
   EMPTY_STATES: {
-    EVENTS: 'No events yet. Create your first event to generate a private link for your couple.',
+    EVENTS:
+      'No events yet. Create your first event to generate a private link for your couple.',
   },
 } as const

@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import * as React from 'react'
-import { RedirectToSignIn, SignedIn, SignedOut } from '@neondatabase/neon-js/auth/react/ui'
+import {
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut,
+} from '@neondatabase/neon-js/auth/react/ui'
+import { useServerFn } from '@tanstack/react-start'
 
 import { Section } from '@/components/ui/section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +22,7 @@ export const Route = createFileRoute('/')({ component: App })
 function App() {
   const { data: sessionData } = authClient.useSession()
   const isSignedIn = !!sessionData?.session
+  const listEvents = useServerFn(listEventsFn)
 
   const [createOpen, setCreateOpen] = React.useState(false)
   const [detailOpen, setDetailOpen] = React.useState(false)
@@ -26,7 +32,7 @@ function App() {
   const eventsQuery = useQuery({
     enabled: isSignedIn,
     queryKey: ['events'],
-    queryFn: async () => await listEventsFn(),
+    queryFn: async () => await listEvents(),
   })
 
   const events = eventsQuery.data ?? []
@@ -45,93 +51,90 @@ function App() {
 
       <SignedIn>
         <Section className="pb-20">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">Events</h1>
-      </div>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-xl font-semibold">Events</h1>
+          </div>
 
-      {eventsQuery.isLoading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading…</CardTitle>
-          </CardHeader>
-        </Card>
-      ) : eventsQuery.isError ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Couldn’t load events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button
-              variant="outline"
-              onClick={() => eventsQuery.refetch()}
-            >
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      ) : events.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground">
-            {UI_TEXT.EMPTY_STATES.EVENTS}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-3">
-          {events.map((ev) => (
-            <Card key={ev.id} size="sm">
-              <CardContent
-                className="grid gap-2 cursor-pointer"
-                onClick={() => {
-                  setSelectedEventId(ev.id)
-                  setDetailOpen(true)
-                }}
-              >
-                <div className="grid grid-cols-[1fr_auto] items-start gap-3">
-                  <div className="grid gap-1">
-                    <div className="font-medium">{ev.eventName}</div>
-                    <div className="text-muted-foreground text-sm">
-                      {ev.weddingDate}
-                      {ev.region ? ` • ${ev.region}` : null}
-                      {typeof ev.supplierCount === 'number'
-                        ? ` • ${ev.supplierCount} suppliers`
-                        : null}
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      void copyLink(ev.shareToken)
-                    }}
-                  >
-                    Copy link
-                  </Button>
-                </div>
+          {eventsQuery.isLoading ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Loading…</CardTitle>
+              </CardHeader>
+            </Card>
+          ) : eventsQuery.isError ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Couldn’t load events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" onClick={() => eventsQuery.refetch()}>
+                  Retry
+                </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          ) : events.length === 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Welcome</CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                {UI_TEXT.EMPTY_STATES.EVENTS}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-3">
+              {events.map((ev) => (
+                <Card key={ev.id} size="sm">
+                  <CardContent
+                    className="grid gap-2 cursor-pointer"
+                    onClick={() => {
+                      setSelectedEventId(ev.id)
+                      setDetailOpen(true)
+                    }}
+                  >
+                    <div className="grid grid-cols-[1fr_auto] items-start gap-3">
+                      <div className="grid gap-1">
+                        <div className="font-medium">{ev.eventName}</div>
+                        <div className="text-muted-foreground text-sm">
+                          {ev.weddingDate}
+                          {ev.region ? ` • ${ev.region}` : null}
+                          {typeof ev.supplierCount === 'number'
+                            ? ` • ${ev.supplierCount} suppliers`
+                            : null}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          void copyLink(ev.shareToken)
+                        }}
+                      >
+                        Copy link
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10 w-[min(32rem,100vw)] px-4">
-        <Button className="w-full" onClick={() => setCreateOpen(true)}>
-          New event
-        </Button>
-      </div>
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10 w-[min(32rem,100vw)] px-4">
+            <Button className="w-full" onClick={() => setCreateOpen(true)}>
+              New event
+            </Button>
+          </div>
 
-      <CreateEventDrawer open={createOpen} onOpenChange={setCreateOpen} />
-      <EventDetailDrawer
-        open={detailOpen}
-        onOpenChange={(open) => {
-          setDetailOpen(open)
-          if (!open) setSelectedEventId(null)
-        }}
-        eventId={selectedEventId}
-      />
+          <CreateEventDrawer open={createOpen} onOpenChange={setCreateOpen} />
+          <EventDetailDrawer
+            open={detailOpen}
+            onOpenChange={(open) => {
+              setDetailOpen(open)
+              if (!open) setSelectedEventId(null)
+            }}
+            eventId={selectedEventId}
+          />
         </Section>
       </SignedIn>
     </>

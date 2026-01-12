@@ -8,7 +8,11 @@ export type SupplierRow = typeof suppliers.$inferSelect
 export type NewSupplierRow = typeof suppliers.$inferInsert
 
 export async function getSupplierById(id: string): Promise<SupplierRow | null> {
-  const [row] = await db.select().from(suppliers).where(eq(suppliers.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(suppliers)
+    .where(eq(suppliers.id, id))
+    .limit(1)
   return row ?? null
 }
 
@@ -23,7 +27,9 @@ export async function getSupplierByEmail(
   return row ?? null
 }
 
-export async function createSupplier(input: NewSupplierRow): Promise<SupplierRow> {
+export async function createSupplier(
+  input: NewSupplierRow,
+): Promise<SupplierRow> {
   try {
     const [row] = await db.insert(suppliers).values(input).returning()
     if (!row) throw ERROR.DATABASE_ERROR('Failed to create supplier')
@@ -41,7 +47,7 @@ export async function createSupplier(input: NewSupplierRow): Promise<SupplierRow
 export async function searchSuppliers(
   query: string,
   limit = 20,
-): Promise<SupplierRow[]> {
+): Promise<Array<SupplierRow>> {
   const q = query.trim()
   if (!q) return []
 
@@ -78,4 +84,3 @@ export async function updateSupplierHandles(
     })
     .where(eq(suppliers.id, supplierId))
 }
-

@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AsyncBatcher } from '@tanstack/pacer'
-import { AUTOSAVE, UI_TEXT } from '@/lib/constants'
+import { Link } from '@tanstack/react-router'
+import { AUTOSAVE, SERVICE, SERVICE_KEYS, UI_TEXT } from '@/lib/constants'
 import { searchSuppliersForCoupleFn } from '@/lib/server/suppliers'
 import {
   getEventSuppliersForCoupleFn,
@@ -11,20 +12,28 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { SERVICE_KEYS, SERVICE } from '@/lib/constants'
-import { Link } from '@tanstack/react-router'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
-type SupplierRow = Awaited<ReturnType<typeof searchSuppliersForCoupleFn>>[number]
+type SupplierRow = Awaited<
+  ReturnType<typeof searchSuppliersForCoupleFn>
+>[number]
 
 export function SupplierList({ shareToken }: { shareToken: string }) {
   const queryClient = useQueryClient()
   const [query, setQuery] = React.useState('')
-  const [selectedSupplier, setSelectedSupplier] = React.useState<SupplierRow | null>(null)
+  const [selectedSupplier, setSelectedSupplier] =
+    React.useState<SupplierRow | null>(null)
 
   const eventQuery = useQuery({
     queryKey: ['coupleEvent', shareToken],
-    queryFn: async () => await getEventSuppliersForCoupleFn({ data: { shareToken } }),
+    queryFn: async () =>
+      await getEventSuppliersForCoupleFn({ data: { shareToken } }),
   })
 
   const searchQuery = useQuery({
@@ -39,7 +48,9 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
       await removeEventSupplierForCoupleFn({ data: { shareToken, supplierId } })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['coupleEvent', shareToken] })
+      await queryClient.invalidateQueries({
+        queryKey: ['coupleEvent', shareToken],
+      })
     },
   })
 
@@ -53,7 +64,14 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
     })
   }
 
-  const batcherRef = React.useRef<AsyncBatcher<{ supplierId: string; service: string; contributionNotes: string | null }>>()
+  const batcherRef =
+    React.useRef<
+      AsyncBatcher<{
+        supplierId: string
+        service: string
+        contributionNotes: string | null
+      }>
+    >()
   if (!batcherRef.current) {
     batcherRef.current = new AsyncBatcher(
       async (items) => {
@@ -70,11 +88,17 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
     )
   }
 
-  const [autosaveState, setAutosaveState] = React.useState<'idle' | 'saving' | 'error'>('idle')
+  const [autosaveState, setAutosaveState] = React.useState<
+    'idle' | 'saving' | 'error'
+  >('idle')
 
-  const enqueueSave = (item: { supplierId: string; service: string; contributionNotes: string | null }) => {
+  const enqueueSave = (item: {
+    supplierId: string
+    service: string
+    contributionNotes: string | null
+  }) => {
     setAutosaveState('saving')
-    batcherRef.current!.addItem(item)
+    batcherRef.current.addItem(item)
   }
 
   React.useEffect(() => {
@@ -85,10 +109,14 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
   }, [])
 
   if (eventQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading suppliers…</div>
+    return (
+      <div className="text-sm text-muted-foreground">Loading suppliers…</div>
+    )
   }
   if (eventQuery.isError) {
-    return <div className="text-sm text-destructive">Couldn’t load suppliers.</div>
+    return (
+      <div className="text-sm text-destructive">Couldn’t load suppliers.</div>
+    )
   }
 
   const rows = eventQuery.data.rows
@@ -156,7 +184,9 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
         <Card size="sm">
           <CardContent className="grid gap-2">
             <div className="font-medium">{selectedSupplier.name}</div>
-            <div className="text-xs text-muted-foreground">{selectedSupplier.email}</div>
+            <div className="text-xs text-muted-foreground">
+              {selectedSupplier.email}
+            </div>
             <div className="grid gap-1">
               <div className="text-sm font-medium">Service</div>
               <Select
@@ -168,7 +198,9 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
                     contributionNotes: null,
                   })
                   setSelectedSupplier(null)
-                  void queryClient.invalidateQueries({ queryKey: ['coupleEvent', shareToken] })
+                  void queryClient.invalidateQueries({
+                    queryKey: ['coupleEvent', shareToken],
+                  })
                 }}
               >
                 <SelectTrigger className="w-full">
@@ -201,7 +233,9 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
                   <div className="font-medium">{r.supplier.name}</div>
                   <div className="text-xs text-muted-foreground">
                     {r.service}
-                    {r.supplier.instagramHandle ? ` • @${r.supplier.instagramHandle}` : ''}
+                    {r.supplier.instagramHandle
+                      ? ` • @${r.supplier.instagramHandle}`
+                      : ''}
                   </div>
                 </div>
                 <Button
@@ -219,4 +253,3 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
     </div>
   )
 }
-

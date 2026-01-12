@@ -1,7 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { createSupplierInputSchema, supplierSearchInputSchema } from '@/lib/validations'
-import { searchSuppliers, createSupplier, getSupplierByEmail } from '@/db/queries/suppliers'
+import {
+  createSupplierInputSchema,
+  supplierSearchInputSchema,
+} from '@/lib/validations'
+import {
+  createSupplier,
+  getSupplierByEmail,
+  searchSuppliers,
+} from '@/db/queries/suppliers'
 import { requireUserId } from '@/lib/server/auth'
 import { ERROR } from '@/lib/errors'
 
@@ -55,4 +62,3 @@ export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
       region: data.supplier.region,
     })
   })
-

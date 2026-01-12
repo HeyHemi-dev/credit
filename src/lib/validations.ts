@@ -1,8 +1,7 @@
 import { z } from 'zod'
 import { ERROR } from '@/lib/errors'
-import { optionalField } from '@/lib/empty-strings'
+import { emptyStringToNull, optionalField } from '@/lib/empty-strings'
 import { REGION, SERVICE, SHARE_LINK, VALIDATION } from '@/lib/constants'
-import { emptyStringToNull } from '@/lib/empty-strings'
 
 /**
  * Normalization helpers
@@ -17,7 +16,10 @@ export function normalizeHandle(input: string): string {
 export const shareTokenSchema = z
   .string()
   .trim()
-  .min(SHARE_LINK.TOKEN.MIN_LENGTH, ERROR.INVALID_INPUT('Invalid share token').message)
+  .min(
+    SHARE_LINK.TOKEN.MIN_LENGTH,
+    ERROR.INVALID_INPUT('Invalid share token').message,
+  )
 
 export const eventNameSchema = z
   .string()
@@ -30,8 +32,12 @@ export const weddingDateSchema = z
   // date is stored as drizzle date; accept YYYY-MM-DD at API boundary
   .regex(/^\d{4}-\d{2}-\d{2}$/, ERROR.INVALID_INPUT('Invalid date').message)
 
-export const regionSchema = z.enum(Object.values(REGION) as [string, ...string[]])
-export const serviceSchema = z.enum(Object.values(SERVICE) as [string, ...string[]])
+export const regionSchema = z.enum(
+  Object.values(REGION) as [string, ...Array<string>],
+)
+export const serviceSchema = z.enum(
+  Object.values(SERVICE) as [string, ...Array<string>],
+)
 
 export const emailSchema = z
   .string()
@@ -45,7 +51,10 @@ export const handleSchema = z
   .pipe(
     z
       .string()
-      .regex(VALIDATION.HANDLE.REGEX, ERROR.INVALID_INPUT('Invalid handle').message),
+      .regex(
+        VALIDATION.HANDLE.REGEX,
+        ERROR.INVALID_INPUT('Invalid handle').message,
+      ),
   )
 
 /**
@@ -62,7 +71,10 @@ export type CreateEventInput = z.infer<typeof createEventInputSchema>
  * Supplier
  */
 export const createSupplierInputSchema = z.object({
-  name: z.string().trim().min(1, ERROR.INVALID_INPUT('Supplier name is required').message),
+  name: z
+    .string()
+    .trim()
+    .min(1, ERROR.INVALID_INPUT('Supplier name is required').message),
   email: emailSchema,
   instagramHandle: optionalField(handleSchema).transform(emptyStringToNull),
   tiktokHandle: optionalField(handleSchema).transform(emptyStringToNull),
@@ -75,7 +87,10 @@ export type CreateSupplierInput = z.infer<typeof createSupplierInputSchema>
  * Search by name, email, IG handle, TikTok handle.
  */
 export const supplierSearchInputSchema = z.object({
-  query: z.string().trim().min(1, ERROR.INVALID_INPUT('Search query required').message),
+  query: z
+    .string()
+    .trim()
+    .min(1, ERROR.INVALID_INPUT('Search query required').message),
 })
 export type SupplierSearchInput = z.infer<typeof supplierSearchInputSchema>
 
@@ -84,9 +99,14 @@ export type SupplierSearchInput = z.infer<typeof supplierSearchInputSchema>
  */
 export const upsertEventSupplierInputSchema = z.object({
   eventId: z.string().uuid(ERROR.INVALID_INPUT('Invalid event id').message),
-  supplierId: z.string().uuid(ERROR.INVALID_INPUT('Invalid supplier id').message),
+  supplierId: z
+    .string()
+    .uuid(ERROR.INVALID_INPUT('Invalid supplier id').message),
   service: serviceSchema,
-  contributionNotes: optionalField(z.string().trim()).transform(emptyStringToNull),
+  contributionNotes: optionalField(z.string().trim()).transform(
+    emptyStringToNull,
+  ),
 })
-export type UpsertEventSupplierInput = z.infer<typeof upsertEventSupplierInputSchema>
-
+export type UpsertEventSupplierInput = z.infer<
+  typeof upsertEventSupplierInputSchema
+>

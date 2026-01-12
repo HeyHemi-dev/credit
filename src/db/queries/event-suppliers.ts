@@ -32,12 +32,17 @@ export async function removeSupplierFromEvent(
 ): Promise<void> {
   await db
     .delete(eventSuppliers)
-    .where(and(eq(eventSuppliers.eventId, eventId), eq(eventSuppliers.supplierId, supplierId)))
+    .where(
+      and(
+        eq(eventSuppliers.eventId, eventId),
+        eq(eventSuppliers.supplierId, supplierId),
+      ),
+    )
 }
 
 export async function getEventSuppliersWithSupplier(
   eventId: string,
-): Promise<EventSupplierWithSupplier[]> {
+): Promise<Array<EventSupplierWithSupplier>> {
   const rows = await db
     .select({
       eventId: eventSuppliers.eventId,
@@ -71,8 +76,9 @@ export async function assertEventOwnedByUser(
   const [row] = await db
     .select({ id: events.id })
     .from(events)
-    .where(and(eq(events.id, eventId), eq(events.createdByUserId, createdByUserId)))
+    .where(
+      and(eq(events.id, eventId), eq(events.createdByUserId, createdByUserId)),
+    )
     .limit(1)
   if (!row) throw ERROR.FORBIDDEN('Event not found or not owned by user')
 }
-

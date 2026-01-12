@@ -3,11 +3,11 @@ import { UI_TEXT } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
-  AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 
 const STORAGE_KEY = 'credit.coupleIntroDismissed.v1'
@@ -41,7 +41,9 @@ export function IntroModal() {
           <AlertDialogTitle>{UI_TEXT.COUPLE_INTRO.TITLE}</AlertDialogTitle>
         </AlertDialogHeader>
 
-        <div className="text-sm text-muted-foreground">{UI_TEXT.COUPLE_INTRO.BODY}</div>
+        <div className="text-sm text-muted-foreground">
+          {UI_TEXT.COUPLE_INTRO.BODY}
+        </div>
 
         <AlertDialogFooter className="grid grid-cols-2">
           <AlertDialogCancel variant="ghost" onClick={dismiss}>
@@ -53,4 +55,3 @@ export function IntroModal() {
     </AlertDialog>
   )
 }
-

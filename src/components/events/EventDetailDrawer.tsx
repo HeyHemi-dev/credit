@@ -38,7 +38,8 @@ export function EventDetailDrawer({
   const suppliersQuery = useQuery({
     enabled: open && !!eventId,
     queryKey: ['eventSuppliers', eventId],
-    queryFn: async () => await getEventSuppliersFn({ data: { eventId: eventId! } }),
+    queryFn: async () =>
+      await getEventSuppliersFn({ data: { eventId: eventId! } }),
   })
 
   const deleteMutation = useMutation({
@@ -52,7 +53,7 @@ export function EventDetailDrawer({
     },
   })
 
-  const event = eventQuery.data as EventRow | undefined
+  const event = eventQuery.data
   const rows = suppliersQuery.data?.rows ?? []
 
   const instagramText = React.useMemo(() => {
@@ -83,70 +84,77 @@ export function EventDetailDrawer({
             <AlertDialogTitle>{event?.eventName ?? 'Event'}</AlertDialogTitle>
           </AlertDialogHeader>
 
-        {eventQuery.isLoading || suppliersQuery.isLoading ? (
-          <div className="text-sm text-muted-foreground">Loading…</div>
-        ) : eventQuery.isError || suppliersQuery.isError ? (
-          <div className="text-sm text-destructive">Couldn’t load event.</div>
-        ) : (
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <div className="flex gap-2">
-                <Button onClick={() => copy(instagramText)} disabled={!rows.length}>
-                  Copy for Instagram
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => copy(emailText)}
-                  disabled={!rows.length}
-                >
-                  Copy email list
-                </Button>
+          {eventQuery.isLoading || suppliersQuery.isLoading ? (
+            <div className="text-sm text-muted-foreground">Loading…</div>
+          ) : eventQuery.isError || suppliersQuery.isError ? (
+            <div className="text-sm text-destructive">Couldn’t load event.</div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => copy(instagramText)}
+                    disabled={!rows.length}
+                  >
+                    Copy for Instagram
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => copy(emailText)}
+                    disabled={!rows.length}
+                  >
+                    Copy email list
+                  </Button>
+                </div>
+                <Card size="sm">
+                  <CardContent className="whitespace-pre-wrap wrap-break-word text-sm">
+                    {instagramText || 'No suppliers yet.'}
+                  </CardContent>
+                </Card>
               </div>
-              <Card size="sm">
-                <CardContent className="whitespace-pre-wrap wrap-break-word text-sm">
-                  {instagramText || 'No suppliers yet.'}
-                </CardContent>
-              </Card>
-            </div>
 
-            <div className="grid gap-2">
-              <div className="text-sm font-medium">Suppliers</div>
-              {rows.length === 0 ? (
-                <div className="text-sm text-muted-foreground">None yet.</div>
-              ) : (
-                <div className="grid gap-2">
-                  {rows.map((r) => (
-                    <Card key={`${r.eventId}:${r.supplierId}`} size="sm">
-                      <CardContent className="grid gap-1">
-                        <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
-                          <div className="grid gap-1">
-                            <div className="font-medium">{r.supplier.name}</div>
-                            <div className="text-muted-foreground text-sm">
-                              {r.service}
-                              {r.supplier.instagramHandle
-                                ? ` • @${r.supplier.instagramHandle}`
-                                : ' • Missing IG'}
+              <div className="grid gap-2">
+                <div className="text-sm font-medium">Suppliers</div>
+                {rows.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">None yet.</div>
+                ) : (
+                  <div className="grid gap-2">
+                    {rows.map((r) => (
+                      <Card key={`${r.eventId}:${r.supplierId}`} size="sm">
+                        <CardContent className="grid gap-1">
+                          <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
+                            <div className="grid gap-1">
+                              <div className="font-medium">
+                                {r.supplier.name}
+                              </div>
+                              <div className="text-muted-foreground text-sm">
+                                {r.service}
+                                {r.supplier.instagramHandle
+                                  ? ` • @${r.supplier.instagramHandle}`
+                                  : ' • Missing IG'}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            <div className="grid gap-2 pt-2 border-t">
-              <div className="text-sm font-medium text-destructive">Danger zone</div>
-              <Button
-                variant="destructive"
-                onClick={() => setDeleteConfirmOpen(true)}
-              >
-                Delete event…
-              </Button>
+              <div className="grid gap-2 pt-2 border-t">
+                <div className="text-sm font-medium text-destructive">
+                  Danger zone
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                >
+                  Delete event…
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
           <AlertDialogFooter className="pt-2">
             <AlertDialogCancel variant="ghost">Close</AlertDialogCancel>
@@ -154,16 +162,14 @@ export function EventDetailDrawer({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
-      >
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete event?</AlertDialogTitle>
           </AlertDialogHeader>
           <div className="text-sm text-muted-foreground">
-            This deletes the event and its supplier links. Suppliers are not deleted.
+            This deletes the event and its supplier links. Suppliers are not
+            deleted.
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -179,4 +185,3 @@ export function EventDetailDrawer({
     </>
   )
 }
-
