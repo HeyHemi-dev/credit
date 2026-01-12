@@ -8,6 +8,7 @@
     "serve": "vite preview",
     "test": "vitest run",
     "lint": "eslint . --fix",
+    "db:probe": "tsx scripts/db-write-probe.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
     "db:push": "drizzle-kit push --config drizzle.config.ts",
