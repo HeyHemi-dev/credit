@@ -1,19 +1,17 @@
 import { createServerFn } from '@tanstack/react-start'
-
 import type { EventListItem } from '@/lib/types/front-end'
 import { SHARE_LINK } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
-import { createEventSchema } from '@/lib/types/validation-schema'
+import {
+  authUserIdSchema,
+  createEventSchema,
+} from '@/lib/types/validation-schema'
 import { createEvent, getEventsByUserId } from '@/db/queries/events'
-import { authUserId } from '@/lib/server/auth-client'
 
-export const listEventsFn = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<Array<EventListItem>> => {
-    const userId = await authUserId()
-    if (!userId) {
-      throw ERROR.NOT_AUTHENTICATED()
-    }
-    const events = await getEventsByUserId(userId)
+export const listEventsFn = createServerFn({ method: 'GET' })
+  .inputValidator(authUserIdSchema)
+  .handler(async ({ data }): Promise<Array<EventListItem>> => {
+    const events = await getEventsByUserId(data)
     return events.map((event) => ({
       id: event.id,
       eventName: event.eventName,
@@ -21,17 +19,11 @@ export const listEventsFn = createServerFn({ method: 'GET' }).handler(
       supplierCount: event.supplierCount,
       shareToken: event.shareToken,
     }))
-  },
-)
+  })
 
 export const createEventFn = createServerFn({ method: 'POST' })
   .inputValidator(createEventSchema)
   .handler(async ({ data }): Promise<EventListItem | void> => {
-    const userId = await authUserId()
-    if (!userId) {
-      throw ERROR.NOT_AUTHENTICATED()
-    }
-
     const eventId = crypto.randomUUID()
     const shareToken = crypto.randomUUID()
 
@@ -41,7 +33,7 @@ export const createEventFn = createServerFn({ method: 'POST' })
 
     const event = await createEvent({
       id: eventId,
-      createdByUserId: userId,
+      createdByUserId: data.authUserId,
       eventName: data.eventName,
       weddingDate: data.weddingDate,
       region: data.region,
