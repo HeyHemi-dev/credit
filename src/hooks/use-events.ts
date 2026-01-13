@@ -16,7 +16,7 @@ export function useEvents(userId: string) {
 
   const eventsQuery = useSuspenseQuery({
     queryKey: queryKeys.events(userId),
-    queryFn: async () => await listEvents(),
+    queryFn: async () => await listEvents({ data: userId }),
   })
 
   const eventsMutation = useMutation({
