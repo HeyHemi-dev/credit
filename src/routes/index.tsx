@@ -80,6 +80,12 @@ function EventList({ userId }: { userId: string }) {
           New event
         </Button>
       </div>
+
+      <CreateEventDrawer
+        authUserId={userId}
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+      />
       <EventDetailDrawer
         open={detailOpen}
         onOpenChange={(open) => {
@@ -87,11 +93,6 @@ function EventList({ userId }: { userId: string }) {
           if (!open) setSelectedEventId(null)
         }}
         eventId={selectedEventId}
-      />
-      <CreateEventDrawer
-        authUserId={userId}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
       />
     </Main>
   )
