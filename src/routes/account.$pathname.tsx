@@ -10,8 +10,8 @@ export const Route = createFileRoute('/account/$pathname')({
 function Account() {
   const { pathname } = Route.useParams()
   return (
-    <Main className="">
-      <Section className="flex-1">
+    <Main>
+      <Section>
         <div className="flex justify-start">
           <BackButton />
         </div>
