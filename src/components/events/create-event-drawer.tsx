@@ -27,7 +27,7 @@ export function CreateEventDrawer({
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={onOpenChange} modal={true}>
       <DrawerContent ref={containerRef}>
         <div className="flex justify-center">
           <div className="max-w-md grow">
