@@ -82,6 +82,11 @@ function SelectContent({
     container?: React.RefObject<HTMLDivElement | null>
   }) {
   return (
+    // Base UI Select portals to `document.body` by default.
+    // When used inside modal overlays (e.g. Radix Dialog),
+    // this causes the popup to be treated as "outside" the overlay,
+    // breaking pointer events and focus handling.
+    // Passing a container keeps the popup within the overlay's DOM subtree.
     <SelectPrimitive.Portal container={container}>
       <SelectPrimitive.Positioner
         side={side}
