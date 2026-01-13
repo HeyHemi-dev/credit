@@ -1,73 +1,48 @@
-import {
-  HeadContent,
-  Scripts,
-  createRootRoute,
-  useRouterState,
-} from '@tanstack/react-router'
+/// <reference types="vite/client" />
+
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { NeonAuthUIProvider } from '@neondatabase/neon-js/auth/react'
-import { authClient } from '../auth'
+import { authClient } from '@/auth'
 
-import appCss from '../styles.css?url'
+import appCss from '@/styles.css?url'
 import { Header } from '@/components/header'
-import { SHARE_LINK } from '@/lib/constants'
 
 export const Route = createRootRoute({
+  ssr: false,
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'TanStack Start Starter',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Give Credit' },
     ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-    ],
+    links: [{ rel: 'stylesheet', href: appCss }],
   }),
 
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const isCoupleView = pathname.startsWith(SHARE_LINK.PATH_PREFIX)
-
   return (
-    <NeonAuthUIProvider
-      authClient={authClient}
-      social={{ providers: ['google'] }}
-      credentials={false}
-    >
+    <Providers>
       <html lang="en">
         <head>
           <HeadContent />
         </head>
+
         <body className="grid bg-muted text-foreground grid-cols-[auto_minmax(0,32rem)_auto]">
           <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen bg-muted p-1">
-            {!isCoupleView && (
-              <header className="py-4">
-                <Header />
-              </header>
-            )}
+            <header className="py-4">
+              <Header />
+            </header>
 
             {children}
 
             <footer></footer>
           </div>
           <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
+            config={{ position: 'bottom-right' }}
             plugins={[
               {
                 name: 'Tanstack Router',
@@ -78,6 +53,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Scripts />
         </body>
       </html>
+    </Providers>
+  )
+}
+
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <NeonAuthUIProvider
+      authClient={authClient}
+      social={{ providers: ['google'] }}
+      credentials={false}
+    >
+      {children}
     </NeonAuthUIProvider>
   )
 }
