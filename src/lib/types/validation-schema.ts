@@ -2,6 +2,9 @@ import z from 'zod'
 import { REGIONS, SERVICES } from '@/lib/constants'
 import { optionalField } from '@/lib/empty-strings'
 
+export const authUserIdSchema = z.uuid()
+export type AuthUserId = z.infer<typeof authUserIdSchema>
+
 export const regionSchema = z.enum(REGIONS)
 export const serviceSchema = z.enum(SERVICES)
 
@@ -17,15 +20,16 @@ export const weddingDateSchema = z
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date')
 
 // Event
-
-export const createEventSchema = z.object({
+export const nullableRegionSchema = regionSchema.nullable()
+export const createEventFormSchema = z.object({
   eventName: eventNameSchema,
   weddingDate: weddingDateSchema,
-  region: regionSchema,
-})
-export type CreateEvent = z.infer<typeof createEventSchema>
-
-export const createEventFormSchema = createEventSchema.extend({
   region: optionalField(regionSchema),
 })
 export type CreateEventForm = z.infer<typeof createEventFormSchema>
+
+export const createEventSchema = createEventFormSchema.extend({
+  region: nullableRegionSchema,
+  authUserId: authUserIdSchema,
+})
+export type CreateEvent = z.infer<typeof createEventSchema>
