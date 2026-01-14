@@ -1,3 +1,6 @@
+/**
+ * common query keys for the app
+ */
 const queryKeys = {
   events: (userId: string) => ['events', userId] as const,
   eventSuppliers: (eventId: string) => ['eventSuppliers', eventId] as const,
@@ -8,4 +11,4 @@ const queryKeys = {
     ['supplierDedupe', shareToken, name, email] as const,
 }
 
-export default queryKeys
+export { queryKeys }
