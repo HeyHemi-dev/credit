@@ -34,10 +34,6 @@ function Dashboard() {
     return <EventListSkeleton />
   }
 
-  if (!isPending && !data) {
-    return <RedirectToSignIn />
-  }
-
   if (!data) {
     return <RedirectToSignIn />
   }
