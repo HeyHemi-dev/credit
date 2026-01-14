@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
-import { CalendarIcon } from 'lucide-react'
 import type { CreateEventForm } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
 import { FieldGroup } from '@/components/ui/field'
@@ -9,13 +8,6 @@ import {
   createEventFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
-import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import { useEvents } from '@/hooks/use-events'
 import { REGIONS } from '@/lib/constants'
 import {
@@ -27,6 +19,8 @@ import {
 } from '@/components/ui/select'
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
+import { DatePicker } from '@/components/ui/date-picker'
+import { formatDateToISODateString } from '@/lib/format-dates'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -74,7 +68,7 @@ export function CreateEventForm({
               <Input
                 id={field.name}
                 type="text"
-                placeholder="e.g. Pam & Jim's Wedding"
+                placeholder="e.g. Nick and Charlie wedding"
                 autoComplete="off"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
@@ -86,11 +80,15 @@ export function CreateEventForm({
           name="weddingDate"
           children={(field) => (
             <FormField field={field} label="Wedding Date">
-              <DateInput
+              <DatePicker
                 id={field.name}
-                name={field.name}
+                placeholder="Select date"
                 value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onValueChange={(date) => {
+                  field.handleChange(
+                    date ? formatDateToISODateString(date) : '',
+                  )
+                }}
                 containerRef={containerRef}
               />
             </FormField>
@@ -113,6 +111,9 @@ export function CreateEventForm({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent container={containerRef}>
+                  <SelectItem key="none" value="">
+                    None
+                  </SelectItem>
                   {REGIONS.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
@@ -132,103 +133,5 @@ export function CreateEventForm({
         </Button>
       </FieldGroup>
     </form>
-  )
-}
-
-function DateInputWebStandard({
-  className,
-  ...props
-}: React.ComponentProps<'input'>) {
-  return <Input type="date" {...props} className={className} />
-}
-
-function formatDate(date: Date | undefined) {
-  if (!date) {
-    return ''
-  }
-
-  return date.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-function isValidDate(date: Date | undefined) {
-  if (!date) {
-    return false
-  }
-  return !isNaN(date.getTime())
-}
-
-export function DateInput({
-  className,
-  type,
-  containerRef,
-  ...props
-}: React.ComponentProps<'input'> & {
-  containerRef?: React.RefObject<HTMLDivElement | null>
-}) {
-  const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
-  const [month, setMonth] = React.useState<Date | undefined>(date)
-  const [value, setValue] = React.useState(formatDate(date))
-
-  return (
-    <div className="relative flex gap-2">
-      <Input
-        {...props}
-        id="date"
-        value={value}
-        placeholder={formatDate(date)}
-        className={cn('bg-background pr-10', className)}
-        onChange={(e) => {
-          const dateValue = new Date(e.target.value)
-          setValue(e.target.value)
-          if (isValidDate(dateValue)) {
-            setDate(dateValue)
-            setMonth(dateValue)
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') {
-            e.preventDefault()
-            setOpen(true)
-          }
-        }}
-      />
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger>
-          <Button
-            id="date-picker"
-            variant="ghost"
-            className="absolute top-1/2 right-3.5 size-6 -translate-y-1/2"
-          >
-            <CalendarIcon className="size-3.5" />
-            <span className="sr-only">Select date</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-auto overflow-hidden p-0"
-          align="end"
-          alignOffset={-8}
-          sideOffset={10}
-          container={containerRef}
-        >
-          <Calendar
-            mode="single"
-            selected={date}
-            captionLayout="dropdown"
-            month={month}
-            onMonthChange={setMonth}
-            onSelect={(dateValue) => {
-              setDate(dateValue)
-              setValue(formatDate(dateValue))
-              setOpen(false)
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
   )
 }
