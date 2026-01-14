@@ -29,7 +29,7 @@ export const regionEnum = pgEnum('region', REGION)
 export const suppliers = pgTable(
   'suppliers',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
     instagramHandle: text('instagram_handle'),
@@ -49,7 +49,7 @@ export const suppliers = pgTable(
 export const events = pgTable(
   'events',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     createdByUserId: uuid('created_by_user_id')
       .notNull()
       .references(() => userInNeonAuth.id, { onDelete: 'cascade' }),
