@@ -38,9 +38,7 @@
 ## Route Structure
 
 ### Route Error Handling
-- Define `errorComponent` in route definitions
-- Error components should render within the same layout structure as the main component
-- Include retry buttons that call the `reset` function
+- Define `errorComponent` in route definitions import from `@/components/ui/route-error.ts`
 
 
 
