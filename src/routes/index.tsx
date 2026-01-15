@@ -1,8 +1,7 @@
-import { ErrorComponent, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react/ui'
-import type { ErrorComponentProps } from '@tanstack/react-router'
-
+import { RouteError } from '@/components/ui/route-error'
 import { Main, Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 import { CreateEventDrawer } from '@/components/events/create-event-drawer'
@@ -23,7 +22,7 @@ export const Route = createFileRoute('/')({
   ssr: false,
   component: Dashboard,
   errorComponent: ({ error, reset }) => (
-    <EventListError error={error} reset={reset} />
+    <RouteError error={error} reset={reset} />
   ),
 })
 
@@ -103,19 +102,6 @@ function EventListSkeleton() {
           <EventListItemSkeleton />
           <EventListItemSkeleton />
         </div>
-      </Section>
-    </Main>
-  )
-}
-
-function EventListError({ error, reset }: ErrorComponentProps) {
-  return (
-    <Main>
-      <Section>
-        <ErrorComponent error={error} />
-        <Button variant="outline" onClick={reset}>
-          Retry
-        </Button>
       </Section>
     </Main>
   )

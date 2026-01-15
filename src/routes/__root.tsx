@@ -8,6 +8,7 @@ import { authClient } from '@/auth'
 
 import appCss from '@/styles.css?url'
 import { Header } from '@/components/header'
+import { RouteError } from '@/components/ui/route-error'
 
 export const Route = createRootRoute({
   ssr: false,
@@ -19,7 +20,9 @@ export const Route = createRootRoute({
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
-
+  errorComponent: ({ error, reset }) => (
+    <RouteError error={error} reset={reset} />
+  ),
   shellComponent: RootDocument,
 })
 
