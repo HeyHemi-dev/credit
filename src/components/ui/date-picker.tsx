@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { InputDiv } from '@/components/ui/input'
-import { formatDate, parseISODateStringToDate } from '@/lib/format-dates'
+import { formatDate, parseDrizzleDateStringToDate } from '@/lib/format-dates'
 
 type DatePickerProps = {
   id: string
@@ -32,7 +32,7 @@ export function DatePicker({
   ...props
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
-  const parsedDate = value ? parseISODateStringToDate(value) : undefined
+  const parsedDate = value ? parseDrizzleDateStringToDate(value) : undefined
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -20,7 +20,7 @@ import {
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
-import { formatDateToISODateString } from '@/lib/format-dates'
+import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -86,7 +86,7 @@ export function CreateEventForm({
                 value={field.state.value}
                 onValueChange={(date) => {
                   field.handleChange(
-                    date ? formatDateToISODateString(date) : '',
+                    date ? formatDateToDrizzleDateString(date) : '',
                   )
                 }}
                 containerRef={containerRef}

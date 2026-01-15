@@ -3,7 +3,7 @@ import { weddingDateSchema } from '@/lib/types/validation-schema'
 /**
  * Parses YYYY-MM-DD date string to Date object.
  */
-export function parseISODateStringToDate(date: string) {
+export function parseDrizzleDateStringToDate(date: string) {
   const { data } = weddingDateSchema.safeParse(date)
   if (!data) return undefined
 
@@ -15,7 +15,7 @@ export function parseISODateStringToDate(date: string) {
 /**
  * Formats Date object to YYYY-MM-DD date string.
  */
-export function formatDateToISODateString(date: Date) {
+export function formatDateToDrizzleDateString(date: Date) {
   const year = date.getFullYear().toString().padStart(4, '0')
   const month = (date.getMonth() + 1).toString().padStart(2, '0')
   const day = date.getDate().toString().padStart(2, '0')
