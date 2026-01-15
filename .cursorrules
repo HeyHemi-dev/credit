@@ -1,0 +1,109 @@
+# Cursor Rules for Give Credit App
+
+
+
+## Code Organization
+
+### Hooks
+- Custom hooks should be in `src/hooks/`
+- Hooks should encapsulate query/mutation logic 
+
+### Server Functions
+- All server functions in `src/lib/server/`
+- Group by resource (e.g., `events.ts`, `suppliers.ts`)
+
+### Query Keys
+- Centralize in `src/hooks/query-keys.ts`
+- Use factory functions that accept parameters
+- Return typed tuples with `as const`
+
+
+
+## Type Organization
+
+### Validation Schemas
+- All Zod schemas live in `src/lib/types/validation-schema.ts` (Note: `@/lib/validation.ts` is depreciated.)
+- Separate form schemas from API schemas:
+  - Form schemas: `create{Resource}FormSchema` (e.g., `createEventFormSchema`)
+  - API schemas: `create{Resource}Schema` (extends form schema with additional fields like `authUserId` and overwrite optional fields to prevent empty strings sent to backend)
+- Use `.nullable()` for API schemas when converting empty strings to null
+
+### Front-End Types
+- All front-end types live in `src/lib/types/front-end.ts`
+- These types represent the data contracts between server functions and React components
+- Do not expose raw database types to the front end.
+
+
+
+## Route Structure
+
+### Route Error Handling
+- Define `errorComponent` in route definitions
+- Error components should render within the same layout structure as the main component
+- Include retry buttons that call the `reset` function
+
+
+
+## Form Handling
+
+### TanStack Form
+- Use `validators.onSubmit` pattern for form validation (not field-level validators)
+- Validation schemas should be imported from `@/lib/types/validation-schema.ts`
+- Use `optionalField()` from `@/lib/empty-strings` for optional form fields (allows empty strings)
+- Use `emptyStringToNull()` from `@/lib/empty-strings` when converting form values to API payloads for optional fields
+
+### Form Component Structure
+- **Separate form components from drawer/dialog containers**
+- Drawer components should be thin containers that encapsulate the drawer logic only.
+- Use `containerRef?: React.RefObject<HTMLDivElement | null>` for proper popover/select positioning within drawers
+
+
+
+## TanStack Query Patterns
+
+### Query Hooks
+- **Always use `useSuspenseQuery`** instead of `useQuery` for data fetching
+- Wrap components using suspense queries in `<React.Suspense>` boundaries, and create skeleton components that match the structure of the actual component
+- Centralize all query keys in `src/hooks/query-keys.ts` using factory functions
+
+
+
+## Server Functions
+
+### Structure
+- Use `createServerFn` from `@tanstack/react-start` with explicit HTTP method
+- **Always use `.inputValidator()`** to validate input data before handler execution
+- Return front-end types (from `@/lib/types/front-end.ts`) instead of raw database types with the **minimum fields required** for UI.
+- Transform database results to match front-end type contracts in the handler
+
+### Naming
+- List operations: `list{Resource}Fn` (e.g., `listEventsFn`)
+- Create operations: `create{Resource}Fn` (e.g., `createEventFn`)
+- Get single: `get{Resource}Fn` (e.g., `getEventFn`)
+- Update: `update{Resource}Fn`
+- Delete: `delete{Resource}Fn`
+
+
+
+## Authentication
+
+### Frontend Authentication
+- Use `authClient.useSession()` to check authentication status
+- Show `<RedirectToSignIn />` for unauthenticated users
+- Show skeleton loaders while session is pending (if auth is required)
+- **Temporary pattern**: Pass `userId` from `data.session.userId` to server functions that require authentication
+- Extract `userId` from session in components and pass it as `authUserId` to hooks and server functions
+
+### Backend Authentication (Temporary)
+- **⚠️ SECURITY NOTE**: Currently passing `authUserId` (userId) from frontend to backend for authentication
+- This is **insecure** and is a temporary solution while working on proper Neon Auth integration
+- Server functions should accept `authUserId` in their input validation schemas
+- Include `authUserId: authUserIdSchema` in API schemas (not form schemas)
+
+
+
+## Date Handling
+
+- Store dates as ISO date strings (YYYY-MM-DD) in the database
+- Use `formatDateToISODateString()` from `@/lib/format-dates` when converting Date objects to strings
+- Date picker components should accept and return Date objects, converting to/from ISO strings at form boundaries
