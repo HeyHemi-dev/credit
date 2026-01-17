@@ -1,3 +1,4 @@
+import * as React from 'react'
 import type { EventListItem } from '@/lib/types/front-end'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,10 +14,14 @@ export function EventListItem({
   event: EventListItem
   handleClick: (eventId: string) => void
 }) {
+  const [copied, setCopied] = React.useState(false)
+
   const copyLink = async (shareToken: string) => {
     if (isServer) return
     const url = `${window.location.origin}${SHARE_LINK.PATH_PREFIX}/${shareToken}`
     await navigator.clipboard.writeText(url)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
   }
 
   return (
@@ -43,7 +48,7 @@ export function EventListItem({
               void copyLink(event.shareToken)
             }}
           >
-            Copy link
+            {copied ? 'Copied' : 'Copy link'}
           </Button>
         </div>
       </CardContent>
