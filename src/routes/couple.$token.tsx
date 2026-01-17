@@ -8,6 +8,7 @@ import { SupplierList } from '@/components/couple/SupplierList'
 import { useCoupleEvent } from '@/hooks/use-couple'
 
 export const Route = createFileRoute('/couple/$token')({
+  ssr: false,
   component: CoupleEventRoute,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />

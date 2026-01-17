@@ -8,6 +8,7 @@ import { CreateSupplierForm } from '@/components/couple/create-supplier-form'
 import { useCoupleEvent } from '@/hooks/use-couple'
 
 export const Route = createFileRoute('/couple/$token/suppliers/new')({
+  ssr: false,
   component: CreateSupplierRoute,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
