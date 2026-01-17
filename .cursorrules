@@ -32,6 +32,7 @@
 - All front-end types live in `src/lib/types/front-end.ts`
 - These types represent the data contracts between server functions and React components
 - Do not expose raw database types to the front end.
+- Orchestrate composed types on the backend.
 
 
 
