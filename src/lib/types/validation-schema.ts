@@ -33,3 +33,15 @@ export const createEventSchema = createEventFormSchema.extend({
   authUserId: authUserIdSchema,
 })
 export type CreateEvent = z.infer<typeof createEventSchema>
+
+export const getEventSchema = z.object({
+  eventId: z.string().uuid(),
+  authUserId: authUserIdSchema,
+})
+export type GetEvent = z.infer<typeof getEventSchema>
+
+export const deleteEventSchema = z.object({
+  eventId: z.string().uuid(),
+  authUserId: authUserIdSchema,
+})
+export type DeleteEvent = z.infer<typeof deleteEventSchema>

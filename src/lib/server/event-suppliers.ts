@@ -5,6 +5,7 @@ import { AUTOSAVE, RATE_LIMITS } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { getEventByShareToken } from '@/db/queries/events'
 import { requireUserId } from '@/lib/server/auth'
+import type { CoupleEvent } from '@/lib/types/front-end'
 import {
   assertEventOwnedByUser,
   getEventSuppliersWithSupplier,
@@ -21,11 +22,26 @@ export const getEventSuppliersFn = createServerFn({ method: 'GET' })
       eventId: z.string().uuid(),
     }),
   )
-  .handler(async ({ request, data }) => {
+  .handler(async ({ request, data }): Promise<{ rows: CoupleEvent['rows'] }> => {
     const userId = await requireUserId(request)
     await assertEventOwnedByUser(data.eventId, userId)
     const rows = await getEventSuppliersWithSupplier(data.eventId)
-    return { rows }
+    return {
+      rows: rows.map((row) => ({
+        eventId: row.eventId,
+        supplierId: row.supplierId,
+        service: row.service,
+        contributionNotes: row.contributionNotes,
+        supplier: {
+          id: row.supplier.id,
+          name: row.supplier.name,
+          email: row.supplier.email,
+          instagramHandle: row.supplier.instagramHandle ?? null,
+          tiktokHandle: row.supplier.tiktokHandle ?? null,
+          region: row.supplier.region ?? null,
+        },
+      })),
+    }
   })
 
 export const getEventSuppliersForCoupleFn = createServerFn({ method: 'GET' })
@@ -34,11 +50,33 @@ export const getEventSuppliersForCoupleFn = createServerFn({ method: 'GET' })
       shareToken: z.string().trim().min(32),
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<CoupleEvent> => {
     const event = await getEventByShareToken(data.shareToken)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Invalid link')
     const rows = await getEventSuppliersWithSupplier(event.id)
-    return { event, rows }
+    return {
+      event: {
+        id: event.id,
+        eventName: event.eventName,
+        weddingDate: event.weddingDate,
+        region: event.region ?? null,
+        shareToken: event.shareToken,
+      },
+      rows: rows.map((row) => ({
+        eventId: row.eventId,
+        supplierId: row.supplierId,
+        service: row.service,
+        contributionNotes: row.contributionNotes,
+        supplier: {
+          id: row.supplier.id,
+          name: row.supplier.name,
+          email: row.supplier.email,
+          instagramHandle: row.supplier.instagramHandle ?? null,
+          tiktokHandle: row.supplier.tiktokHandle ?? null,
+          region: row.supplier.region ?? null,
+        },
+      })),
+    }
   })
 
 export const upsertEventSupplierForCoupleFn = createServerFn({ method: 'POST' })

@@ -1,11 +1,9 @@
 import * as React from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AsyncBatcher } from '@tanstack/pacer'
 import { Link } from '@tanstack/react-router'
 import { AUTOSAVE, SERVICE, SERVICE_KEYS, UI_TEXT } from '@/lib/constants'
-import { searchSuppliersForCoupleFn } from '@/lib/server/suppliers'
 import {
-  getEventSuppliersForCoupleFn,
   removeEventSupplierForCoupleFn,
   upsertEventSupplierForCoupleFn,
 } from '@/lib/server/event-suppliers'
@@ -19,10 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import type { SupplierSearchResult } from '@/lib/types/front-end'
+import { queryKeys } from '@/hooks/query-keys'
+import { useCoupleEvent } from '@/hooks/use-couple'
+import { useSupplierSearch } from '@/hooks/use-suppliers'
 
-type SupplierRow = Awaited<
-  ReturnType<typeof searchSuppliersForCoupleFn>
->[number]
+type SupplierRow = SupplierSearchResult
 
 export function SupplierList({ shareToken }: { shareToken: string }) {
   const queryClient = useQueryClient()
@@ -30,18 +30,8 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
   const [selectedSupplier, setSelectedSupplier] =
     React.useState<SupplierRow | null>(null)
 
-  const eventQuery = useQuery({
-    queryKey: ['coupleEvent', shareToken],
-    queryFn: async () =>
-      await getEventSuppliersForCoupleFn({ data: { shareToken } }),
-  })
-
-  const searchQuery = useQuery({
-    enabled: query.trim().length > 0,
-    queryKey: ['supplierSearch', shareToken, query],
-    queryFn: async () =>
-      await searchSuppliersForCoupleFn({ data: { shareToken, query } }),
-  })
+  const { coupleEventQuery } = useCoupleEvent(shareToken)
+  const { searchQuery } = useSupplierSearch(shareToken, query)
 
   const removeMutation = useMutation({
     mutationFn: async (supplierId: string) => {
@@ -49,7 +39,7 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['coupleEvent', shareToken],
+        queryKey: queryKeys.coupleEvent(shareToken),
       })
     },
   })
@@ -108,18 +98,7 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
     return () => window.clearInterval(id)
   }, [])
 
-  if (eventQuery.isLoading) {
-    return (
-      <div className="text-sm text-muted-foreground">Loading suppliers…</div>
-    )
-  }
-  if (eventQuery.isError) {
-    return (
-      <div className="text-sm text-destructive">Couldn’t load suppliers.</div>
-    )
-  }
-
-  const rows = eventQuery.data.rows
+  const rows = coupleEventQuery.data.rows
 
   return (
     <div className="grid gap-3">
@@ -199,7 +178,7 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
                   })
                   setSelectedSupplier(null)
                   void queryClient.invalidateQueries({
-                    queryKey: ['coupleEvent', shareToken],
+                    queryKey: queryKeys.coupleEvent(shareToken),
                   })
                 }}
               >

@@ -7,7 +7,7 @@ import { useServerFn } from '@tanstack/react-start'
 import type { CreateEvent } from '@/lib/types/validation-schema'
 import type { EventListItem } from '@/lib/types/front-end'
 import { queryKeys } from '@/hooks/query-keys'
-import { createEventFn, listEventsFn } from '@/lib/server/events'
+import { createEventFn, deleteEventFn, getEventFn, listEventsFn } from '@/lib/server/events'
 import { logger } from '@/lib/logger'
 
 /**
@@ -81,4 +81,33 @@ export function useEvents(userId: string) {
 /**
  * get/update/delete a single event
  */
-export function useEvent(eventId: string) {}
+export function useEvent(eventId: string, userId: string) {
+  const queryClient = useQueryClient()
+  const getEvent = useServerFn(getEventFn)
+  const deleteEvent = useServerFn(deleteEventFn)
+
+  const eventQuery = useSuspenseQuery({
+    queryKey: queryKeys.event(eventId),
+    queryFn: async () =>
+      await getEvent({ data: { eventId, authUserId: userId } }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await deleteEvent({ data: { eventId, authUserId: userId } })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.events(userId),
+      })
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.event(eventId),
+      })
+    },
+    onError: (error) => {
+      logger.error('useEvent.deleteEvent', { error })
+    },
+  })
+
+  return { eventQuery, deleteMutation }
+}

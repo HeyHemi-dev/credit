@@ -88,6 +88,7 @@ function EventList({ userId }: { userId: string }) {
           if (!open) setSelectedEventId(null)
         }}
         eventId={selectedEventId}
+        authUserId={userId}
       />
     </Main>
   )

@@ -26,3 +26,27 @@ export type SupplierSearchResult = {
   instagramHandle: string
   tiktokHandle: string
 }
+
+export type CoupleEvent = {
+  event: {
+    id: string
+    eventName: string
+    weddingDate: string
+    region: string | null
+    shareToken: string
+  }
+  rows: Array<{
+    eventId: string
+    supplierId: string
+    service: string
+    contributionNotes: string | null
+    supplier: {
+      id: string
+      name: string
+      email: string
+      instagramHandle: string | null
+      tiktokHandle: string | null
+      region: string | null
+    }
+  }>
+}

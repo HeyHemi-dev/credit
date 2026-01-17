@@ -11,15 +11,46 @@ import {
 } from '@/db/queries/suppliers'
 import { requireUserId } from '@/lib/server/auth'
 import { ERROR } from '@/lib/errors'
+import type { SupplierSearchResult } from '@/lib/types/front-end'
+
+function mapSupplierToSearchResult(
+  supplier: Awaited<ReturnType<typeof getSupplierByEmail>>,
+): SupplierSearchResult {
+  if (!supplier) {
+    return {
+      id: '',
+      name: '',
+      email: '',
+      region: '',
+      instagramHandle: '',
+      tiktokHandle: '',
+    }
+  }
+  return {
+    id: supplier.id,
+    name: supplier.name,
+    email: supplier.email,
+    region: supplier.region ?? '',
+    instagramHandle: supplier.instagramHandle ?? '',
+    tiktokHandle: supplier.tiktokHandle ?? '',
+  }
+}
+
+function mapSuppliersToSearchResults(
+  suppliers: Array<Awaited<ReturnType<typeof getSupplierByEmail>>>,
+): Array<SupplierSearchResult> {
+  return suppliers.map((supplier) => mapSupplierToSearchResult(supplier))
+}
 
 /**
  * Photographer-side supplier search (protected)
  */
 export const searchSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(supplierSearchInputSchema)
-  .handler(async ({ request, data }) => {
+  .handler(async ({ request, data }): Promise<Array<SupplierSearchResult>> => {
     await requireUserId(request)
-    return await searchSuppliers(data.query)
+    const suppliers = await searchSuppliers(data.query)
+    return mapSuppliersToSearchResults(suppliers)
   })
 
 /**
@@ -33,9 +64,10 @@ export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
       query: z.string().trim().min(1),
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
     // shareToken validity is checked at route level; keep this function generic.
-    return await searchSuppliers(data.query)
+    const suppliers = await searchSuppliers(data.query)
+    return mapSuppliersToSearchResults(suppliers)
   })
 
 /**
@@ -49,11 +81,11 @@ export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
       supplier: createSupplierInputSchema,
     }),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<SupplierSearchResult> => {
     const existing = await getSupplierByEmail(data.supplier.email)
-    if (existing) return existing
+    if (existing) return mapSupplierToSearchResult(existing)
 
-    return await createSupplier({
+    const supplier = await createSupplier({
       id: crypto.randomUUID(),
       name: data.supplier.name,
       email: data.supplier.email,
@@ -61,4 +93,6 @@ export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
       tiktokHandle: data.supplier.tiktokHandle,
       region: data.supplier.region,
     })
+
+    return mapSupplierToSearchResult(supplier)
   })

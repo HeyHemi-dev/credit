@@ -1,53 +1,56 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { getEventSuppliersForCoupleFn } from '@/lib/server/event-suppliers'
+import { RouteError } from '@/components/ui/route-error'
 import { Section } from '@/components/ui/section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { IntroModal } from '@/components/couple/IntroModal'
 import { SupplierList } from '@/components/couple/SupplierList'
+import { useCoupleEvent } from '@/hooks/use-couple'
 
 export const Route = createFileRoute('/couple/$token')({
-  component: CoupleEvent,
+  component: CoupleEventRoute,
+  errorComponent: ({ error, reset }) => (
+    <RouteError error={error} reset={reset} />
+  ),
 })
 
-function CoupleEvent() {
+function CoupleEventRoute() {
   const { token } = Route.useParams()
 
-  const dataQuery = useQuery({
-    queryKey: ['coupleEvent', token],
-    queryFn: async () => await getEventSuppliersForCoupleFn({ data: { shareToken: token } }),
-  })
+  return (
+    <React.Suspense fallback={<CoupleEventSkeleton />}>
+      <CoupleEvent token={token} />
+    </React.Suspense>
+  )
+}
+
+function CoupleEvent({ token }: { token: string }) {
+  const { coupleEventQuery } = useCoupleEvent(token)
+  const data = coupleEventQuery.data
 
   return (
     <Section className="py-6">
       <IntroModal />
+      <Card>
+        <CardHeader>
+          <CardTitle>{data.event.eventName}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2">
+          <SupplierList shareToken={token} />
+        </CardContent>
+      </Card>
+    </Section>
+  )
+}
 
-      {dataQuery.isLoading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Loading…</CardTitle>
-          </CardHeader>
-        </Card>
-      ) : dataQuery.isError ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Invalid link</CardTitle>
-          </CardHeader>
-          <CardContent className="text-muted-foreground">
-            This link doesn’t look right.
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>{dataQuery.data.event.eventName}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            <SupplierList shareToken={token} />
-          </CardContent>
-        </Card>
-      )}
+function CoupleEventSkeleton() {
+  return (
+    <Section className="py-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Loading…</CardTitle>
+        </CardHeader>
+      </Card>
     </Section>
   )
 }
