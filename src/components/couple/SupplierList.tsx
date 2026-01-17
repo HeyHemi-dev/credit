@@ -1,14 +1,13 @@
 import * as React from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { AsyncBatcher } from '@tanstack/pacer'
-import { Link } from '@tanstack/react-router'
+import type { SupplierSearchResult } from '@/lib/types/front-end'
 import { AUTOSAVE, SERVICE, SERVICE_KEYS, UI_TEXT } from '@/lib/constants'
 import {
   removeEventSupplierForCoupleFn,
   upsertEventSupplierForCoupleFn,
 } from '@/lib/server/event-suppliers'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
@@ -17,40 +16,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { SupplierSearchResult } from '@/lib/types/front-end'
-import { queryKeys } from '@/hooks/query-keys'
 import { useCoupleEvent } from '@/hooks/use-couple'
-import { useSupplierSearch } from '@/hooks/use-suppliers'
+import { SupplierSearchCombobox } from '@/components/couple/supplier-search-combobox'
 
 type SupplierRow = SupplierSearchResult
 
 export function SupplierList({ shareToken }: { shareToken: string }) {
-  const queryClient = useQueryClient()
-  const [query, setQuery] = React.useState('')
   const [selectedSupplier, setSelectedSupplier] =
     React.useState<SupplierRow | null>(null)
 
   const { coupleEventQuery } = useCoupleEvent(shareToken)
-  const { searchQuery } = useSupplierSearch(shareToken, query)
+  const eventId = coupleEventQuery.data.event.id
+  const [rows, setRows] = React.useState(coupleEventQuery.data.rows)
 
   const removeMutation = useMutation({
     mutationFn: async (supplierId: string) => {
-      await removeEventSupplierForCoupleFn({ data: { shareToken, supplierId } })
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.coupleEvent(shareToken),
+      await removeEventSupplierForCoupleFn({
+        data: { eventId, supplierId },
       })
+    },
+    onSuccess: (_data, supplierId) => {
+      setRows((prevRows) =>
+        prevRows.filter((row) => row.supplierId !== supplierId),
+      )
     },
   })
 
   const upsertOne = async (item: {
     supplierId: string
     service: string
-    contributionNotes: string | null
+    contributionNotes: string
   }) => {
     await upsertEventSupplierForCoupleFn({
-      data: { shareToken, item },
+      data: { eventId, item },
     })
   }
 
@@ -59,9 +57,9 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
       AsyncBatcher<{
         supplierId: string
         service: string
-        contributionNotes: string | null
+        contributionNotes: string
       }>
-    >()
+    >(null)
   if (!batcherRef.current) {
     batcherRef.current = new AsyncBatcher(
       async (items) => {
@@ -85,20 +83,23 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
   const enqueueSave = (item: {
     supplierId: string
     service: string
-    contributionNotes: string | null
+    contributionNotes: string
   }) => {
     setAutosaveState('saving')
-    batcherRef.current.addItem(item)
+    batcherRef.current?.addItem(item)
   }
 
   React.useEffect(() => {
+    setRows(coupleEventQuery.data.rows)
     const id = window.setInterval(() => {
       setAutosaveState('idle')
     }, AUTOSAVE.INTERVAL_MS)
     return () => window.clearInterval(id)
-  }, [])
+  }, [coupleEventQuery.data.rows])
 
-  const rows = coupleEventQuery.data.rows
+  const handleSupplierSelect = (supplier: SupplierRow) => {
+    setSelectedSupplier(supplier)
+  }
 
   return (
     <div className="grid gap-3">
@@ -110,54 +111,11 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
             : UI_TEXT.AUTOSAVE.SAVED}
       </div>
 
-      <div className="grid gap-2">
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search suppliers by name, email, Instagram, TikTok…"
-        />
-        {searchQuery.isFetching ? (
-          <div className="text-xs text-muted-foreground">Searching…</div>
-        ) : null}
-        {searchQuery.data?.length ? (
-          <Card size="sm">
-            <CardContent className="grid gap-2">
-              {searchQuery.data.slice(0, 6).map((s) => (
-                <button
-                  key={s.id}
-                  className="text-left rounded-xl border px-3 py-2 hover:bg-muted/30"
-                  onClick={() => {
-                    setSelectedSupplier(s)
-                    setQuery('')
-                    searchQuery.remove()
-                  }}
-                >
-                  <div className="font-medium">{s.name}</div>
-                  <div className="text-xs text-muted-foreground">{s.email}</div>
-                </button>
-              ))}
-              <Link
-                to="/couple/$token/suppliers/new"
-                params={{ token: shareToken }}
-                className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
-              >
-                Create a new supplier
-              </Link>
-            </CardContent>
-          </Card>
-        ) : query.trim().length > 0 && !searchQuery.isFetching ? (
-          <div className="text-xs text-muted-foreground">
-            No results.{' '}
-            <Link
-              to="/couple/$token/suppliers/new"
-              params={{ token: shareToken }}
-              className="underline underline-offset-4"
-            >
-              Create a new supplier
-            </Link>
-          </div>
-        ) : null}
-      </div>
+      <SupplierSearchCombobox
+        eventId={eventId}
+        shareToken={shareToken}
+        onSupplierSelect={handleSupplierSelect}
+      />
 
       {selectedSupplier ? (
         <Card size="sm">
@@ -171,19 +129,35 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
               <Select
                 value=""
                 onValueChange={(service) => {
+                  if (!service) return
                   enqueueSave({
                     supplierId: selectedSupplier.id,
                     service,
-                    contributionNotes: null,
+                    contributionNotes: '',
                   })
+                  setRows((prevRows) => [
+                    ...prevRows,
+                    {
+                      eventId,
+                      supplierId: selectedSupplier.id,
+                      service,
+                      contributionNotes: '',
+                      supplier: {
+                        id: selectedSupplier.id,
+                        name: selectedSupplier.name,
+                        email: selectedSupplier.email,
+                        instagramHandle:
+                          selectedSupplier.instagramHandle || null,
+                        tiktokHandle: selectedSupplier.tiktokHandle || null,
+                        region: selectedSupplier.region || null,
+                      },
+                    },
+                  ])
                   setSelectedSupplier(null)
-                  void queryClient.invalidateQueries({
-                    queryKey: queryKeys.coupleEvent(shareToken),
-                  })
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select service" />
+                  <SelectValue>Select service</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {SERVICE_KEYS.map((key) => (

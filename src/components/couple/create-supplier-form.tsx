@@ -47,12 +47,12 @@ const defaultValues: CreateSupplierFormValues = {
 }
 
 export function CreateSupplierForm({
-  shareToken,
+  eventId,
   containerRef,
   defaultRegion,
   onComplete,
 }: {
-  shareToken: string
+  eventId: string
   containerRef?: React.RefObject<HTMLDivElement | null>
   defaultRegion?: string | null
   onComplete: () => void
@@ -60,7 +60,7 @@ export function CreateSupplierForm({
   const [step, setStep] = React.useState<'form' | 'dedupe'>('form')
   const searchSuppliers = useServerFn(searchSuppliersForCoupleFn)
   const { createMutation, attachExistingMutation } =
-    useCreateSupplierForCouple(shareToken)
+    useCreateSupplierForCouple(eventId)
 
   const form = useForm({
     defaultValues,
@@ -80,7 +80,7 @@ export function CreateSupplierForm({
 
   const dedupeQuery = useSuspenseQuery({
     queryKey: queryKeys.supplierDedupe(
-      shareToken,
+      eventId,
       form.state.values.name,
       form.state.values.email,
     ),
@@ -88,7 +88,7 @@ export function CreateSupplierForm({
       if (step !== 'dedupe') return []
       const q = form.state.values.name.trim() || form.state.values.email.trim()
       if (!q) return []
-      return await searchSuppliers({ data: { shareToken, query: q } })
+      return await searchSuppliers({ data: { eventId, query: q } })
     },
   })
 

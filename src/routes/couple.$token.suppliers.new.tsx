@@ -47,7 +47,7 @@ function CreateSupplier({ token }: { token: string }) {
           <CardContent className="grid gap-3">
             <div ref={containerRef}>
               <CreateSupplierForm
-                shareToken={token}
+                eventId={coupleEventQuery.data.event.id}
                 containerRef={containerRef}
                 defaultRegion={coupleEventQuery.data.event.region}
                 onComplete={() =>

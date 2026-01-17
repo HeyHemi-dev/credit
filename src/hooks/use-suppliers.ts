@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
 import { queryKeys } from '@/hooks/query-keys'
 import {
@@ -13,23 +9,23 @@ import {
   searchSuppliersForCoupleFn,
 } from '@/lib/server/suppliers'
 
-export function useSupplierSearch(shareToken: string, query: string) {
+export function useSupplierSearch(eventId: string, query: string) {
   const searchSuppliers = useServerFn(searchSuppliersForCoupleFn)
 
-  const searchQuery = useSuspenseQuery({
-    queryKey: queryKeys.supplierSearch(shareToken, query),
+  const searchQuery = useQuery({
+    queryKey: queryKeys.supplierSearch(eventId, query),
     queryFn: async () => {
       const trimmed = query.trim()
       if (!trimmed) return []
-      return await searchSuppliers({ data: { shareToken, query: trimmed } })
+      return await searchSuppliers({ data: { eventId, query: trimmed } })
     },
+    enabled: query.trim().length > 0,
   })
 
   return { searchQuery }
 }
 
-export function useCreateSupplierForCouple(shareToken: string) {
-  const queryClient = useQueryClient()
+export function useCreateSupplierForCouple(eventId: string) {
   const createSupplier = useServerFn(createSupplierForCoupleFn)
   const upsertEventSupplier = useServerFn(upsertEventSupplierForCoupleFn)
 
@@ -46,14 +42,14 @@ export function useCreateSupplierForCouple(shareToken: string) {
     }) => {
       const supplier = await createSupplier({
         data: {
-          shareToken,
+          eventId,
           supplier: data.supplier,
         },
       })
 
       await upsertEventSupplier({
         data: {
-          shareToken,
+          eventId,
           item: {
             supplierId: supplier.id,
             service: data.service,
@@ -64,29 +60,19 @@ export function useCreateSupplierForCouple(shareToken: string) {
 
       return supplier
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.coupleEvent(shareToken),
-      })
-    },
   })
 
   const attachExistingMutation = useMutation({
     mutationFn: async (data: { supplierId: string; service: string }) => {
       await upsertEventSupplier({
         data: {
-          shareToken,
+          eventId,
           item: {
             supplierId: data.supplierId,
             service: data.service,
             contributionNotes: null,
           },
         },
-      })
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.coupleEvent(shareToken),
       })
     },
   })

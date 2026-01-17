@@ -6,10 +6,10 @@ const queryKeys = {
   event: (eventId: string) => ['event', eventId] as const,
   eventSuppliers: (eventId: string) => ['eventSuppliers', eventId] as const,
   coupleEvent: (shareToken: string) => ['coupleEvent', shareToken] as const,
-  supplierSearch: (shareToken: string, query: string) =>
-    ['supplierSearch', shareToken, query] as const,
-  supplierDedupe: (shareToken: string, name: string, email: string) =>
-    ['supplierDedupe', shareToken, name, email] as const,
+  supplierSearch: (eventId: string, query: string) =>
+    ['supplierSearch', eventId, query] as const,
+  supplierDedupe: (eventId: string, name: string, email: string) =>
+    ['supplierDedupe', eventId, name, email] as const,
 }
 
 export { queryKeys }

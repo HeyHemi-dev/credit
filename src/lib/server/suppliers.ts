@@ -54,30 +54,30 @@ export const searchSuppliersFn = createServerFn({ method: 'GET' })
   })
 
 /**
- * Couple-side supplier search (public, via share token)
- * V1: token is the only access control.
+ * Couple-side supplier search (public, via event ID)
+ * V1: event lookup happens at route level.
  */
 export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      shareToken: z.string().trim().min(32),
+      eventId: z.string().uuid(),
       query: z.string().trim().min(1),
     }),
   )
   .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
-    // shareToken validity is checked at route level; keep this function generic.
+    // eventId validity is checked at route level; keep this function generic.
     const suppliers = await searchSuppliers(data.query)
     return mapSuppliersToSearchResults(suppliers)
   })
 
 /**
- * Couple-side supplier create (public, via share token)
+ * Couple-side supplier create (public, via event ID)
  * If email already exists, returns existing supplier instead of failing.
  */
 export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      shareToken: z.string().trim().min(32),
+      eventId: z.string().uuid(),
       supplier: createSupplierInputSchema,
     }),
   )

@@ -62,7 +62,10 @@ function EventList({ userId }: { userId: string }) {
             <EventListItem
               key={event.id}
               event={event}
-              handleClick={setSelectedEventId}
+              handleClick={(eventId) => {
+                setSelectedEventId(eventId)
+                setDetailOpen(true)
+              }}
             />
           ))}
         </div>

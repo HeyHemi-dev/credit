@@ -82,26 +82,23 @@ export const getEventSuppliersForCoupleFn = createServerFn({ method: 'GET' })
 export const upsertEventSupplierForCoupleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      shareToken: z.string().trim().min(32),
+      eventId: z.string().uuid(),
       item: upsertEventSupplierInputSchema.omit({ eventId: true }),
     }),
   )
   .handler(async ({ data }) => {
-    const event = await getEventByShareToken(data.shareToken)
-    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Invalid link')
-
     // Guardrail: max new suppliers per event (counts junction rows, not global suppliers)
     const countRows = await db
       .select({ count: db.$count(eventSuppliers) })
       .from(eventSuppliers)
-      .where(eq(eventSuppliers.eventId, event.id))
+      .where(eq(eventSuppliers.eventId, data.eventId))
     const count = countRows[0]?.count ?? 0
     if (count >= RATE_LIMITS.MAX_NEW_SUPPLIERS_PER_EVENT) {
       throw ERROR.BUSINESS_RULE_VIOLATION('Too many suppliers for this event')
     }
 
     await upsertEventSupplier({
-      eventId: event.id,
+      eventId: data.eventId,
       supplierId: data.item.supplierId,
       service: data.item.service,
       contributionNotes: data.item.contributionNotes,
@@ -113,13 +110,11 @@ export const upsertEventSupplierForCoupleFn = createServerFn({ method: 'POST' })
 export const removeEventSupplierForCoupleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      shareToken: z.string().trim().min(32),
+      eventId: z.string().uuid(),
       supplierId: z.string().uuid(),
     }),
   )
   .handler(async ({ data }) => {
-    const event = await getEventByShareToken(data.shareToken)
-    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Invalid link')
-    await removeSupplierFromEvent(event.id, data.supplierId)
+    await removeSupplierFromEvent(data.eventId, data.supplierId)
     return { ok: true }
   })
