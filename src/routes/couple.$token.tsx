@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { RouteError } from '@/components/ui/route-error'
 import { Section } from '@/components/ui/section'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { IntroModal } from '@/components/couple/IntroModal'
+import { IntroModal } from '@/components/couple/Intro-modal'
 import { SupplierList } from '@/components/couple/SupplierList'
 import { useCoupleEvent } from '@/hooks/use-couple'
 
