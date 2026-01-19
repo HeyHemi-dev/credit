@@ -113,7 +113,6 @@ export function SupplierList({ shareToken }: { shareToken: string }) {
 
       <SupplierSearchCombobox
         eventId={eventId}
-        shareToken={shareToken}
         onSupplierSelect={handleSupplierSelect}
       />
 

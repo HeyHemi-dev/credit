@@ -25,7 +25,7 @@ export function useSupplierSearch(eventId: string, query: string) {
   return { searchQuery }
 }
 
-export function useCreateSupplierForCouple(eventId: string) {
+export function useCreateSupplierForCouple(eventId?: string) {
   const createSupplier = useServerFn(createSupplierForCoupleFn)
   const upsertEventSupplier = useServerFn(upsertEventSupplierForCoupleFn)
 
@@ -34,9 +34,9 @@ export function useCreateSupplierForCouple(eventId: string) {
       supplier: {
         name: string
         email: string
-        instagramHandle: string | null
-        tiktokHandle: string | null
-        region: string | null
+        instagramHandle: string
+        tiktokHandle: string
+        region: string
       }
       service: string
     }) => {
@@ -47,16 +47,18 @@ export function useCreateSupplierForCouple(eventId: string) {
         },
       })
 
-      await upsertEventSupplier({
-        data: {
-          eventId,
-          item: {
-            supplierId: supplier.id,
-            service: data.service,
-            contributionNotes: null,
+      if (eventId) {
+        await upsertEventSupplier({
+          data: {
+            eventId,
+            item: {
+              supplierId: supplier.id,
+              service: data.service,
+            contributionNotes: '',
+            },
           },
-        },
-      })
+        })
+      }
 
       return supplier
     },
@@ -64,13 +66,14 @@ export function useCreateSupplierForCouple(eventId: string) {
 
   const attachExistingMutation = useMutation({
     mutationFn: async (data: { supplierId: string; service: string }) => {
+      if (!eventId) return
       await upsertEventSupplier({
         data: {
           eventId,
           item: {
             supplierId: data.supplierId,
             service: data.service,
-            contributionNotes: null,
+            contributionNotes: '',
           },
         },
       })

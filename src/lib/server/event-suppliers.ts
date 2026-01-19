@@ -82,11 +82,14 @@ export const getEventSuppliersForCoupleFn = createServerFn({ method: 'GET' })
 export const upsertEventSupplierForCoupleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      eventId: z.string().uuid(),
+      eventId: z.string().uuid().optional(),
       item: upsertEventSupplierInputSchema.omit({ eventId: true }),
     }),
   )
   .handler(async ({ data }) => {
+    if (!data.eventId) {
+      return { ok: true, autosaveIntervalMs: AUTOSAVE.INTERVAL_MS }
+    }
     // Guardrail: max new suppliers per event (counts junction rows, not global suppliers)
     const countRows = await db
       .select({ count: db.$count(eventSuppliers) })

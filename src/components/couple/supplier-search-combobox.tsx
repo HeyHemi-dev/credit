@@ -15,13 +15,11 @@ import {
 
 type SupplierSearchComboboxProps = {
   eventId: string
-  shareToken: string
   onSupplierSelect: (supplier: SupplierSearchResult) => void
 }
 
 export function SupplierSearchCombobox({
   eventId,
-  shareToken,
   onSupplierSelect,
 }: SupplierSearchComboboxProps) {
   const [searchValue, setSearchValue] = React.useState('')
@@ -141,8 +139,8 @@ export function SupplierSearchCombobox({
         {searchResults.length > 0 && !searchQuery.isFetching ? (
           <div className="border-t px-3 py-2">
             <Link
-              to="/couple/$token/suppliers/new"
-              params={{ token: shareToken }}
+              to="/create-supplier"
+              search={{ eventId }}
               className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
             >
               Create a new supplier
@@ -152,8 +150,8 @@ export function SupplierSearchCombobox({
         <ComboboxEmpty>
           {trimmedSearchValue && !searchQuery.isFetching ? (
             <Link
-              to="/couple/$token/suppliers/new"
-              params={{ token: shareToken }}
+              to="/create-supplier"
+              search={{ eventId }}
               className="text-sm underline underline-offset-4 text-muted-foreground hover:text-foreground"
             >
               Create a new supplier

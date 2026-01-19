@@ -60,7 +60,7 @@ export const searchSuppliersFn = createServerFn({ method: 'GET' })
 export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      eventId: z.string().uuid(),
+      eventId: z.string().uuid().optional(),
       query: z.string().trim().min(1),
     }),
   )
@@ -77,7 +77,7 @@ export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
 export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
-      eventId: z.string().uuid(),
+      eventId: z.string().uuid().optional(),
       supplier: createSupplierInputSchema,
     }),
   )

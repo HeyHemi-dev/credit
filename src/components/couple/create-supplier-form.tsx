@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { Debouncer } from '@tanstack/pacer'
 import { useServerFn } from '@tanstack/react-start'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -19,7 +20,6 @@ import {
   createSupplierInputSchema,
   serviceSchema,
 } from '@/lib/validations'
-import { emptyStringToNull } from '@/lib/empty-strings'
 import { queryKeys } from '@/hooks/query-keys'
 import { searchSuppliersForCoupleFn } from '@/lib/server/suppliers'
 import { useCreateSupplierForCouple } from '@/hooks/use-suppliers'
@@ -52,15 +52,28 @@ export function CreateSupplierForm({
   defaultRegion,
   onComplete,
 }: {
-  eventId: string
+  eventId?: string
   containerRef?: React.RefObject<HTMLDivElement | null>
   defaultRegion?: string | null
   onComplete: () => void
 }) {
-  const [step, setStep] = React.useState<'form' | 'dedupe'>('form')
   const searchSuppliers = useServerFn(searchSuppliersForCoupleFn)
   const { createMutation, attachExistingMutation } =
     useCreateSupplierForCouple(eventId)
+  const [dedupeQueryValue, setDedupeQueryValue] = React.useState('')
+  const [hasDedupeQuery, setHasDedupeQuery] = React.useState(false)
+
+  const debouncerRef = React.useRef<Debouncer<(value: string) => void> | null>(
+    null,
+  )
+  if (!debouncerRef.current) {
+    debouncerRef.current = new Debouncer(
+      (value: string) => {
+        setDedupeQueryValue(value)
+      },
+      { wait: 300 },
+    )
+  }
 
   const form = useForm({
     defaultValues,
@@ -68,7 +81,7 @@ export function CreateSupplierForm({
       onSubmit: createSupplierFormSchema,
     },
     onSubmit: async () => {
-      setStep('dedupe')
+      handleCreate()
     },
   })
 
@@ -78,19 +91,36 @@ export function CreateSupplierForm({
     }
   }, [defaultRegion, form])
 
-  const dedupeQuery = useSuspenseQuery({
+  const dedupeQuery = useQuery({
     queryKey: queryKeys.supplierDedupe(
-      eventId,
       form.state.values.name,
       form.state.values.email,
     ),
     queryFn: async () => {
-      if (step !== 'dedupe') return []
-      const q = form.state.values.name.trim() || form.state.values.email.trim()
-      if (!q) return []
-      return await searchSuppliers({ data: { eventId, query: q } })
+      if (!dedupeQueryValue.trim()) return []
+      return await searchSuppliers({
+        data: { eventId, query: dedupeQueryValue.trim() },
+      })
     },
+    enabled: dedupeQueryValue.trim().length > 0,
   })
+
+  const dedupeResults = (dedupeQuery.data ?? []).slice(0, 3)
+  const showNoMatches =
+    hasDedupeQuery &&
+    !dedupeQuery.isFetching &&
+    dedupeResults.length === 0
+
+  const handleDedupeBlur = () => {
+    const q = form.state.values.name.trim() || form.state.values.email.trim()
+    if (!q) {
+      setHasDedupeQuery(false)
+      setDedupeQueryValue('')
+      return
+    }
+    setHasDedupeQuery(true)
+    debouncerRef.current?.maybeExecute(q)
+  }
 
   const handleCreate = () => {
     const values = form.state.values
@@ -99,9 +129,9 @@ export function CreateSupplierForm({
         supplier: {
           name: values.name.trim(),
           email: values.email.trim(),
-          instagramHandle: emptyStringToNull(values.instagramHandle),
-          tiktokHandle: emptyStringToNull(values.tiktokHandle),
-          region: emptyStringToNull(values.region),
+          instagramHandle: values.instagramHandle.trim(),
+          tiktokHandle: values.tiktokHandle.trim(),
+          region: values.region,
         },
         service: values.service,
       },
@@ -126,162 +156,148 @@ export function CreateSupplierForm({
       }}
     >
       <FieldGroup>
-        {step === 'form' ? (
-          <>
-            <form.Field
-              name="name"
-              children={(field) => (
-                <FormField field={field} label="Supplier name">
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                  />
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="name"
+          children={(field) => (
+            <FormField field={field} label="Supplier name">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                onBlur={handleDedupeBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
 
-            <form.Field
-              name="email"
-              children={(field) => (
-                <FormField field={field} label="Email">
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                  />
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="email"
+          children={(field) => (
+            <FormField field={field} label="Email">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                onBlur={handleDedupeBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
 
-            <form.Field
-              name="service"
-              children={(field) => (
-                <FormField field={field} label="Service">
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select service" />
-                    </SelectTrigger>
-                    <SelectContent container={containerRef}>
-                      {SERVICE_KEYS.map((key) => (
-                        <SelectItem key={key} value={SERVICE[key]}>
-                          {SERVICE[key]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="service"
+          children={(field) => (
+            <FormField field={field} label="Service">
+              <Select
+                value={field.state.value}
+                onValueChange={(value) => {
+                  if (!value) return
+                  field.handleChange(value)
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>Select service</SelectValue>
+                </SelectTrigger>
+                <SelectContent container={containerRef}>
+                  {SERVICE_KEYS.map((key) => (
+                    <SelectItem key={key} value={SERVICE[key]}>
+                      {SERVICE[key]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+          )}
+        />
 
-            <form.Field
-              name="instagramHandle"
-              children={(field) => (
-                <FormField field={field} label="Instagram handle (optional)">
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="@supplier"
-                  />
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="instagramHandle"
+          children={(field) => (
+            <FormField field={field} label="Instagram handle (optional)">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                placeholder="@supplier"
+              />
+            </FormField>
+          )}
+        />
 
-            <form.Field
-              name="tiktokHandle"
-              children={(field) => (
-                <FormField field={field} label="TikTok handle (optional)">
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onChange={(event) => field.handleChange(event.target.value)}
-                    placeholder="@supplier"
-                  />
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="tiktokHandle"
+          children={(field) => (
+            <FormField field={field} label="TikTok handle (optional)">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+                placeholder="@supplier"
+              />
+            </FormField>
+          )}
+        />
 
-            <form.Field
-              name="region"
-              children={(field) => (
-                <FormField field={field} label="Region (optional)">
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select region" />
-                    </SelectTrigger>
-                    <SelectContent container={containerRef}>
-                      {REGION_KEYS.map((key) => (
-                        <SelectItem key={key} value={REGION[key]}>
-                          {REGION[key]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              )}
-            />
+        <form.Field
+          name="region"
+          children={(field) => (
+            <FormField field={field} label="Region (optional)">
+              <Select
+                value={field.state.value}
+                onValueChange={(value) => {
+                  if (!value) return
+                  field.handleChange(value)
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>Select region</SelectValue>
+                </SelectTrigger>
+                <SelectContent container={containerRef}>
+                  {REGION_KEYS.map((key) => (
+                    <SelectItem key={key} value={REGION[key]}>
+                      {REGION[key]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+          )}
+        />
 
-            <Button
-              type="submit"
-              form="create-supplier-form"
-              disabled={form.state.isSubmitting}
-            >
-              Continue
-            </Button>
-          </>
-        ) : (
-          <>
+        {dedupeResults.length > 0 ? (
+          <div className="grid gap-2">
             <div className="text-sm text-muted-foreground">
               Did you mean one of these?
             </div>
-
-            {dedupeQuery.data?.length ? (
-              <div className="grid gap-2">
-                {dedupeQuery.data.slice(0, 6).map((supplier) => (
-                  <button
-                    key={supplier.id}
-                    className="text-left rounded-xl border px-3 py-2 hover:bg-muted/30"
-                    onClick={() => handleAttach(supplier.id)}
-                    type="button"
-                  >
-                    <div className="font-medium">{supplier.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {supplier.email}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <Card size="sm">
-                <CardContent className="text-sm text-muted-foreground">
-                  No close matches.
-                </CardContent>
-              </Card>
-            )}
-
-            <div className="grid gap-2 pt-2">
-              <Button
+            {dedupeResults.map((supplier) => (
+              <button
+                key={supplier.id}
+                className="text-left rounded-xl border px-3 py-2 hover:bg-muted/30"
+                onClick={() => handleAttach(supplier.id)}
                 type="button"
-                onClick={handleCreate}
-                disabled={createMutation.isPending}
               >
-                {createMutation.isPending
-                  ? 'Creating…'
-                  : 'No, create new supplier'}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setStep('form')}>
-                Back
-              </Button>
-            </div>
-          </>
-        )}
+                <div className="font-medium">{supplier.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {supplier.email}
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : showNoMatches ? (
+          <Card size="sm">
+            <CardContent className="text-sm text-muted-foreground">
+              No close matches.
+            </CardContent>
+          </Card>
+        ) : null}
+
+        <Button
+          type="submit"
+          form="create-supplier-form"
+          disabled={form.state.isSubmitting || createMutation.isPending}
+        >
+          {createMutation.isPending ? 'Creating…' : 'Create supplier'}
+        </Button>
 
         {createMutation.isError ? (
           <div className="text-sm text-destructive">
