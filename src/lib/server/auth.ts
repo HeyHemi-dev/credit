@@ -1,7 +1,7 @@
 import { createAuthClient } from '@neondatabase/neon-js/auth'
 import type { AuthToken } from '@/lib/types/validation-schema'
 import { ERROR } from '@/lib/errors'
-import { isValidSession, isValidShareToken } from '@/db/queries/auth'
+import { isValidShareToken } from '@/db/queries/auth'
 
 export async function isValidAuthToken(authToken: AuthToken) {
   console.log({ authToken })

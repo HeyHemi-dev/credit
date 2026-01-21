@@ -4,7 +4,7 @@ import z from 'zod'
 import { RouteError } from '@/components/ui/route-error'
 import { Main, Section } from '@/components/ui/section'
 
-import { IntroModal } from '@/components/couple/Intro-modal'
+import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useEventCredits } from '@/hooks/use-event-credit'
 import {
@@ -92,7 +92,7 @@ function CreditListSkeleton() {
   return (
     <Main>
       <Section>
-        <Skeleton className="w-full h-14" />
+        <Skeleton className="h-14 w-full" />
 
         <CreditListItemSkeleton />
         <CreditListItemSkeleton />
