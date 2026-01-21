@@ -3,6 +3,12 @@ import { db } from '@/db/connection'
 import { events, sessionInNeonAuth } from '@/db/schema'
 
 export async function isValidSession(sessionToken: string) {
+  const any = await db
+    .select()
+    .from(sessionInNeonAuth)
+    .where(eq(sessionInNeonAuth.token, sessionToken))
+  console.log({ any })
+
   const count = await db.$count(
     sessionInNeonAuth,
     and(

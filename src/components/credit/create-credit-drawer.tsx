@@ -31,7 +31,7 @@ export function CreateCreditDrawer({
       <DrawerContent ref={containerRef} className="">
         <div className="flex justify-center">
           <div className="max-w-md grow">
-            <DrawerHeader className="flex flex-row justify-between items-center">
+            <DrawerHeader className="flex flex-row items-center justify-between">
               <DrawerTitle>Add credit</DrawerTitle>
               <DrawerClose asChild>
                 <Button size={'icon-sm'} variant={'ghost'}>
@@ -44,7 +44,8 @@ export function CreateCreditDrawer({
               <CreateCreditForm
                 eventId={eventId}
                 shareToken={shareToken}
-                handleSubmit={() => setOpen(false)}
+                onSubmit={() => setOpen(false)}
+                onCancel={() => setOpen(false)}
                 containerRef={containerRef}
               />
             </DrawerFooter>

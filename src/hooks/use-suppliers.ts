@@ -1,23 +1,36 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useDebouncedState } from '@tanstack/react-pacer'
 import { useServerFn } from '@tanstack/react-start'
 import type { AuthToken, CreateSupplier } from '@/lib/types/validation-schema'
 import { queryKeys } from '@/hooks/query-keys'
 
 import { createSupplierFn, searchSuppliersFn } from '@/lib/server/suppliers'
 
-export function useSupplierSearch(eventId: string, query: string) {
+export function useSupplierSearch(eventId: string) {
   const searchSuppliers = useServerFn(searchSuppliersFn)
-  const trimmedQuery = query.trim()
+  const [searchTerm, setSearchTerm, debouncer] = useDebouncedState(
+    '',
+    {
+      wait: 300,
+    },
+    (state) => ({ isPending: state.isPending }),
+  )
+
+  const trimmedSearchTerm = searchTerm.trim()
 
   const searchQuery = useQuery({
-    queryKey: queryKeys.supplierSearch(eventId, trimmedQuery),
+    queryKey: queryKeys.supplierSearch(eventId, trimmedSearchTerm),
     queryFn: async () => {
-      return await searchSuppliers({ data: { query: trimmedQuery } })
+      return await searchSuppliers({ data: { query: trimmedSearchTerm } })
     },
-    enabled: trimmedQuery.length > 0,
+    enabled: trimmedSearchTerm.length > 0,
   })
 
-  return { searchQuery }
+  return {
+    searchQuery,
+    setSearchTerm,
+    isPending: debouncer.state.isPending || searchQuery.isFetching,
+  }
 }
 
 export function useCreateSupplier(authToken: AuthToken) {

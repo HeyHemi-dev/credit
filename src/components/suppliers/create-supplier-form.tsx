@@ -1,4 +1,7 @@
 import { useForm } from '@tanstack/react-form'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Alert02Icon } from '@hugeicons/core-free-icons'
+import { Card, CardContent } from '../ui/card'
 import type { SupplierSearchResult } from '@/lib/types/front-end'
 import type {
   AuthToken,
@@ -45,17 +48,18 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
       onSubmit: createSupplierFormSchema,
     },
 
-    onSubmit: () => {
-      const values = form.state.values
-      createMutation.mutate({
-        ...values,
-        region: emptyStringToNull(values.region),
+    onSubmit: async ({ value }) => {
+      await createMutation.mutateAsync({
+        ...value,
+        instagramHandle: emptyStringToNull(value.instagramHandle),
+        tiktokHandle: emptyStringToNull(value.tiktokHandle),
+        region: emptyStringToNull(value.region),
       })
       handleBack()
     },
   })
 
-  function handleAttach(supplierId: string) {
+  function handleDedupe(supplierId: string) {
     handleBack()
   }
 
@@ -135,7 +139,11 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               <Input
                 id={field.name}
                 value={field.state.value}
-                onChange={(event) => field.handleChange(event.target.value)}
+                onChange={(event) => {
+                  field.handleChange(
+                    normalizeInstagramInput(event.target.value),
+                  )
+                }}
                 placeholder="@supplier"
               />
             </FormField>
@@ -149,7 +157,9 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               <Input
                 id={field.name}
                 value={field.state.value}
-                onChange={(event) => field.handleChange(event.target.value)}
+                onChange={(event) =>
+                  field.handleChange(normalizeTiktokInput(event.target.value))
+                }
                 placeholder="@supplier"
               />
             </FormField>
@@ -159,7 +169,7 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         {dedupeCandidates.length > 0 && (
           <DedupeCandidates
             dedupeCandidates={dedupeCandidates}
-            onClick={handleAttach}
+            onClick={handleDedupe}
           />
         )}
       </FieldGroup>
@@ -173,9 +183,20 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         </Button>
       </div>
       {createMutation.error?.message && (
-        <div className="text-destructive">{createMutation.error.message}</div>
+        <FormErrorMessage message={createMutation.error.message} />
       )}
     </form>
+  )
+}
+
+function FormErrorMessage({ message }: { message: string }) {
+  return (
+    <Card className="bg-destructive/5 text-destructive ring-destructive/10">
+      <CardContent className="grid grid-cols-[auto_1fr] gap-2">
+        <HugeiconsIcon icon={Alert02Icon} className="size-4" />
+        <span>{message}</span>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -204,4 +225,24 @@ function DedupeCandidates({
       ))}
     </div>
   )
+}
+
+function normalizeInstagramInput(input: string) {
+  if (input.startsWith('https://www.instagram.com/')) {
+    input = input.replace('https://www.instagram.com/', '@')
+  }
+  if (input.endsWith('/')) {
+    input = input.slice(0, -1)
+  }
+  return input
+}
+
+function normalizeTiktokInput(input: string) {
+  if (input.startsWith('https://www.tiktok.com/')) {
+    input = input.replace('https://www.tiktok.com/', '@')
+  }
+  if (input.endsWith('/')) {
+    input = input.slice(0, -1)
+  }
+  return input
 }

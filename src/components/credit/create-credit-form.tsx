@@ -30,12 +30,14 @@ const defaultValues: CreateEventCreditForm = {
 export function CreateCreditForm({
   eventId,
   shareToken,
-  handleSubmit,
+  onSubmit,
+  onCancel,
   containerRef,
 }: {
   eventId: string
   shareToken: string
-  handleSubmit: () => void
+  onSubmit: () => void
+  onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
   const { CreateCreditMutation } = useEventCredits(eventId, shareToken)
@@ -51,7 +53,7 @@ export function CreateCreditForm({
         supplierId: value.supplierId,
         contributionNotes: value.contributionNotes,
       })
-      handleSubmit()
+      onSubmit()
     },
   })
 
@@ -64,7 +66,7 @@ export function CreateCreditForm({
       }}
       className="grid gap-9"
     >
-      <FieldGroup className="grid gap-6 ">
+      <FieldGroup className="grid gap-6">
         <form.Field
           name="service"
           children={(field) => (
@@ -98,6 +100,7 @@ export function CreateCreditForm({
           children={(field) => (
             <FormField field={field} label="Supplier" isRequired={true}>
               <SupplierSearchCombobox
+                shareToken={shareToken}
                 eventId={eventId}
                 handleChange={(supplierId) => field.handleChange(supplierId)}
                 containerRef={containerRef}
@@ -126,14 +129,23 @@ export function CreateCreditForm({
         />
       </FieldGroup>
 
-      <Button
-        type="submit"
-        form="create-event-credit-form"
-        disabled={form.state.isSubmitting}
-        className="place-self-end"
-      >
-        Add credit
-      </Button>
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => onCancel()}
+          disabled={form.state.isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="create-event-credit-form"
+          disabled={form.state.isSubmitting}
+        >
+          Add credit
+        </Button>
+      </div>
     </form>
   )
 }

@@ -5,6 +5,7 @@ import {
   createEventCreditSchema,
   deleteEventCreditSchema,
   getEventCreditsSchema,
+  shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import { getEventById } from '@/db/queries/events'
 import { ERROR } from '@/lib/errors'
@@ -18,7 +19,9 @@ import { getSupplierById } from '@/db/queries/suppliers'
 export const getEventCreditsFn = createServerFn({
   method: 'GET',
 })
-  .inputValidator(getEventCreditsSchema)
+  .inputValidator(
+    getEventCreditsSchema.extend({ shareToken: shareTokenSchema }),
+  )
   .handler(async ({ data }): Promise<EventCreditPage> => {
     // get event
 
@@ -47,7 +50,9 @@ export const getEventCreditsFn = createServerFn({
   })
 
 export const createEventCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(createEventCreditSchema)
+  .inputValidator(
+    createEventCreditSchema.extend({ shareToken: shareTokenSchema }),
+  )
   .handler(async ({ data }): Promise<EventSupplier> => {
     // check event and supplier exists
     const [event, supplier] = await Promise.all([
@@ -80,8 +85,15 @@ export const createEventCreditFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteEventCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteEventCreditSchema)
+  .inputValidator(
+    deleteEventCreditSchema.extend({ shareToken: shareTokenSchema }),
+  )
   .handler(async ({ data }): Promise<void> => {
+    const event = await getEventById(data.eventId)
+    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+    if (event.shareToken !== data.shareToken)
+      throw ERROR.FORBIDDEN('Share token mismatch')
+
     // delete eventSupplier
     await deleteEventSupplier(data.eventId, data.supplierId)
 

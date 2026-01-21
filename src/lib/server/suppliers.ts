@@ -13,7 +13,7 @@ import {
   searchSuppliers,
 } from '@/db/queries/suppliers'
 import { nullToEmptyString } from '@/lib/empty-strings'
-import { isValidAuthToken } from '@/lib/server/auth'
+import { authClient, isValidAuthToken } from '@/lib/server/auth'
 
 /**
  * Photographer-side supplier search (protected)
@@ -50,7 +50,9 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }): Promise<SupplierSearchResult> => {
-    await isValidAuthToken(data.authToken)
+    const session = await authClient.getSession()
+    console.log({ session })
+    const isValid = await isValidAuthToken(data.authToken)
 
     const supplier = await createSupplier({
       name: data.name,
