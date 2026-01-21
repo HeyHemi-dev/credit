@@ -1,84 +1,37 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useServerFn } from '@tanstack/react-start'
+import type { AuthToken, CreateSupplier } from '@/lib/types/validation-schema'
 import { queryKeys } from '@/hooks/query-keys'
-import {
-  upsertEventSupplierForCoupleFn,
-} from '@/lib/server/event-suppliers'
-import {
-  createSupplierForCoupleFn,
-  searchSuppliersForCoupleFn,
-} from '@/lib/server/suppliers'
+
+import { createSupplierFn, searchSuppliersFn } from '@/lib/server/suppliers'
 
 export function useSupplierSearch(eventId: string, query: string) {
-  const searchSuppliers = useServerFn(searchSuppliersForCoupleFn)
+  const searchSuppliers = useServerFn(searchSuppliersFn)
+  const trimmedQuery = query.trim()
 
   const searchQuery = useQuery({
-    queryKey: queryKeys.supplierSearch(eventId, query),
+    queryKey: queryKeys.supplierSearch(eventId, trimmedQuery),
     queryFn: async () => {
-      const trimmed = query.trim()
-      if (!trimmed) return []
-      return await searchSuppliers({ data: { eventId, query: trimmed } })
+      return await searchSuppliers({ data: { query: trimmedQuery } })
     },
-    enabled: query.trim().length > 0,
+    enabled: trimmedQuery.length > 0,
   })
 
   return { searchQuery }
 }
 
-export function useCreateSupplierForCouple(eventId?: string) {
-  const createSupplier = useServerFn(createSupplierForCoupleFn)
-  const upsertEventSupplier = useServerFn(upsertEventSupplierForCoupleFn)
+export function useCreateSupplier(authToken: AuthToken) {
+  const createSupplier = useServerFn(createSupplierFn)
 
   const createMutation = useMutation({
-    mutationFn: async (data: {
-      supplier: {
-        name: string
-        email: string
-        instagramHandle: string
-        tiktokHandle: string
-        region: string
-      }
-      service: string
-    }) => {
+    mutationFn: async (data: CreateSupplier) => {
       const supplier = await createSupplier({
-        data: {
-          eventId,
-          supplier: data.supplier,
-        },
+        data: { ...data, authToken },
       })
-
-      if (eventId) {
-        await upsertEventSupplier({
-          data: {
-            eventId,
-            item: {
-              supplierId: supplier.id,
-              service: data.service,
-            contributionNotes: '',
-            },
-          },
-        })
-      }
 
       return supplier
     },
   })
 
-  const attachExistingMutation = useMutation({
-    mutationFn: async (data: { supplierId: string; service: string }) => {
-      if (!eventId) return
-      await upsertEventSupplier({
-        data: {
-          eventId,
-          item: {
-            supplierId: data.supplierId,
-            service: data.service,
-            contributionNotes: '',
-          },
-        },
-      })
-    },
-  })
-
-  return { createMutation, attachExistingMutation }
+  return { createMutation }
 }

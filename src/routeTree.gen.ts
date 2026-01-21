@@ -9,20 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CreateSupplierRouteImport } from './routes/create-supplier'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CoupleTokenRouteImport } from './routes/couple.$token'
+import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
+import { Route as EEventIdRouteImport } from './routes/e.$eventId'
 import { Route as AuthPathnameRouteImport } from './routes/auth.$pathname'
 import { Route as AccountPathnameRouteImport } from './routes/account.$pathname'
-import { Route as CoupleTokenSuppliersNewRouteImport } from './routes/couple.$token.suppliers.new'
 
+const CreateSupplierRoute = CreateSupplierRouteImport.update({
+  id: '/create-supplier',
+  path: '/create-supplier',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoupleTokenRoute = CoupleTokenRouteImport.update({
-  id: '/couple/$token',
-  path: '/couple/$token',
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EEventIdRoute = EEventIdRouteImport.update({
+  id: '/e/$eventId',
+  path: '/e/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthPathnameRoute = AuthPathnameRouteImport.update({
@@ -35,67 +46,77 @@ const AccountPathnameRoute = AccountPathnameRouteImport.update({
   path: '/account/$pathname',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoupleTokenSuppliersNewRoute = CoupleTokenSuppliersNewRouteImport.update({
-  id: '/suppliers/new',
-  path: '/suppliers/new',
-  getParentRoute: () => CoupleTokenRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/create-supplier': typeof CreateSupplierRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
-  '/couple/$token': typeof CoupleTokenRouteWithChildren
-  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
+  '/e/$eventId': typeof EEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/create-supplier': typeof CreateSupplierRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
-  '/couple/$token': typeof CoupleTokenRouteWithChildren
-  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
+  '/e/$eventId': typeof EEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/create-supplier': typeof CreateSupplierRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
-  '/couple/$token': typeof CoupleTokenRouteWithChildren
-  '/couple/$token/suppliers/new': typeof CoupleTokenSuppliersNewRoute
+  '/e/$eventId': typeof EEventIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/create-supplier'
     | '/account/$pathname'
     | '/auth/$pathname'
-    | '/couple/$token'
-    | '/couple/$token/suppliers/new'
+    | '/e/$eventId'
+    | '/events/$eventId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/create-supplier'
     | '/account/$pathname'
     | '/auth/$pathname'
-    | '/couple/$token'
-    | '/couple/$token/suppliers/new'
+    | '/e/$eventId'
+    | '/events/$eventId'
   id:
     | '__root__'
     | '/'
+    | '/create-supplier'
     | '/account/$pathname'
     | '/auth/$pathname'
-    | '/couple/$token'
-    | '/couple/$token/suppliers/new'
+    | '/e/$eventId'
+    | '/events/$eventId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CreateSupplierRoute: typeof CreateSupplierRoute
   AccountPathnameRoute: typeof AccountPathnameRoute
   AuthPathnameRoute: typeof AuthPathnameRoute
-  CoupleTokenRoute: typeof CoupleTokenRouteWithChildren
+  EEventIdRoute: typeof EEventIdRoute
+  EventsEventIdRoute: typeof EventsEventIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/create-supplier': {
+      id: '/create-supplier'
+      path: '/create-supplier'
+      fullPath: '/create-supplier'
+      preLoaderRoute: typeof CreateSupplierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -103,11 +124,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/couple/$token': {
-      id: '/couple/$token'
-      path: '/couple/$token'
-      fullPath: '/couple/$token'
-      preLoaderRoute: typeof CoupleTokenRouteImport
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e/$eventId': {
+      id: '/e/$eventId'
+      path: '/e/$eventId'
+      fullPath: '/e/$eventId'
+      preLoaderRoute: typeof EEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/$pathname': {
@@ -124,33 +152,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountPathnameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/couple/$token/suppliers/new': {
-      id: '/couple/$token/suppliers/new'
-      path: '/suppliers/new'
-      fullPath: '/couple/$token/suppliers/new'
-      preLoaderRoute: typeof CoupleTokenSuppliersNewRouteImport
-      parentRoute: typeof CoupleTokenRoute
-    }
   }
 }
 
-interface CoupleTokenRouteChildren {
-  CoupleTokenSuppliersNewRoute: typeof CoupleTokenSuppliersNewRoute
-}
-
-const CoupleTokenRouteChildren: CoupleTokenRouteChildren = {
-  CoupleTokenSuppliersNewRoute: CoupleTokenSuppliersNewRoute,
-}
-
-const CoupleTokenRouteWithChildren = CoupleTokenRoute._addFileChildren(
-  CoupleTokenRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CreateSupplierRoute: CreateSupplierRoute,
   AccountPathnameRoute: AccountPathnameRoute,
   AuthPathnameRoute: AuthPathnameRoute,
-  CoupleTokenRoute: CoupleTokenRouteWithChildren,
+  EEventIdRoute: EEventIdRoute,
+  EventsEventIdRoute: EventsEventIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

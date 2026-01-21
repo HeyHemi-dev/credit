@@ -1,72 +1,41 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import type { SupplierSearchResult } from '@/lib/types/front-end'
+import type { SupplierRow } from '@/db/queries/suppliers'
+import { supplierSearchInputSchema } from '@/lib/validations'
 import {
-  createSupplierInputSchema,
-  supplierSearchInputSchema,
-} from '@/lib/validations'
+  authTokenSchema,
+  createSupplierSchema,
+  dedupeSuppliersSchema,
+} from '@/lib/types/validation-schema'
 import {
   createSupplier,
-  getSupplierByEmail,
+  findSupplierDedupeCandidates,
   searchSuppliers,
 } from '@/db/queries/suppliers'
-import { requireUserId } from '@/lib/server/auth'
-import { ERROR } from '@/lib/errors'
-import type { SupplierSearchResult } from '@/lib/types/front-end'
-
-function mapSupplierToSearchResult(
-  supplier: Awaited<ReturnType<typeof getSupplierByEmail>>,
-): SupplierSearchResult {
-  if (!supplier) {
-    return {
-      id: '',
-      name: '',
-      email: '',
-      region: '',
-      instagramHandle: '',
-      tiktokHandle: '',
-    }
-  }
-  return {
-    id: supplier.id,
-    name: supplier.name,
-    email: supplier.email,
-    region: supplier.region ?? '',
-    instagramHandle: supplier.instagramHandle ?? '',
-    tiktokHandle: supplier.tiktokHandle ?? '',
-  }
-}
-
-function mapSuppliersToSearchResults(
-  suppliers: Array<Awaited<ReturnType<typeof getSupplierByEmail>>>,
-): Array<SupplierSearchResult> {
-  return suppliers.map((supplier) => mapSupplierToSearchResult(supplier))
-}
+import { nullToEmptyString } from '@/lib/empty-strings'
+import { isValidAuthToken } from '@/lib/server/auth'
 
 /**
  * Photographer-side supplier search (protected)
  */
 export const searchSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(supplierSearchInputSchema)
-  .handler(async ({ request, data }): Promise<Array<SupplierSearchResult>> => {
-    await requireUserId(request)
+  .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
     const suppliers = await searchSuppliers(data.query)
     return mapSuppliersToSearchResults(suppliers)
   })
 
 /**
- * Couple-side supplier search (public, via event ID)
- * V1: event lookup happens at route level.
+ * Search for potential duplicate suppliers
  */
-export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
-  .inputValidator(
-    z.object({
-      eventId: z.string().uuid().optional(),
-      query: z.string().trim().min(1),
-    }),
-  )
+export const dedupeSuppliersFn = createServerFn({ method: 'GET' })
+  .inputValidator(dedupeSuppliersSchema)
   .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
     // eventId validity is checked at route level; keep this function generic.
-    const suppliers = await searchSuppliers(data.query)
+    const suppliers = await findSupplierDedupeCandidates({
+      email: data.email,
+      name: data.name,
+    })
     return mapSuppliersToSearchResults(suppliers)
   })
 
@@ -74,25 +43,41 @@ export const searchSuppliersForCoupleFn = createServerFn({ method: 'GET' })
  * Couple-side supplier create (public, via event ID)
  * If email already exists, returns existing supplier instead of failing.
  */
-export const createSupplierForCoupleFn = createServerFn({ method: 'POST' })
+export const createSupplierFn = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      eventId: z.string().uuid().optional(),
-      supplier: createSupplierInputSchema,
+    createSupplierSchema.extend({
+      authToken: authTokenSchema,
     }),
   )
   .handler(async ({ data }): Promise<SupplierSearchResult> => {
-    const existing = await getSupplierByEmail(data.supplier.email)
-    if (existing) return mapSupplierToSearchResult(existing)
+    await isValidAuthToken(data.authToken)
 
     const supplier = await createSupplier({
-      id: crypto.randomUUID(),
-      name: data.supplier.name,
-      email: data.supplier.email,
-      instagramHandle: data.supplier.instagramHandle,
-      tiktokHandle: data.supplier.tiktokHandle,
-      region: data.supplier.region,
+      name: data.name,
+      email: data.email,
+      instagramHandle: data.instagramHandle,
+      tiktokHandle: data.tiktokHandle,
+      region: data.region,
     })
 
     return mapSupplierToSearchResult(supplier)
   })
+
+function mapSupplierToSearchResult(
+  supplier: SupplierRow,
+): SupplierSearchResult {
+  return {
+    id: supplier.id,
+    name: supplier.name,
+    email: supplier.email,
+    region: nullToEmptyString(supplier.region),
+    instagramHandle: nullToEmptyString(supplier.instagramHandle),
+    tiktokHandle: nullToEmptyString(supplier.tiktokHandle),
+  }
+}
+
+function mapSuppliersToSearchResults(
+  suppliers: Array<SupplierRow>,
+): Array<SupplierSearchResult> {
+  return suppliers.map((supplier) => mapSupplierToSearchResult(supplier))
+}

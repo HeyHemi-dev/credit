@@ -9,7 +9,9 @@ import { REGION, SERVICE, SHARE_LINK, VALIDATION } from '@/lib/constants'
 export function normalizeHandle(input: string): string {
   return input.trim().replace(/^@+/, '').toLowerCase()
 }
-
+export function normalizeEmail(input: string): string {
+  return input.trim().toLowerCase()
+}
 /**
  * Shared primitives
  */

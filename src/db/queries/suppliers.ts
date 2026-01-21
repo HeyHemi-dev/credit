@@ -1,8 +1,9 @@
-import { and, eq, ilike, or, sql } from 'drizzle-orm'
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import { suppliers } from '@/db/schema'
 import { ERROR } from '@/lib/errors'
-import { normalizeHandle } from '@/lib/validations'
+import { normalizeEmail, normalizeHandle } from '@/lib/validations'
+import { tryCatch } from '@/lib/try-catch'
 
 export type SupplierRow = typeof suppliers.$inferSelect
 export type NewSupplierRow = typeof suppliers.$inferInsert
@@ -30,14 +31,22 @@ export async function getSupplierByEmail(
 export async function createSupplier(
   input: NewSupplierRow,
 ): Promise<SupplierRow> {
-  try {
-    const [row] = await db.insert(suppliers).values(input).returning()
-    if (!row) throw ERROR.DATABASE_ERROR('Failed to create supplier')
-    return row
-  } catch (err) {
-    // Unique email constraint is expected behavior.
-    throw ERROR.RESOURCE_CONFLICT('Supplier email already exists')
+  const normalizedInput = {
+    ...input,
+    name: input.name.trim(),
+    email: normalizeEmail(input.email),
+    instagramHandle:
+      input.instagramHandle && normalizeHandle(input.instagramHandle),
+    tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
   }
+  const { data: rows, error } = await tryCatch(
+    db.insert(suppliers).values(normalizedInput).returning(),
+  )
+
+  // Unique email constraint is expected behavior.
+  if (error) throw ERROR.RESOURCE_CONFLICT('Supplier email already exists')
+  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to create supplier')
+  return rows[0]
 }
 
 /**
@@ -83,4 +92,42 @@ export async function updateSupplierHandles(
       updatedAt: new Date(),
     })
     .where(eq(suppliers.id, supplierId))
+}
+
+export async function findSupplierDedupeCandidates(
+  input: Pick<SupplierRow, 'email' | 'name'>,
+  limit = 10,
+) {
+  const qName = input.name.trim().toLowerCase()
+  const qEmail = normalizeEmail(input.email)
+
+  // since suppliers.emailDomain is generated from email, compute the query domain once
+  const qDomain = qEmail.includes('@') ? qEmail.split('@').pop()! : ''
+
+  const nameSim = sql<number>`similarity(unaccent(lower(${suppliers.name})), unaccent(${qName}))`
+  const emailSim = sql<number>`similarity(lower(${suppliers.email}), ${qEmail})`
+  const emailExact = sql<number>`case when lower(${suppliers.email}) = ${qEmail} then 1 else 0 end`
+  const domainMatch = sql<number>`case when ${suppliers.emailDomain} = ${qDomain} then 1 else 0 end`
+
+  const confidence = sql<number>`(
+    10 * ${emailExact} +
+     3 * ${domainMatch} +
+     4 * ${nameSim} +
+     2 * ${emailSim}
+  )`
+
+  const nameClose = sql<boolean>`unaccent(lower(${suppliers.name})) % unaccent(${qName})`
+  const emailClose = sql<boolean>`lower(${suppliers.email}) % ${qEmail}`
+
+  // only use the domain filter when qDomain is non-empty
+  const domainFilter = qDomain
+    ? eq(suppliers.emailDomain, qDomain)
+    : sql<boolean>`false`
+
+  return db
+    .select()
+    .from(suppliers)
+    .where(or(domainFilter, nameClose, emailClose))
+    .orderBy(desc(confidence))
+    .limit(limit)
 }

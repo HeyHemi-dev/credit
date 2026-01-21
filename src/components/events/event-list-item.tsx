@@ -1,8 +1,8 @@
 import * as React from 'react'
+import { useRouter } from '@tanstack/react-router'
 import type { EventListItem } from '@/lib/types/front-end'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { SHARE_LINK } from '@/lib/constants'
 
 import { isServer } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -15,11 +15,16 @@ export function EventListItem({
   handleClick: (eventId: string) => void
 }) {
   const [copied, setCopied] = React.useState(false)
+  const router = useRouter()
 
   const copyLink = async (shareToken: string) => {
     if (isServer) return
-    const url = `${window.location.origin}${SHARE_LINK.PATH_PREFIX}/${shareToken}`
-    await navigator.clipboard.writeText(url)
+    const location = router.buildLocation({
+      to: '/e/$eventId',
+      params: { eventId: event.id },
+      search: { shareToken },
+    })
+    await navigator.clipboard.writeText(location.url.toString())
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1500)
   }

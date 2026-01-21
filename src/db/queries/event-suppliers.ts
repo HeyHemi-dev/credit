@@ -1,6 +1,13 @@
 import { and, asc, eq } from 'drizzle-orm'
+import type { SupplierRow } from '@/db/queries/suppliers'
 import { db } from '@/db/connection'
-import { eventSuppliers, events, suppliers } from '@/db/schema'
+import {
+  eventSupplierColumns,
+  eventSuppliers,
+  events,
+  supplierColumns,
+  suppliers,
+} from '@/db/schema'
 import { ERROR } from '@/lib/errors'
 
 export type EventSupplierRow = typeof eventSuppliers.$inferSelect
@@ -12,8 +19,8 @@ export type EventSupplierWithSupplier = EventSupplierRow & {
 
 export async function upsertEventSupplier(
   input: NewEventSupplierRow,
-): Promise<void> {
-  await db
+): Promise<EventSupplierRow> {
+  const [row] = await db
     .insert(eventSuppliers)
     .values(input)
     .onConflictDoUpdate({
@@ -24,6 +31,8 @@ export async function upsertEventSupplier(
         updatedAt: new Date(),
       },
     })
+    .returning()
+  return row
 }
 
 export async function removeSupplierFromEvent(
@@ -40,33 +49,43 @@ export async function removeSupplierFromEvent(
     )
 }
 
+export async function deleteEventSupplier(
+  eventId: string,
+  supplierId: string,
+): Promise<void> {
+  await db
+    .delete(eventSuppliers)
+    .where(
+      and(
+        eq(eventSuppliers.eventId, eventId),
+        eq(eventSuppliers.supplierId, supplierId),
+      ),
+    )
+}
+
+export async function getEventSuppliersByEventId(
+  eventId: string,
+): Promise<Array<EventSupplierRow>> {
+  const rows = await db
+    .select()
+    .from(eventSuppliers)
+    .where(eq(eventSuppliers.eventId, eventId))
+    .orderBy(asc(eventSuppliers.createdAt))
+  return rows
+}
+
 export async function getEventSuppliersWithSupplier(
   eventId: string,
-): Promise<Array<EventSupplierWithSupplier>> {
-  const rows = await db
+): Promise<Array<EventSupplierRow & { supplier: SupplierRow }>> {
+  return db
     .select({
-      eventId: eventSuppliers.eventId,
-      supplierId: eventSuppliers.supplierId,
-      service: eventSuppliers.service,
-      contributionNotes: eventSuppliers.contributionNotes,
-      createdAt: eventSuppliers.createdAt,
-      updatedAt: eventSuppliers.updatedAt,
-      supplier: suppliers,
+      ...eventSupplierColumns,
+      supplier: supplierColumns,
     })
     .from(eventSuppliers)
     .innerJoin(suppliers, eq(eventSuppliers.supplierId, suppliers.id))
     .where(eq(eventSuppliers.eventId, eventId))
     .orderBy(asc(eventSuppliers.service), asc(suppliers.name))
-
-  return rows.map((r) => ({
-    eventId: r.eventId,
-    supplierId: r.supplierId,
-    service: r.service,
-    contributionNotes: r.contributionNotes,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
-    supplier: r.supplier,
-  }))
 }
 
 export async function assertEventOwnedByUser(

@@ -15,6 +15,13 @@
       "when": 1768183913063,
       "tag": "0001_useful_firedrake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768967530339,
+      "tag": "0002_magenta_sauron",
+      "breakpoints": true
     }
   ]
 }

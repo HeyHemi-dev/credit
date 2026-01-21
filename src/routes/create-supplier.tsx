@@ -1,19 +1,15 @@
-import * as React from 'react'
 import { z } from 'zod'
-import {
-  createFileRoute,
-  useCanGoBack,
-  useNavigate,
-  useRouter,
-} from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import type { AuthToken } from '@/lib/types/validation-schema'
 import { RouteError } from '@/components/ui/route-error'
 import { Section } from '@/components/ui/section'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BackButton } from '@/components/back-button'
-import { CreateSupplierForm } from '@/components/couple/create-supplier-form'
+import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
+import { authClient } from '@/auth'
+import { ERROR } from '@/lib/errors'
 
 const createSupplierSearchSchema = z.object({
-  eventId: z.string().uuid().optional(),
+  shareToken: z.string().optional(),
 })
 
 export const Route = createFileRoute('/create-supplier')({
@@ -26,41 +22,30 @@ export const Route = createFileRoute('/create-supplier')({
 })
 
 function CreateSupplierRoute() {
-  const { eventId } = Route.useSearch()
-  const navigate = useNavigate()
-  const route = useRouter()
-  const canGoBack = useCanGoBack()
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
+  const { data, isPending } = authClient.useSession()
+  const { shareToken } = Route.useSearch()
 
-  const handleComplete = () => {
-    if (canGoBack) {
-      route.history.back()
-      return
-    }
+  if (isPending) return <div>Loading...</div>
+  if (!data && !shareToken)
+    throw ERROR.NOT_AUTHENTICATED(
+      'Please log in, or request a new link, to create a supplier',
+    )
 
-    navigate({ to: '/' })
-  }
+  const authToken: AuthToken = data
+    ? { token: data.session.token, tokenType: 'sessionToken' }
+    : // we can safely assert shareToken exists because we ensured
+      // either auth data or share token is present
+      { token: shareToken!, tokenType: 'shareToken' }
 
   return (
-    <Section className="py-6">
-      <div className="grid gap-3">
+    <Section>
+      <div className="flex justify-start">
         <BackButton />
-        <Card>
-          <CardHeader>
-            <CardTitle>Create a new supplier</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <div ref={containerRef}>
-              <CreateSupplierForm
-                eventId={eventId}
-                containerRef={containerRef}
-                defaultRegion={null}
-                onComplete={handleComplete}
-              />
-            </div>
-          </CardContent>
-        </Card>
       </div>
+
+      <h1 className="text-2xl font-light">Create a new supplier</h1>
+
+      <CreateSupplierForm authToken={authToken} />
     </Section>
   )
 }

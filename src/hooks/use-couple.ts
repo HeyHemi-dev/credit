@@ -13,3 +13,17 @@ export function useCoupleEvent(shareToken: string) {
 
   return { coupleEventQuery }
 }
+
+// useEventList
+// - createEvent
+// - getEventList
+
+// useEventDetail
+// - getEvent
+// - updateEvent
+// - deleteEvent
+
+// useEventCredit
+// - getEventCredits
+// - createEventCredit
+// - deleteEventCredit

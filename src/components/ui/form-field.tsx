@@ -10,11 +10,13 @@ export function FormField({
   field,
   label,
   description,
+  isRequired,
   children,
   ...props
 }: React.ComponentProps<'div'> & {
   field: AnyFieldApi
   label: string
+  isRequired?: boolean
   description?: string
   children: React.ReactNode
 }) {
@@ -23,14 +25,25 @@ export function FormField({
   return (
     <Field data-invalid={isInvalid} {...props} className="grid gap-2">
       <FieldLabel
-        className="text-xs text-muted-foreground font-normal uppercase "
+        className="text-xs text-muted-foreground font-normal uppercase flex items-baseline gap-2"
         htmlFor={field.name}
+        aria-required={isRequired}
       >
-        {label}
+        <span className="grow">{label}</span>
+        {isRequired && (
+          <span className="capitalize font-light text-muted-foreground/60">
+            Required
+          </span>
+        )}
       </FieldLabel>
       {children}
       {description && <FieldDescription>{description}</FieldDescription>}
-      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+      {isInvalid && (
+        <FieldError
+          errors={field.state.meta.errors}
+          className="wrap-anywhere"
+        />
+      )}
     </Field>
   )
 }

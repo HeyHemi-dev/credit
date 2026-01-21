@@ -6,16 +6,23 @@ export type EventListItem = {
   shareToken: string
 }
 
+export type EventSupplier = {
+  id: string
+  name: string
+  email: string
+  instagramHandle: string | null
+  tiktokHandle: string | null
+  service: string
+  contributionNotes: string | null
+}
+
 export type EventDetail = EventListItem & {
-  suppliers: Array<{
-    id: string
-    name: string
-    email: string
-    instagramHandle: string | null
-    tiktokHandle: string | null
-    service: string
-    contributionNotes: string | null
-  }>
+  suppliers: Array<EventSupplier>
+}
+
+export type EventCreditPage = {
+  eventName: string
+  credits: Array<EventSupplier>
 }
 
 export type SupplierSearchResult = {

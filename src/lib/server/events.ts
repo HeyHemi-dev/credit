@@ -34,7 +34,7 @@ export const listEventsFn = createServerFn({ method: 'GET' })
   })
 
 export const createEventFn = createServerFn({ method: 'POST' })
-  .inputValidator(createEventSchema)
+  .inputValidator(createEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }): Promise<EventListItem> => {
     const shareToken = generateToken(SHARE_LINK.TOKEN.MIN_LENGTH)
 
@@ -56,10 +56,10 @@ export const createEventFn = createServerFn({ method: 'POST' })
   })
 
 export const getEventFn = createServerFn({ method: 'GET' })
-  .inputValidator(getEventSchema)
+  .inputValidator(getEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
     await assertEventOwnedByUser(data.eventId, data.authUserId)
-    const event = await getEventById(data.eventId, data.authUserId)
+    const event = await getEventById(data.eventId)
     if (!event) {
       throw ERROR.RESOURCE_NOT_FOUND('Event not found')
     }
@@ -86,7 +86,7 @@ export const getEventFn = createServerFn({ method: 'GET' })
 export const getEventByShareTokenFn = createServerFn({ method: 'GET' })
 export const updateEventFn = createServerFn({ method: 'POST' })
 export const deleteEventFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteEventSchema)
+  .inputValidator(deleteEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }) => {
     await assertEventOwnedByUser(data.eventId, data.authUserId)
     await deleteEvent(data.eventId, data.authUserId)

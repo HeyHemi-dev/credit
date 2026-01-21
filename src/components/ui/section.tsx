@@ -4,13 +4,7 @@ import { cn } from '@/lib/utils'
 
 function Main({ className, children, ...props }: React.ComponentProps<'div'>) {
   return (
-    <main
-      className={cn(
-        'flex flex-col overflow-x-clip gap-4 py-4 rounded-4xl bg-background',
-        className,
-      )}
-      {...props}
-    >
+    <main className={cn('flex flex-col gap-4 py-4', className)} {...props}>
       {children}
     </main>
   )
@@ -23,7 +17,10 @@ function Section({
 }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('grid gap-y-12 px-4 content-start ', className)}
+      className={cn(
+        'grid grow content-start gap-y-12 overflow-x-clip rounded-4xl bg-background p-4',
+        className,
+      )}
       {...props}
     >
       {children}

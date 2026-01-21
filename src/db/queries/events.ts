@@ -37,15 +37,8 @@ export async function getEventsByUserId(
   return rows
 }
 
-export async function getEventById(
-  id: string,
-  createdByUserId: string,
-): Promise<EventRow | null> {
-  const [row] = await db
-    .select()
-    .from(events)
-    .where(and(eq(events.id, id), eq(events.createdByUserId, createdByUserId)))
-    .limit(1)
+export async function getEventById(id: string): Promise<EventRow | null> {
+  const [row] = await db.select().from(events).where(eq(events.id, id)).limit(1)
   return row ?? null
 }
 
