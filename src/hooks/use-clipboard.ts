@@ -1,11 +1,11 @@
 import { useThrottledState } from '@tanstack/react-pacer'
 import { tryCatch } from '@/lib/try-catch'
 import { isServer, sleep } from '@/lib/utils'
+import { THROTTLE_COPY_MS } from '@/lib/constants'
 
 export function useClipboard() {
-  const THROTTLE_MS = 1500
   const [isCopied, setIsCopied] = useThrottledState(false, {
-    wait: THROTTLE_MS,
+    wait: THROTTLE_COPY_MS,
   })
 
   const copy = async (text: string) => {
@@ -13,7 +13,7 @@ export function useClipboard() {
     const { error } = await tryCatch(navigator.clipboard.writeText(text))
     if (error) return
     setIsCopied(true)
-    await sleep(THROTTLE_MS)
+    await sleep(THROTTLE_COPY_MS)
     setIsCopied(false)
   }
 

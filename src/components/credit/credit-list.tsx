@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon } from '@hugeicons/core-free-icons'
-import type { EventSupplier } from '@/lib/types/front-end'
-import { useEventCredits } from '@/hooks/use-event-credit'
+import type { Credit } from '@/lib/types/front-end'
+import { useCredit } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -10,11 +10,11 @@ export function CreditListItem({
   eventId,
   shareToken,
 }: {
-  credit: EventSupplier
+  credit: Credit
   eventId: string
   shareToken: string
 }) {
-  const { DeleteCreditMutation } = useEventCredits(eventId, shareToken)
+  const { deleteCreditMutation } = useCredit(eventId, credit.id, shareToken)
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-4">
@@ -32,7 +32,7 @@ export function CreditListItem({
       <Button
         variant={'ghost'}
         size={'icon'}
-        onClick={() => DeleteCreditMutation.mutate({ supplierId: credit.id })}
+        onClick={() => deleteCreditMutation.mutate()}
       >
         <HugeiconsIcon icon={Delete02Icon} />
       </Button>

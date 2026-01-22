@@ -1,11 +1,13 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { EventDetail, EventListItem } from '@/lib/types/front-end'
-import { SHARE_LINK } from '@/lib/constants'
+import { SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import {
   authUserIdSchema,
   createEventSchema,
   deleteEventSchema,
+  getCreditsSchema,
   getEventSchema,
+  shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import {
   createEvent,
@@ -15,10 +17,7 @@ import {
 } from '@/db/queries/events'
 import { generateToken } from '@/lib/utils'
 import { ERROR } from '@/lib/errors'
-import {
-  assertEventOwnedByUser,
-  getEventSuppliersWithSupplier,
-} from '@/db/queries/event-suppliers'
+import { getEventSuppliersWithSupplier } from '@/db/queries/event-suppliers'
 
 export const listEventsFn = createServerFn({ method: 'GET' })
   .inputValidator(authUserIdSchema)
@@ -36,7 +35,7 @@ export const listEventsFn = createServerFn({ method: 'GET' })
 export const createEventFn = createServerFn({ method: 'POST' })
   .inputValidator(createEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }): Promise<EventListItem> => {
-    const shareToken = generateToken(SHARE_LINK.TOKEN.MIN_LENGTH)
+    const shareToken = generateToken(SHARE_TOKEN_MIN_LENGTH)
 
     const event = await createEvent({
       createdByUserId: data.authUserId,
@@ -59,12 +58,38 @@ export const getEventFn = createServerFn({ method: 'GET' })
   .inputValidator(getEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
     const event = await getEventById(data.eventId)
-    if (!event) {
-      throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+    if (event.createdByUserId !== data.authUserId) throw ERROR.FORBIDDEN()
+
+    const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
+
+    return {
+      id: event.id,
+      eventName: event.eventName,
+      weddingDate: event.weddingDate,
+      shareToken: event.shareToken,
+      supplierCount: eventSuppliers.length,
+      credits: eventSuppliers.map((es) => ({
+        id: es.supplier.id,
+        name: es.supplier.name,
+        email: es.supplier.email,
+        instagramHandle: es.supplier.instagramHandle,
+        tiktokHandle: es.supplier.tiktokHandle,
+        service: es.service,
+        contributionNotes: es.contributionNotes,
+      })),
     }
-    if (event.createdByUserId !== data.authUserId) {
-      throw ERROR.FORBIDDEN()
-    }
+  })
+
+export const getEventForCoupleFn = createServerFn({
+  method: 'GET',
+})
+  .inputValidator(getCreditsSchema.extend({ shareToken: shareTokenSchema }))
+  .handler(async ({ data }): Promise<EventDetail> => {
+    const event = await getEventById(data.eventId)
+    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+    if (event.shareToken !== data.shareToken)
+      throw ERROR.FORBIDDEN('Share token mismatch')
 
     const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
 

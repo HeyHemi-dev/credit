@@ -5,14 +5,13 @@ import type { AuthToken, CreateSupplier } from '@/lib/types/validation-schema'
 import { queryKeys } from '@/hooks/query-keys'
 
 import { createSupplierFn, searchSuppliersFn } from '@/lib/server/suppliers'
+import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
 
 export function useSupplierSearch(eventId: string) {
   const searchSuppliers = useServerFn(searchSuppliersFn)
   const [searchTerm, setSearchTerm, debouncer] = useDebouncedState(
     '',
-    {
-      wait: 300,
-    },
+    { wait: DEBOUNCE_INPUT_MS },
     (state) => ({ isPending: state.isPending }),
   )
 

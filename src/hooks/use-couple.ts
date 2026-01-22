@@ -1,18 +1,18 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useServerFn } from '@tanstack/react-start'
-import { getEventSuppliersForCoupleFn } from '@/lib/server/event-suppliers'
-import { queryKeys } from '@/hooks/query-keys'
+// import { useSuspenseQuery } from '@tanstack/react-query'
+// import { useServerFn } from '@tanstack/react-start'
+// import { getEventSuppliersForCoupleFn } from '@/lib/server/event-suppliers'
+// import { queryKeys } from '@/hooks/query-keys'
 
-export function useCoupleEvent(shareToken: string) {
-  const getCoupleEvent = useServerFn(getEventSuppliersForCoupleFn)
+// export function useCoupleEvent(shareToken: string) {
+//   const getCoupleEvent = useServerFn(getEventSuppliersForCoupleFn)
 
-  const coupleEventQuery = useSuspenseQuery({
-    queryKey: queryKeys.coupleEvent(shareToken),
-    queryFn: async () => await getCoupleEvent({ data: { shareToken } }),
-  })
+//   const coupleEventQuery = useSuspenseQuery({
+//     queryKey: queryKeys.coupleEvent(shareToken),
+//     queryFn: async () => await getCoupleEvent({ data: { shareToken } }),
+//   })
 
-  return { coupleEventQuery }
-}
+//   return { coupleEventQuery }
+// }
 
 // useEventList
 // - createEvent

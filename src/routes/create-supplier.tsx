@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
 import type { AuthToken } from '@/lib/types/validation-schema'
-import { RouteError } from '@/components/ui/route-error'
+import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'

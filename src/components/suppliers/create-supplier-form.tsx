@@ -2,7 +2,7 @@ import { useForm } from '@tanstack/react-form'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon } from '@hugeicons/core-free-icons'
 import { Card, CardContent } from '../ui/card'
-import type { SupplierSearchResult } from '@/lib/types/front-end'
+import type { Supplier } from '@/lib/types/front-end'
 import type {
   AuthToken,
   CreateSupplierForm,
@@ -204,7 +204,7 @@ function DedupeCandidates({
   dedupeCandidates,
   onClick,
 }: {
-  dedupeCandidates: Array<SupplierSearchResult>
+  dedupeCandidates: Array<Supplier>
   onClick: (supplierId: string) => void
 }) {
   return (

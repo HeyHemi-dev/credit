@@ -1,26 +1,23 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { SupplierSearchResult } from '@/lib/types/front-end'
+import type { Supplier } from '@/lib/types/front-end'
 import type { SupplierRow } from '@/db/queries/suppliers'
-import { supplierSearchInputSchema } from '@/lib/validations'
 import {
   authTokenSchema,
   createSupplierSchema,
   dedupeSuppliersSchema,
+  searchSuppliersSchema,
 } from '@/lib/types/validation-schema'
 import {
   createSupplier,
   findSupplierDedupeCandidates,
   searchSuppliers,
 } from '@/db/queries/suppliers'
-import { nullToEmptyString } from '@/lib/empty-strings'
-import { authClient, isValidAuthToken } from '@/lib/server/auth'
+import { isValidAuthToken } from '@/lib/server/auth'
+import { ERROR } from '@/lib/errors'
 
-/**
- * Photographer-side supplier search (protected)
- */
 export const searchSuppliersFn = createServerFn({ method: 'GET' })
-  .inputValidator(supplierSearchInputSchema)
-  .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
+  .inputValidator(searchSuppliersSchema)
+  .handler(async ({ data }): Promise<Array<Supplier>> => {
     const suppliers = await searchSuppliers(data.query)
     return mapSuppliersToSearchResults(suppliers)
   })
@@ -30,7 +27,7 @@ export const searchSuppliersFn = createServerFn({ method: 'GET' })
  */
 export const dedupeSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(dedupeSuppliersSchema)
-  .handler(async ({ data }): Promise<Array<SupplierSearchResult>> => {
+  .handler(async ({ data }): Promise<Array<Supplier>> => {
     // eventId validity is checked at route level; keep this function generic.
     const suppliers = await findSupplierDedupeCandidates({
       email: data.email,
@@ -49,10 +46,9 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
       authToken: authTokenSchema,
     }),
   )
-  .handler(async ({ data }): Promise<SupplierSearchResult> => {
-    const session = await authClient.getSession()
-    console.log({ session })
+  .handler(async ({ data }): Promise<Supplier> => {
     const isValid = await isValidAuthToken(data.authToken)
+    if (!isValid) throw ERROR.FORBIDDEN()
 
     const supplier = await createSupplier({
       name: data.name,
@@ -65,21 +61,19 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
     return mapSupplierToSearchResult(supplier)
   })
 
-function mapSupplierToSearchResult(
-  supplier: SupplierRow,
-): SupplierSearchResult {
+function mapSupplierToSearchResult(supplier: SupplierRow): Supplier {
   return {
     id: supplier.id,
     name: supplier.name,
     email: supplier.email,
-    region: nullToEmptyString(supplier.region),
-    instagramHandle: nullToEmptyString(supplier.instagramHandle),
-    tiktokHandle: nullToEmptyString(supplier.tiktokHandle),
+    region: supplier.region,
+    instagramHandle: supplier.instagramHandle,
+    tiktokHandle: supplier.tiktokHandle,
   }
 }
 
 function mapSuppliersToSearchResults(
   suppliers: Array<SupplierRow>,
-): Array<SupplierSearchResult> {
+): Array<Supplier> {
   return suppliers.map((supplier) => mapSupplierToSearchResult(supplier))
 }

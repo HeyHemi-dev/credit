@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react/ui'
-import { RouteError } from '@/components/ui/route-error'
+import { RouteError } from '@/components/route-error'
 import { Main, Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 import { CreateEventDrawer } from '@/components/events/create-event-drawer'
@@ -44,12 +44,12 @@ function Dashboard() {
 }
 
 function EventList({ userId }: { userId: string }) {
-  const { eventsQuery } = useEvents(userId)
+  const { getEventListQuery } = useEvents(userId)
   const [createOpen, setCreateOpen] = React.useState(false)
-  const events = eventsQuery.data
+  const events = getEventListQuery.data
 
   return (
-    <Main>
+    <>
       <Section>
         <EventListStatus activeEvents={events.length} />
         <div className="grid gap-4">
@@ -58,6 +58,7 @@ function EventList({ userId }: { userId: string }) {
           ))}
         </div>
       </Section>
+
       <div className="fixed bottom-6 left-1/2 z-10 -translate-x-1/2">
         <Button
           className="h-auto border-2 border-primary/20 px-8 py-4 shadow-xl shadow-primary/20"
@@ -72,20 +73,18 @@ function EventList({ userId }: { userId: string }) {
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
-    </Main>
+    </>
   )
 }
 
 function EventListSkeleton() {
   return (
-    <Main>
-      <Section>
-        <EventListStatusSkeleton />
-        <div className="grid gap-4">
-          <EventListItemSkeleton />
-          <EventListItemSkeleton />
-        </div>
-      </Section>
-    </Main>
+    <Section>
+      <EventListStatusSkeleton />
+      <div className="grid gap-4">
+        <EventListItemSkeleton />
+        <EventListItemSkeleton />
+      </div>
+    </Section>
   )
 }

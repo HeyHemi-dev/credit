@@ -1,4 +1,4 @@
-import type { ConstEnum } from '@/lib/generic-types'
+import type { ConstEnum } from '@/lib/types/generic-types'
 
 // New Zealand wedding supplier services
 export const SERVICE = {
@@ -67,73 +67,7 @@ export const REGION_KEYS = Object.keys(REGION) as Array<RegionKey>
 export type Region = (typeof REGION)[RegionKey]
 export const REGIONS = Object.values(REGION)
 
-/**
- * V1 app-level constants and defaults
- * Keep hard-coded values centralized here for easy updating.
- */
-
-export const AUTH = {
-  PROVIDER: {
-    GOOGLE: 'google',
-  },
-} as const
-
-export const SHARE_LINK = {
-  /**
-   * V1 decision: token must be unguessable.
-   * Use a CSPRNG-derived token (UUIDv4 via crypto.randomUUID() is acceptable).
-   */
-  TOKEN: {
-    KIND: 'uuid',
-    MIN_LENGTH: 32,
-  },
-  PATH_PREFIX: '/couple',
-} as const
-
-export const AUTOSAVE = {
-  /**
-   * V1 decision: batched autosave approximately every minute.
-   */
-  INTERVAL_MS: 60_000,
-} as const
-
-export const RATE_LIMITS = {
-  /**
-   * Guardrail to reduce spam; used by server-side create supplier flow.
-   * This should be generous enough for real weddings, but prevent abuse.
-   */
-  MAX_NEW_SUPPLIERS_PER_EVENT: 50,
-} as const
-
-export const VALIDATION = {
-  HANDLE: {
-    /**
-     * Accepts common IG/TikTok handle characters (after stripping leading @).
-     * Note: platform rules can change; keep this conservative.
-     */
-    REGEX: /^[a-z0-9._]{1,30}$/,
-    MIN_LENGTH: 1,
-    MAX_LENGTH: 30,
-  },
-} as const
-
-export const UI_TEXT = {
-  BRAND: 'Credit',
-
-  COUPLE_INTRO: {
-    TITLE: 'Help us credit your suppliers',
-    BODY: "Add the suppliers you used so your photographer can credit and thank them properly. No login needed — you can come back anytime. We'll auto-save as you go.",
-    CTA: 'Start adding suppliers',
-  },
-
-  AUTOSAVE: {
-    SAVED: 'Saved',
-    SAVING: 'Saving…',
-    NOT_SAVED_MISSING_FIELD: 'Not saved - missing field',
-  },
-
-  EMPTY_STATES: {
-    EVENTS:
-      'No events yet. Create your first event to generate a private link for your couple.',
-  },
-} as const
+export const SHARE_TOKEN_MIN_LENGTH = 32
+export const DEBOUNCE_INPUT_MS = 300
+export const BATCH_AUTOSAVE_MS = 60_000
+export const THROTTLE_COPY_MS = 1500

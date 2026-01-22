@@ -1,5 +1,5 @@
 import type { Region, RegionKey, Service, ServiceKey } from '@/lib/constants'
-import type { ConstEnum } from '@/lib/generic-types'
+import type { ConstEnum } from '@/lib/types/generic-types'
 import { REGION, SERVICE } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 

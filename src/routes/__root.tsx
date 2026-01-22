@@ -8,7 +8,8 @@ import { authClient } from '@/auth'
 
 import appCss from '@/styles.css?url'
 import { Header } from '@/components/header'
-import { RouteError } from '@/components/ui/route-error'
+import { RouteError } from '@/components/route-error'
+import { Main } from '@/components/ui/section'
 
 export const Route = createRootRoute({
   ssr: false,
@@ -28,20 +29,22 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <Providers>
+    <NeonAuthUIProvider
+      authClient={authClient}
+      social={{ providers: ['google'] }}
+      credentials={false}
+    >
       <html lang="en">
         <head>
           <HeadContent />
         </head>
 
-        <body className="grid bg-muted text-foreground grid-cols-[auto_minmax(0,32rem)_auto]">
-          <div className="col-start-2 col-end-2 grid grid-rows-[auto_1fr_auto] min-h-screen bg-muted p-1">
+        <body className="grid grid-cols-[auto_minmax(0,32rem)_auto] bg-muted text-foreground">
+          <div className="col-start-2 col-end-2 grid min-h-screen grid-rows-[auto_1fr_auto] bg-muted p-1">
             <header className="py-4">
               <Header />
             </header>
-
-            {children}
-
+            <Main>{children}</Main>
             <footer></footer>
           </div>
           <TanStackDevtools
@@ -56,18 +59,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Scripts />
         </body>
       </html>
-    </Providers>
-  )
-}
-
-function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <NeonAuthUIProvider
-      authClient={authClient}
-      social={{ providers: ['google'] }}
-      credentials={false}
-    >
-      {children}
     </NeonAuthUIProvider>
   )
 }

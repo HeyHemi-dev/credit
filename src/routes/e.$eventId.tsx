@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
-import { RouteError } from '@/components/ui/route-error'
+import { RouteError } from '@/components/route-error'
 import { Main, Section } from '@/components/ui/section'
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useEventCredits } from '@/hooks/use-event-credit'
+import { useCredits } from '@/hooks/use-credits'
 import {
   CreditListItem,
   CreditListItemSkeleton,
@@ -55,21 +55,19 @@ export function CreditList({
   shareToken: string
 }) {
   const [createCreditOpen, setCreateCreditOpen] = React.useState(false)
-  const { AllCreditsQuery } = useEventCredits(eventId, shareToken)
-  const credits = AllCreditsQuery.data.credits
+  const { getEventForCoupleQuery } = useCredits(eventId, shareToken)
+  const event = getEventForCoupleQuery.data
 
   // add credit button (opens drawer/form)
   // list of credits - includes remove button
   // credit drawer with form for adding a new credit - includes service,
   // and 'search for supplier' combo box
   return (
-    <Main>
+    <>
       <Section>
-        <h1 className="text-2xl font-light">
-          {AllCreditsQuery.data.eventName}
-        </h1>
+        <h1 className="text-2xl font-light">{event.eventName}</h1>
         <Button onClick={() => setCreateCreditOpen(true)}>Add credit</Button>
-        {credits.map((credit) => (
+        {event.credits.map((credit) => (
           <CreditListItem
             key={credit.id}
             credit={credit}
@@ -84,20 +82,18 @@ export function CreditList({
         open={createCreditOpen}
         setOpen={setCreateCreditOpen}
       />
-    </Main>
+    </>
   )
 }
 
 function CreditListSkeleton() {
   return (
-    <Main>
-      <Section>
-        <Skeleton className="h-14 w-full" />
+    <Section>
+      <Skeleton className="h-14 w-full" />
 
-        <CreditListItemSkeleton />
-        <CreditListItemSkeleton />
-        <CreditListItemSkeleton />
-      </Section>
-    </Main>
+      <CreditListItemSkeleton />
+      <CreditListItemSkeleton />
+      <CreditListItemSkeleton />
+    </Section>
   )
 }

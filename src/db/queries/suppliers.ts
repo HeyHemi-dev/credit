@@ -1,8 +1,8 @@
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm'
+import { desc, eq, ilike, or, sql } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import { suppliers } from '@/db/schema'
 import { ERROR } from '@/lib/errors'
-import { normalizeEmail, normalizeHandle } from '@/lib/validations'
+import { normalizeEmail, normalizeHandle } from '@/lib/formatters'
 import { tryCatch } from '@/lib/try-catch'
 
 export type SupplierRow = typeof suppliers.$inferSelect
@@ -81,24 +81,24 @@ export async function searchSuppliers(
   return rows
 }
 
-export async function updateSupplierHandles(
-  supplierId: string,
-  input: Pick<SupplierRow, 'instagramHandle' | 'tiktokHandle'>,
-): Promise<void> {
-  const normalizedInput = {
-    instagramHandle:
-      input.instagramHandle && normalizeHandle(input.instagramHandle),
-    tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
-  }
-  await db
-    .update(suppliers)
-    .set({
-      instagramHandle: normalizedInput.instagramHandle,
-      tiktokHandle: normalizedInput.tiktokHandle,
-      updatedAt: new Date(),
-    })
-    .where(eq(suppliers.id, supplierId))
-}
+// export async function updateSupplierHandles(
+//   supplierId: string,
+//   input: Pick<SupplierRow, 'instagramHandle' | 'tiktokHandle'>,
+// ): Promise<void> {
+//   const normalizedInput = {
+//     instagramHandle:
+//       input.instagramHandle && normalizeHandle(input.instagramHandle),
+//     tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
+//   }
+//   await db
+//     .update(suppliers)
+//     .set({
+//       instagramHandle: normalizedInput.instagramHandle,
+//       tiktokHandle: normalizedInput.tiktokHandle,
+//       updatedAt: new Date(),
+//     })
+//     .where(eq(suppliers.id, supplierId))
+// }
 
 export async function findSupplierDedupeCandidates(
   input: Pick<SupplierRow, 'email' | 'name'>,

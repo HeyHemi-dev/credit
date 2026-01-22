@@ -8,7 +8,7 @@ export type EventListItem = {
   shareToken: string
 }
 
-export type EventSupplier = {
+export type Credit = {
   id: string
   name: string
   email: string
@@ -19,19 +19,14 @@ export type EventSupplier = {
 }
 
 export type EventDetail = EventListItem & {
-  credits: Array<EventSupplier>
+  credits: Array<Credit>
 }
 
-export type EventCreditPage = {
-  eventName: string
-  credits: Array<EventSupplier>
-}
-
-export type SupplierSearchResult = {
+export type Supplier = {
   id: string
   name: string
   email: string
-  region: Region
-  instagramHandle: string
-  tiktokHandle: string
+  region: Region | null
+  instagramHandle: string | null
+  tiktokHandle: string | null
 }

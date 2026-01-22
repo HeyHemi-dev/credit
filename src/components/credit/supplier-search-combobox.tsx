@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import type { SupplierSearchResult } from '@/lib/types/front-end'
+import type { Supplier } from '@/lib/types/front-end'
 import { useSupplierSearch } from '@/hooks/use-suppliers'
 import {
   Combobox,
@@ -27,7 +27,7 @@ export function SupplierSearchCombobox({
 }: SupplierSearchComboboxProps) {
   const [userInput, setUserInput] = React.useState('')
   const [selectedSupplier, setSelectedSupplier] =
-    React.useState<SupplierSearchResult | null>(null)
+    React.useState<Supplier | null>(null)
   const { searchQuery, setSearchTerm, isPending } = useSupplierSearch(eventId)
 
   // ensure selected supplier is always in the list of results, even after a new search is performed
@@ -51,7 +51,7 @@ export function SupplierSearchCombobox({
   return (
     <Combobox
       items={searchResults}
-      itemToStringLabel={(supplier: SupplierSearchResult) => supplier.name}
+      itemToStringLabel={(supplier: Supplier) => supplier.name}
       filter={null}
       onValueChange={(nextValue) => {
         setUserInput(nextValue?.name ?? '')
@@ -75,7 +75,7 @@ export function SupplierSearchCombobox({
       />
       <ComboboxContent containerRef={containerRef} className="grid gap-2 p-2">
         <ComboboxList>
-          {(supplier: SupplierSearchResult) => (
+          {(supplier: Supplier) => (
             <ComboboxItem key={supplier.id} value={supplier}>
               <p className="flex gap-2">
                 <span>{supplier.name}</span>

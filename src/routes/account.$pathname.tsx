@@ -12,9 +12,7 @@ function Account() {
   return (
     <Main>
       <Section>
-        <div className="flex justify-start">
-          <BackButton />
-        </div>
+        <BackButton />
         <AccountView
           pathname={pathname}
           classNames={{

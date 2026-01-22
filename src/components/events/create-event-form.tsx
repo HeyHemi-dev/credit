@@ -35,7 +35,7 @@ export function CreateEventForm({
   authUserId: string
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
-  const { eventsMutation } = useEvents(authUserId)
+  const { createEventMutation } = useEvents(authUserId)
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -43,7 +43,7 @@ export function CreateEventForm({
       onSubmit: createEventFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await eventsMutation.mutateAsync({
+      await createEventMutation.mutateAsync({
         eventName: value.eventName,
         weddingDate: value.weddingDate,
         region: emptyStringToNull(value.region),

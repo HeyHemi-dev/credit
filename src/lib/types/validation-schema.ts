@@ -1,5 +1,5 @@
 import z from 'zod'
-import { REGIONS, SERVICES, SHARE_LINK } from '@/lib/constants'
+import { REGIONS, SERVICES, SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import { optionalField } from '@/lib/empty-strings'
 
 // ===============================
@@ -12,7 +12,7 @@ export const sessionTokenSchema = z.string()
 export const shareTokenSchema = z
   .string()
   .trim()
-  .min(SHARE_LINK.TOKEN.MIN_LENGTH, 'Invalid share token')
+  .min(SHARE_TOKEN_MIN_LENGTH, 'Invalid share token')
 export const authTokenSchema = z.object({
   token: z.union([sessionTokenSchema, shareTokenSchema]),
   tokenType: z.enum(['sessionToken', 'shareToken']),
@@ -101,6 +101,11 @@ export const dedupeSuppliersSchema = z.object({
 })
 export type DedupeSuppliers = z.infer<typeof dedupeSuppliersSchema>
 
+export const searchSuppliersSchema = z.object({
+  query: z.string().trim().min(1, 'Search query is required'),
+})
+export type SearchSuppliers = z.infer<typeof searchSuppliersSchema>
+
 export const createSupplierFormSchema = z.object({
   name: supplierNameSchema,
   email: emailSchema,
@@ -128,11 +133,11 @@ export type CreateSupplier = z.infer<typeof createSupplierSchema>
 // Event Credits
 // ===============================
 
-export const getEventCreditsSchema = z.object({
+export const getCreditsSchema = z.object({
   eventId: eventIdSchema,
 })
 
-export const createEventCreditFormSchema = z.object({
+export const createCreditFormSchema = z.object({
   service: serviceSchema,
   supplierId: z.uuid(),
   contributionNotes: optionalField(
@@ -142,9 +147,9 @@ export const createEventCreditFormSchema = z.object({
       .max(255, 'Contribution notes must be less than 255 characters'),
   ),
 })
-export type CreateEventCreditForm = z.infer<typeof createEventCreditFormSchema>
+export type CreateCreditForm = z.infer<typeof createCreditFormSchema>
 
-export const createEventCreditSchema = createEventCreditFormSchema.extend({
+export const createCreditSchema = createCreditFormSchema.extend({
   service: serviceSchema,
   contributionNotes: z
     .string()
@@ -153,12 +158,12 @@ export const createEventCreditSchema = createEventCreditFormSchema.extend({
   eventId: eventIdSchema,
 })
 
-export const deleteEventCreditFormSchema = z.object({
+export const deleteCreditFormSchema = z.object({
   supplierId: z.uuid(),
 })
-export type DeleteEventCreditForm = z.infer<typeof deleteEventCreditFormSchema>
+export type DeleteCreditForm = z.infer<typeof deleteCreditFormSchema>
 
-export const deleteEventCreditSchema = z.object({
+export const deleteCreditSchema = z.object({
   eventId: eventIdSchema,
   supplierId: z.uuid(),
 })

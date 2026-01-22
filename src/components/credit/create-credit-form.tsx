@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
-import type { CreateEventCreditForm } from '@/lib/types/validation-schema'
+import type { CreateCreditForm } from '@/lib/types/validation-schema'
 
 import type { Service } from '@/lib/constants'
 import { FieldGroup } from '@/components/ui/field'
-import { createEventCreditFormSchema } from '@/lib/types/validation-schema'
+import { createCreditFormSchema } from '@/lib/types/validation-schema'
 import { SERVICES } from '@/lib/constants'
 import {
   Select,
@@ -14,12 +14,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FormField } from '@/components/ui/form-field'
-import { useEventCredits } from '@/hooks/use-event-credit'
+import { useCredits } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
 import { SupplierSearchCombobox } from '@/components/credit/supplier-search-combobox'
 import { Textarea } from '@/components/ui/textarea'
 
-const defaultValues: CreateEventCreditForm = {
+const defaultValues: CreateCreditForm = {
   service: '' as Service,
   // cast type since we want this field to be empty initially,
   // but required on submission
@@ -40,15 +40,15 @@ export function CreateCreditForm({
   onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
-  const { CreateCreditMutation } = useEventCredits(eventId, shareToken)
+  const { createCreditMutation } = useCredits(eventId, shareToken)
 
   const form = useForm({
     defaultValues: defaultValues,
     validators: {
-      onSubmit: createEventCreditFormSchema,
+      onSubmit: createCreditFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await CreateCreditMutation.mutateAsync({
+      await createCreditMutation.mutateAsync({
         service: value.service,
         supplierId: value.supplierId,
         contributionNotes: value.contributionNotes,

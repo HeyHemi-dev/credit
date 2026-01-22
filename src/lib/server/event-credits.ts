@@ -1,68 +1,31 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseStatus } from '@tanstack/react-start/server'
-import type { EventCreditPage, EventSupplier } from '@/lib/types/front-end'
+import type { Credit } from '@/lib/types/front-end'
 import {
-  createEventCreditSchema,
-  deleteEventCreditSchema,
-  getEventCreditsSchema,
+  createCreditSchema,
+  deleteCreditSchema,
   shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import { getEventById } from '@/db/queries/events'
 import { ERROR } from '@/lib/errors'
 import {
   deleteEventSupplier,
-  getEventSuppliersWithSupplier,
   upsertEventSupplier,
 } from '@/db/queries/event-suppliers'
 import { getSupplierById } from '@/db/queries/suppliers'
 
-export const getEventCreditsFn = createServerFn({
-  method: 'GET',
-})
-  .inputValidator(
-    getEventCreditsSchema.extend({ shareToken: shareTokenSchema }),
-  )
-  .handler(async ({ data }): Promise<EventCreditPage> => {
-    // get event
-
-    const event = await getEventById(data.eventId)
-    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-
-    if (event.shareToken !== data.shareToken)
-      throw ERROR.FORBIDDEN('Share token mismatch')
-
-    // get eventSuppliers
-    const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
-
-    // compose eventCreditPage
-    return {
-      eventName: event.eventName,
-      credits: eventSuppliers.map((es) => ({
-        id: es.supplier.id,
-        name: es.supplier.name,
-        email: es.supplier.email,
-        instagramHandle: es.supplier.instagramHandle,
-        tiktokHandle: es.supplier.tiktokHandle,
-        service: es.service,
-        contributionNotes: es.contributionNotes,
-      })),
-    }
-  })
-
-export const createEventCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    createEventCreditSchema.extend({ shareToken: shareTokenSchema }),
-  )
-  .handler(async ({ data }): Promise<EventSupplier> => {
+export const createCreditFn = createServerFn({ method: 'POST' })
+  .inputValidator(createCreditSchema.extend({ shareToken: shareTokenSchema }))
+  .handler(async ({ data }): Promise<Credit> => {
     // check event and supplier exists
     const [event, supplier] = await Promise.all([
       getEventById(data.eventId),
       getSupplierById(data.supplierId),
     ])
-    if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
     if (event.shareToken !== data.shareToken)
       throw ERROR.FORBIDDEN('Share token mismatch')
+    if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
 
     // insert eventSupplier
     const eventSupplier = await upsertEventSupplier({
@@ -72,7 +35,7 @@ export const createEventCreditFn = createServerFn({ method: 'POST' })
       contributionNotes: data.contributionNotes,
     })
 
-    // compose eventSupplier
+    // compose Credit
     return {
       id: supplier.id,
       name: supplier.name,
@@ -84,10 +47,8 @@ export const createEventCreditFn = createServerFn({ method: 'POST' })
     }
   })
 
-export const deleteEventCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(
-    deleteEventCreditSchema.extend({ shareToken: shareTokenSchema }),
-  )
+export const deleteCreditFn = createServerFn({ method: 'POST' })
+  .inputValidator(deleteCreditSchema.extend({ shareToken: shareTokenSchema }))
   .handler(async ({ data }): Promise<void> => {
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
