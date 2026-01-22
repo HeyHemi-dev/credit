@@ -58,38 +58,44 @@ export const createEventFn = createServerFn({ method: 'POST' })
 export const getEventFn = createServerFn({ method: 'GET' })
   .inputValidator(getEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
-    await assertEventOwnedByUser(data.eventId, data.authUserId)
     const event = await getEventById(data.eventId)
     if (!event) {
       throw ERROR.RESOURCE_NOT_FOUND('Event not found')
     }
+    if (event.createdByUserId !== data.authUserId) {
+      throw ERROR.FORBIDDEN()
+    }
 
-    const rows = await getEventSuppliersWithSupplier(data.eventId)
+    const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
 
     return {
       id: event.id,
       eventName: event.eventName,
       weddingDate: event.weddingDate,
-      supplierCount: rows.length,
       shareToken: event.shareToken,
-      suppliers: rows.map((row) => ({
-        id: row.supplier.id,
-        name: row.supplier.name,
-        email: row.supplier.email,
-        instagramHandle: row.supplier.instagramHandle ?? null,
-        tiktokHandle: row.supplier.tiktokHandle ?? null,
-        service: row.service,
-        contributionNotes: row.contributionNotes,
+      supplierCount: eventSuppliers.length,
+      credits: eventSuppliers.map((es) => ({
+        id: es.supplier.id,
+        name: es.supplier.name,
+        email: es.supplier.email,
+        instagramHandle: es.supplier.instagramHandle,
+        tiktokHandle: es.supplier.tiktokHandle,
+        service: es.service,
+        contributionNotes: es.contributionNotes,
       })),
     }
   })
-export const getEventByShareTokenFn = createServerFn({ method: 'GET' })
-export const updateEventFn = createServerFn({ method: 'POST' })
+
 export const deleteEventFn = createServerFn({ method: 'POST' })
   .inputValidator(deleteEventSchema.extend({ authUserId: authUserIdSchema }))
   .handler(async ({ data }) => {
-    await assertEventOwnedByUser(data.eventId, data.authUserId)
+    const event = await getEventById(data.eventId)
+    if (!event) {
+      throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+    }
+    if (event.createdByUserId !== data.authUserId) {
+      throw ERROR.FORBIDDEN()
+    }
     await deleteEvent(data.eventId, data.authUserId)
-    return { ok: true }
+    return
   })
-export const updateEventSuppliersFn = createServerFn({ method: 'POST' })

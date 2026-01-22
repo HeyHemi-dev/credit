@@ -17,17 +17,17 @@ export async function getSupplierById(id: string): Promise<SupplierRow | null> {
   return row ?? null
 }
 
-export async function getSupplierByEmail(
-  email: string,
-): Promise<SupplierRow | null> {
-  const normalizedEmail = normalizeEmail(email)
-  const [row] = await db
-    .select()
-    .from(suppliers)
-    .where(eq(suppliers.email, normalizedEmail))
-    .limit(1)
-  return row ?? null
-}
+// export async function getSupplierByEmail(
+//   email: string,
+// ): Promise<SupplierRow | null> {
+//   const normalizedEmail = normalizeEmail(email)
+//   const [row] = await db
+//     .select()
+//     .from(suppliers)
+//     .where(eq(suppliers.email, normalizedEmail))
+//     .limit(1)
+//   return row ?? null
+// }
 
 export async function createSupplier(
   input: NewSupplierRow,

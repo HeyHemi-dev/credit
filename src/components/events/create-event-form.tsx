@@ -47,7 +47,6 @@ export function CreateEventForm({
         eventName: value.eventName,
         weddingDate: value.weddingDate,
         region: emptyStringToNull(value.region),
-        authUserId: authUserId,
       })
     },
   })

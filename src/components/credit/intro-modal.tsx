@@ -1,6 +1,4 @@
 import * as React from 'react'
-import { UI_TEXT } from '@/lib/constants'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -9,6 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { tryCatchSync } from '@/lib/try-catch'
 
 const STORAGE_KEY = 'credit.coupleIntroDismissed.v1'
 
@@ -16,21 +15,15 @@ export function IntroModal() {
   const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
-    try {
-      const dismissed = window.localStorage.getItem(STORAGE_KEY)
-      if (!dismissed) setOpen(true)
-    } catch {
-      // ignore storage errors
-      setOpen(true)
-    }
+    const { data: dismissed } = tryCatchSync(() =>
+      window.localStorage.getItem(STORAGE_KEY),
+    )
+    if (dismissed) return
+    setOpen(true)
   }, [])
 
-  const dismiss = () => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, '1')
-    } catch {
-      // ignore
-    }
+  function dismiss() {
+    tryCatchSync(() => window.localStorage.setItem(STORAGE_KEY, '1'))
     setOpen(false)
   }
 
@@ -38,18 +31,28 @@ export function IntroModal() {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-sm">
         <AlertDialogHeader className="place-items-start text-left">
-          <AlertDialogTitle>{UI_TEXT.COUPLE_INTRO.TITLE}</AlertDialogTitle>
+          <AlertDialogTitle>Help us credit your suppliers</AlertDialogTitle>
         </AlertDialogHeader>
 
-        <div className="text-sm text-muted-foreground">
-          {UI_TEXT.COUPLE_INTRO.BODY}
+        <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
+          <p>
+            Give Credit lets you list the suppliers you used for your wedding.
+          </p>
+          <p>
+            Share the list with your photographer so they can credit and thank
+            them properly.
+          </p>
+          <p>No login needed. We'll auto-save as you go.</p>
         </div>
 
-        <AlertDialogFooter className="grid grid-cols-2">
-          <AlertDialogCancel variant="ghost" onClick={dismiss}>
-            Close
+        <AlertDialogFooter className="flex justify-end">
+          <AlertDialogCancel
+            variant="default"
+            onClick={dismiss}
+            className="min-w-24"
+          >
+            Got it
           </AlertDialogCancel>
-          <Button onClick={dismiss}>{UI_TEXT.COUPLE_INTRO.CTA}</Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

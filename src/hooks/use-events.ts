@@ -101,12 +101,14 @@ export function useEvent(eventId: string, authUserId: string) {
       await deleteEvent({ data: { eventId, authUserId } })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.events(authUserId),
-      })
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.event(eventId),
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.events(authUserId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.event(eventId),
+        }),
+      ])
     },
     onError: (error) => {
       logger.error('useEvent.deleteEvent', { error })

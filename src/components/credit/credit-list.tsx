@@ -17,15 +17,17 @@ export function CreditListItem({
   const { DeleteCreditMutation } = useEventCredits(eventId, shareToken)
 
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-4">
+    <div className="grid grid-cols-[1fr_auto] items-center gap-4">
       <div>
-        <p className="font-medium">{credit.name}</p>
-        <p className="text-muted-foreground text-sm">
-          <span>{credit.service}</span>
-          {credit.contributionNotes && (
-            <span>• {credit.contributionNotes}</span>
-          )}
+        <p>
+          <span className="text-sm text-muted-foreground">{`${credit.service} • `}</span>
+          <span className="font-medium">{credit.name}</span>
         </p>
+        {credit.contributionNotes && (
+          <p className="text-sm text-muted-foreground">
+            • {credit.contributionNotes}
+          </p>
+        )}
       </div>
       <Button
         variant={'ghost'}
@@ -42,8 +44,8 @@ export function CreditListItemSkeleton() {
   return (
     <div>
       <div>
-        <Skeleton className="w-full h-4" />
-        <Skeleton className="w-1/2 h-4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-1/2" />
       </div>
       <Skeleton className="size-9" />
     </div>

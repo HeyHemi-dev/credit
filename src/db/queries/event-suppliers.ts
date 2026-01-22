@@ -8,7 +8,6 @@ import {
   supplierColumns,
   suppliers,
 } from '@/db/schema'
-import { ERROR } from '@/lib/errors'
 
 export type EventSupplierRow = typeof eventSuppliers.$inferSelect
 export type NewEventSupplierRow = typeof eventSuppliers.$inferInsert
@@ -35,19 +34,19 @@ export async function upsertEventSupplier(
   return row
 }
 
-export async function removeSupplierFromEvent(
-  eventId: string,
-  supplierId: string,
-): Promise<void> {
-  await db
-    .delete(eventSuppliers)
-    .where(
-      and(
-        eq(eventSuppliers.eventId, eventId),
-        eq(eventSuppliers.supplierId, supplierId),
-      ),
-    )
-}
+// export async function removeSupplierFromEvent(
+//   eventId: string,
+//   supplierId: string,
+// ): Promise<void> {
+//   await db
+//     .delete(eventSuppliers)
+//     .where(
+//       and(
+//         eq(eventSuppliers.eventId, eventId),
+//         eq(eventSuppliers.supplierId, supplierId),
+//       ),
+//     )
+// }
 
 export async function deleteEventSupplier(
   eventId: string,
@@ -88,10 +87,10 @@ export async function getEventSuppliersWithSupplier(
     .orderBy(asc(eventSuppliers.service), asc(suppliers.name))
 }
 
-export async function assertEventOwnedByUser(
+export async function isEventOwnedByUser(
   eventId: string,
   createdByUserId: string,
-): Promise<void> {
+): Promise<boolean> {
   const [row] = await db
     .select({ id: events.id })
     .from(events)
@@ -99,5 +98,5 @@ export async function assertEventOwnedByUser(
       and(eq(events.id, eventId), eq(events.createdByUserId, createdByUserId)),
     )
     .limit(1)
-  if (!row) throw ERROR.FORBIDDEN('Event not found or not owned by user')
+  return !!row
 }

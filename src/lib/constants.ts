@@ -105,17 +105,6 @@ export const RATE_LIMITS = {
   MAX_NEW_SUPPLIERS_PER_EVENT: 50,
 } as const
 
-export const CREDIT_OUTPUT = {
-  INSTAGRAM: {
-    LINE_TEMPLATE: '[service] - [value]',
-    VALUE_PREFIX: '@',
-    LINE_SEPARATOR: '\n',
-  },
-  EMAIL: {
-    SEPARATOR: ', ',
-  },
-} as const
-
 export const VALIDATION = {
   HANDLE: {
     /**

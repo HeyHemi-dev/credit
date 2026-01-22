@@ -1,199 +1,144 @@
-import * as React from 'react'
-import { Cancel01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
-import { formatEmailList, formatInstagramCredits } from '@/lib/formatters'
-import { useEvent } from '@/hooks/use-events'
+// import * as React from 'react'
+// import { Cancel01Icon } from '@hugeicons/core-free-icons'
+// import { HugeiconsIcon } from '@hugeicons/react'
+// import { Button } from '@/components/ui/button'
+// import { Card, CardContent } from '@/components/ui/card'
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from '@/components/ui/alert-dialog'
+// import {
+//   Drawer,
+//   DrawerClose,
+//   DrawerContent,
+//   DrawerFooter,
+//   DrawerHeader,
+//   DrawerTitle,
+// } from '@/components/ui/drawer'
+// import { formatEmailList, formatInstagramCredits } from '@/lib/formatters'
+// import { useEvent } from '@/hooks/use-events'
 
-export function EventDetailDrawer({
-  open,
-  onOpenChange,
-  eventId,
-  authUserId,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  eventId: string | null
-  authUserId: string
-}) {
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
+// export function EventDetailContent({
+//   eventId,
+//   authUserId,
+// }: {
+//   eventId: string
+//   authUserId: string
+// }) {
+//   const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false)
+//   const { eventQuery, deleteMutation } = useEvent(eventId, authUserId)
+//   const event = eventQuery.data
+//   const rows = event.suppliers
 
-  return (
-    <Drawer open={open} onOpenChange={onOpenChange} modal={true}>
-      <DrawerContent ref={containerRef}>
-        <div className="flex justify-center">
-          <div className="max-w-lg grow">
-            <DrawerHeader className="flex flex-row justify-between items-center">
-              <DrawerTitle>Event details</DrawerTitle>
-              <DrawerClose asChild>
-                <Button size={'icon-sm'} variant={'ghost'}>
-                  <HugeiconsIcon icon={Cancel01Icon} />
-                </Button>
-              </DrawerClose>
-            </DrawerHeader>
+//   const instagramText = React.useMemo(() => {
+//     return formatInstagramCredits(
+//       rows.map((r) => ({
+//         name: r.name,
+//         email: r.email,
+//         instagramHandle: r.instagramHandle ?? null,
+//         service: r.service,
+//       })),
+//     )
+//   }, [rows])
 
-            <DrawerFooter>
-              {eventId ? (
-                <React.Suspense
-                  fallback={
-                    <div className="text-sm text-muted-foreground">
-                      Loading…
-                    </div>
-                  }
-                >
-                  <EventDetailContent
-                    eventId={eventId}
-                    authUserId={authUserId}
-                    onClose={() => onOpenChange(false)}
-                  />
-                </React.Suspense>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Select an event to view details.
-                </div>
-              )}
-            </DrawerFooter>
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  )
-}
+//   const emailText = React.useMemo(() => {
+//     return formatEmailList(rows.map((r) => ({ email: r.email })))
+//   }, [rows])
 
-function EventDetailContent({
-  eventId,
-  authUserId,
-  onClose,
-}: {
-  eventId: string
-  authUserId: string
-  onClose: () => void
-}) {
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false)
-  const { eventQuery, deleteMutation } = useEvent(eventId, authUserId)
-  const event = eventQuery.data
-  const rows = event.suppliers
+//   const copy = async (text: string) => {
+//     if (typeof window === 'undefined') return
+//     await navigator.clipboard.writeText(text)
+//   }
 
-  const instagramText = React.useMemo(() => {
-    return formatInstagramCredits(
-      rows.map((r) => ({
-        name: r.name,
-        email: r.email,
-        instagramHandle: r.instagramHandle ?? null,
-        service: r.service,
-      })),
-    )
-  }, [rows])
+//   return (
+//     <>
+//       <div className="grid gap-4">
+//         <div className="text-base font-medium">{event.eventName}</div>
+//         <div className="grid gap-2">
+//           <div className="flex gap-2">
+//             <Button onClick={() => copy(instagramText)} disabled={!rows.length}>
+//               Copy for Instagram
+//             </Button>
+//             <Button
+//               variant="outline"
+//               onClick={() => copy(emailText)}
+//               disabled={!rows.length}
+//             >
+//               Copy email list
+//             </Button>
+//           </div>
+//           <Card size="sm">
+//             <CardContent className="text-sm wrap-break-word whitespace-pre-wrap">
+//               {instagramText || 'No suppliers yet.'}
+//             </CardContent>
+//           </Card>
+//         </div>
 
-  const emailText = React.useMemo(() => {
-    return formatEmailList(rows.map((r) => ({ email: r.email })))
-  }, [rows])
+//         <div className="grid gap-2">
+//           <div className="text-sm font-medium">Suppliers</div>
+//           {rows.length === 0 ? (
+//             <div className="text-sm text-muted-foreground">None yet.</div>
+//           ) : (
+//             <div className="grid gap-2">
+//               {rows.map((row) => (
+//                 <Card key={row.id} size="sm">
+//                   <CardContent className="grid gap-1">
+//                     <div className="grid grid-cols-[1fr_auto] items-start gap-3">
+//                       <div className="grid gap-1">
+//                         <div className="font-medium">{row.name}</div>
+//                         <div className="text-sm text-muted-foreground">
+//                           {row.service}
+//                           {row.instagramHandle
+//                             ? ` • @${row.instagramHandle}`
+//                             : ' • Missing IG'}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </CardContent>
+//                 </Card>
+//               ))}
+//             </div>
+//           )}
+//         </div>
 
-  const copy = async (text: string) => {
-    if (typeof window === 'undefined') return
-    await navigator.clipboard.writeText(text)
-  }
+//         <div className="grid gap-2 border-t pt-2">
+//           <div className="text-sm font-medium text-destructive">
+//             Danger zone
+//           </div>
+//           <Button
+//             variant="destructive"
+//             onClick={() => setDeleteConfirmOpen(true)}
+//           >
+//             Delete event…
+//           </Button>
+//         </div>
+//       </div>
 
-  return (
-    <>
-      <div className="grid gap-4">
-        <div className="text-base font-medium">{event.eventName}</div>
-        <div className="grid gap-2">
-          <div className="flex gap-2">
-            <Button onClick={() => copy(instagramText)} disabled={!rows.length}>
-              Copy for Instagram
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => copy(emailText)}
-              disabled={!rows.length}
-            >
-              Copy email list
-            </Button>
-          </div>
-          <Card size="sm">
-            <CardContent className="whitespace-pre-wrap wrap-break-word text-sm">
-              {instagramText || 'No suppliers yet.'}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-2">
-          <div className="text-sm font-medium">Suppliers</div>
-          {rows.length === 0 ? (
-            <div className="text-sm text-muted-foreground">None yet.</div>
-          ) : (
-            <div className="grid gap-2">
-              {rows.map((row) => (
-                <Card key={row.id} size="sm">
-                  <CardContent className="grid gap-1">
-                    <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
-                      <div className="grid gap-1">
-                        <div className="font-medium">{row.name}</div>
-                        <div className="text-muted-foreground text-sm">
-                          {row.service}
-                          {row.instagramHandle
-                            ? ` • @${row.instagramHandle}`
-                            : ' • Missing IG'}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="grid gap-2 pt-2 border-t">
-          <div className="text-sm font-medium text-destructive">Danger zone</div>
-          <Button
-            variant="destructive"
-            onClick={() => setDeleteConfirmOpen(true)}
-          >
-            Delete event…
-          </Button>
-        </div>
-      </div>
-
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete event?</AlertDialogTitle>
-          </AlertDialogHeader>
-          <div className="text-sm text-muted-foreground">
-            This deletes the event and its supplier links. Suppliers are not
-            deleted.
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={() => deleteMutation.mutate()}
-            >
-              {deleteMutation.isPending ? 'Deleting…' : 'Delete event'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  )
-}
+//       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+//         <AlertDialogContent className="max-w-sm">
+//           <AlertDialogHeader>
+//             <AlertDialogTitle>Delete event?</AlertDialogTitle>
+//           </AlertDialogHeader>
+//           <div className="text-sm text-muted-foreground">
+//             This deletes the event and its supplier links. Suppliers are not
+//             deleted.
+//           </div>
+//           <AlertDialogFooter>
+//             <AlertDialogCancel>Cancel</AlertDialogCancel>
+//             <AlertDialogAction
+//               variant="destructive"
+//               onClick={() => deleteMutation.mutate()}
+//             >
+//               {deleteMutation.isPending ? 'Deleting…' : 'Delete event'}
+//             </AlertDialogAction>
+//           </AlertDialogFooter>
+//         </AlertDialogContent>
+//       </AlertDialog>
+//     </>
+//   )
+// }

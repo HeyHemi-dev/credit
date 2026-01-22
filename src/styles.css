@@ -4,7 +4,6 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/figtree';
 
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -123,20 +122,24 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-sans bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
   }
   html {
     @apply font-sans;
   }
 }
 
-/* body {
-  @apply m-0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer utilities {
+  .label {
+    @apply text-xs font-normal uppercase;
+    text-box: trim-both cap alphabetic;
+  }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-} */
+  .heading1 {
+    @apply text-4xl font-light;
+  }
+
+  .heading2 {
+    @apply text-lg font-light;
+  }
+}
