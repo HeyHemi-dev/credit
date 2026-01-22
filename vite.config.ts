@@ -13,9 +13,11 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart({
-      spa: {
-        enabled: true,
-      },
+      // Disable SPA mode to allow builds to complete
+      // with tanstack start 1.132.0
+      // spa: {
+      //   enabled: true,
+      // },
     }),
     nitro(),
     viteReact(),
