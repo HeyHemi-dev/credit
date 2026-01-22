@@ -42,17 +42,6 @@ export async function getEventById(id: string): Promise<EventRow | null> {
   return row ?? null
 }
 
-// export async function getEventByShareToken(
-//   shareToken: string,
-// ): Promise<EventRow | null> {
-//   const [row] = await db
-//     .select()
-//     .from(events)
-//     .where(eq(events.shareToken, shareToken))
-//     .limit(1)
-//   return row ?? null
-// }
-
 export async function deleteEvent(
   id: string,
   createdByUserId: string,

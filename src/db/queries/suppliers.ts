@@ -17,18 +17,6 @@ export async function getSupplierById(id: string): Promise<SupplierRow | null> {
   return row ?? null
 }
 
-// export async function getSupplierByEmail(
-//   email: string,
-// ): Promise<SupplierRow | null> {
-//   const normalizedEmail = normalizeEmail(email)
-//   const [row] = await db
-//     .select()
-//     .from(suppliers)
-//     .where(eq(suppliers.email, normalizedEmail))
-//     .limit(1)
-//   return row ?? null
-// }
-
 export async function createSupplier(
   input: NewSupplierRow,
 ): Promise<SupplierRow> {
@@ -80,25 +68,6 @@ export async function searchSuppliers(
 
   return rows
 }
-
-// export async function updateSupplierHandles(
-//   supplierId: string,
-//   input: Pick<SupplierRow, 'instagramHandle' | 'tiktokHandle'>,
-// ): Promise<void> {
-//   const normalizedInput = {
-//     instagramHandle:
-//       input.instagramHandle && normalizeHandle(input.instagramHandle),
-//     tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
-//   }
-//   await db
-//     .update(suppliers)
-//     .set({
-//       instagramHandle: normalizedInput.instagramHandle,
-//       tiktokHandle: normalizedInput.tiktokHandle,
-//       updatedAt: new Date(),
-//     })
-//     .where(eq(suppliers.id, supplierId))
-// }
 
 export async function findSupplierDedupeCandidates(
   input: Pick<SupplierRow, 'email' | 'name'>,

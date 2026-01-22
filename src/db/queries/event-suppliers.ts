@@ -34,20 +34,6 @@ export async function upsertEventSupplier(
   return row
 }
 
-// export async function removeSupplierFromEvent(
-//   eventId: string,
-//   supplierId: string,
-// ): Promise<void> {
-//   await db
-//     .delete(eventSuppliers)
-//     .where(
-//       and(
-//         eq(eventSuppliers.eventId, eventId),
-//         eq(eventSuppliers.supplierId, supplierId),
-//       ),
-//     )
-// }
-
 export async function deleteEventSupplier(
   eventId: string,
   supplierId: string,
