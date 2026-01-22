@@ -110,10 +110,10 @@ function EventDetailContent({
             <div className="text-sm text-muted-foreground">None yet.</div>
           ) : (
             <div className="grid gap-4">
-              {event.credits.map((row) => (
+              {event.credits.map((credit) => (
                 <CreditListItem
-                  key={row.id}
-                  credit={row}
+                  key={credit.id}
+                  credit={credit}
                   eventId={eventId}
                   shareToken={event.shareToken}
                 />

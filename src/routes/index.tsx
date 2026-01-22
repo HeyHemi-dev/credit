@@ -2,9 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react/ui'
 import { RouteError } from '@/components/route-error'
-import { Main, Section } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
-import { CreateEventDrawer } from '@/components/events/create-event-drawer'
+import { ActionDrawer } from '@/components/action-drawer'
 import { useEvents } from '@/hooks/use-events'
 import {
   EventListStatus,
@@ -16,6 +16,7 @@ import {
   EventListItem,
   EventListItemSkeleton,
 } from '@/components/events/event-list-item'
+import { CreateEventForm } from '@/components/events/create-event-form'
 
 export const Route = createFileRoute('/')({
   ssr: false,
@@ -44,13 +45,15 @@ function Dashboard() {
 }
 
 function EventList({ userId }: { userId: string }) {
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+
   const { getEventListQuery } = useEvents(userId)
-  const [createOpen, setCreateOpen] = React.useState(false)
   const events = getEventListQuery.data
 
   return (
     <>
-      <Section>
+      <Section className="pb-24">
         <EventListStatus activeEvents={events.length} />
         <div className="grid gap-4">
           {events.map((event) => (
@@ -62,17 +65,19 @@ function EventList({ userId }: { userId: string }) {
       <div className="fixed bottom-6 left-1/2 z-10 -translate-x-1/2">
         <Button
           className="h-auto border-2 border-primary/20 px-8 py-4 shadow-xl shadow-primary/20"
-          onClick={() => setCreateOpen(true)}
+          onClick={() => setDrawerOpen(true)}
         >
           New event
         </Button>
       </div>
 
-      <CreateEventDrawer
-        authUserId={userId}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      <ActionDrawer
+        state={{ isOpen: drawerOpen, setIsOpen: setDrawerOpen }}
+        content={{ title: 'Create Event' }}
+        setContainerRef={containerRef}
+      >
+        <CreateEventForm authUserId={userId} containerRef={containerRef} />
+      </ActionDrawer>
     </>
   )
 }
