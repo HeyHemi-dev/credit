@@ -30,9 +30,13 @@ const defaultValues: CreateEventForm = {
 
 export function CreateEventForm({
   authUserId,
+  onSubmit,
+  onCancel,
   containerRef,
 }: {
   authUserId: string
+  onSubmit: () => void
+  onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
   const { createEventMutation } = useEvents(authUserId)
@@ -48,6 +52,7 @@ export function CreateEventForm({
         weddingDate: value.weddingDate,
         region: emptyStringToNull(value.region),
       })
+      onSubmit()
     },
   })
 
@@ -58,8 +63,9 @@ export function CreateEventForm({
         e.preventDefault()
         form.handleSubmit()
       }}
+      className="grid gap-9"
     >
-      <FieldGroup>
+      <FieldGroup className="grid gap-6">
         <form.Field
           name="eventName"
           children={(field) => (
@@ -123,6 +129,17 @@ export function CreateEventForm({
             </FormField>
           )}
         />
+      </FieldGroup>
+
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => onCancel()}
+          disabled={form.state.isSubmitting}
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           form="create-event-form"
@@ -130,7 +147,7 @@ export function CreateEventForm({
         >
           Create Event
         </Button>
-      </FieldGroup>
+      </div>
     </form>
   )
 }

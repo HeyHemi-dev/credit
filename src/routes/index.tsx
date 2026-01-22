@@ -76,7 +76,12 @@ function EventList({ userId }: { userId: string }) {
         content={{ title: 'Create Event' }}
         setContainerRef={containerRef}
       >
-        <CreateEventForm authUserId={userId} containerRef={containerRef} />
+        <CreateEventForm
+          authUserId={userId}
+          onSubmit={() => setDrawerOpen(false)}
+          onCancel={() => setDrawerOpen(false)}
+          containerRef={containerRef}
+        />
       </ActionDrawer>
     </>
   )
