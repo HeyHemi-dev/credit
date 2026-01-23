@@ -62,10 +62,9 @@ export function CreditList({
   const { getEventForCoupleQuery } = useCredits(eventId, shareToken)
   const event = getEventForCoupleQuery.data
 
-  // add credit button (opens drawer/form)
-  // list of credits - includes remove button
-  // credit drawer with form for adding a new credit - includes service,
-  // and 'search for supplier' combo box
+  // TODO: add event done checkbox
+  // TODO: write drawer open state to url search params
+
   return (
     <>
       <Section>
