@@ -10,6 +10,7 @@ import appCss from '@/styles.css?url'
 import { Header } from '@/components/header'
 import { RouteError } from '@/components/route-error'
 import { Main } from '@/components/ui/section'
+import { isDev } from '@/lib/utils'
 
 export const Route = createRootRoute({
   ssr: false,
@@ -47,18 +48,26 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <Main>{children}</Main>
             <footer></footer>
           </div>
-          <TanStackDevtools
-            config={{ position: 'bottom-right' }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
+          <DevTools />
           <Scripts />
         </body>
       </html>
     </NeonAuthUIProvider>
+  )
+}
+
+function DevTools() {
+  if (!isDev) return null
+
+  return (
+    <TanStackDevtools
+      config={{ position: 'bottom-right' }}
+      plugins={[
+        {
+          name: 'Tanstack Router',
+          render: <TanStackRouterDevtoolsPanel />,
+        },
+      ]}
+    />
   )
 }

@@ -7,7 +7,7 @@ export function cn(...inputs: Array<ClassValue>) {
 }
 
 export const isServer = typeof window === 'undefined'
-export const isDev = process.env.VERCEL_ENV === 'development'
+export const isDev = import.meta.env.DEV
 
 export function generateToken(length: number) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
