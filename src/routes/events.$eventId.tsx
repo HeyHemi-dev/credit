@@ -25,6 +25,7 @@ import { CopyButton } from '@/components/copy-button'
 import { InputDiv } from '@/components/ui/input'
 
 export const Route = createFileRoute('/events/$eventId')({
+  ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
