@@ -49,6 +49,8 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
     },
 
     onSubmit: async ({ value }) => {
+      if (authToken.status !== AUTH_STATUS.AUTHENTICATED) return
+
       await createMutation.mutateAsync({
         ...value,
         instagramHandle: emptyStringToNull(value.instagramHandle),
