@@ -19,26 +19,34 @@ Runs on [http://localhost:5173](http://localhost:5173).
 
 ## Environment
 
-Copy `.env.example` to `.env.local` and fill in values.
+**From Vercel (recommended):** Install the [Vercel CLI](https://vercel.com/docs/cli), link the project (`vercel link` if needed), then pull env into `.env.local`:
 
-| Variable | Purpose |
-|----------|---------|
-| `CR_DATABASE_URL` | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
-| `VITE_NEON_AUTH_URL` | Neon Auth / Better Auth backend URL. |
+```bash
+vercel env pull .env.local
+```
+
+**Manual:** Create `.env.local` and fill in values.
+
+**Required variables:**
+
+| Variable             | Purpose                                                                       |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `CR_DATABASE_URL`    | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
+| `VITE_NEON_AUTH_URL` | Neon Auth / Better Auth backend URL.                                          |
 
 ## Database
 
-- **Schema:** [src/db/schema.ts](src/db/schema.ts)
+- **Schema:** `src/db/schema.ts`
 - **Migrations:** `drizzle/`
 
-| Script | Description |
-|--------|-------------|
-| `pnpm db:generate` | Generate migrations |
-| `pnpm db:migrate` | Run migrations |
-| `pnpm db:push` | Push schema (dev) |
-| `pnpm db:pull` | Pull from DB |
-| `pnpm db:check` | Check |
-| `pnpm db:probe` | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL` and an existing Neon Auth user or `PROBE_USER_ID`. |
+| Script             | Description                                                                                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:generate` | Generate migrations                                                                                                                                           |
+| `pnpm db:migrate`  | Run migrations                                                                                                                                                |
+| `pnpm db:push`     | Push schema (dev)                                                                                                                                             |
+| `pnpm db:pull`     | Pull from DB                                                                                                                                                  |
+| `pnpm db:check`    | Check                                                                                                                                                         |
+| `pnpm db:probe`    | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL` and an existing Neon Auth user or `PROBE_USER_ID`. |
 
 ## Testing
 
@@ -57,13 +65,13 @@ pnpm serve
 
 ## Project layout
 
-| Path | Description |
-|------|-------------|
-| `src/routes/` | TanStack Router (file-based). `e.$eventId` = couple view (no auth); `events.$eventId` = event management (auth); `auth.$pathname`, `account.$pathname` = Neon Auth. |
-| `src/lib/server/` | Server functions (`createServerFn`). |
-| `src/hooks/` | Data-fetching and query keys. |
-| `src/db/` | Drizzle schema, connection, queries. |
-| `documentation/` | Product and tech docs. |
+| Path              | Description                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/`     | TanStack Router (file-based). `e.$eventId` = couple view (no auth); `events.$eventId` = event management (auth); `auth.$pathname`, `account.$pathname` = Neon Auth. |
+| `src/lib/server/` | Server functions (`createServerFn`).                                                                                                                                |
+| `src/hooks/`      | Data-fetching and query keys.                                                                                                                                       |
+| `src/db/`         | Drizzle schema, connection, queries.                                                                                                                                |
+| `documentation/`  | Product and tech docs.                                                                                                                                              |
 
 See [.cursorrules](.cursorrules) for conventions (hooks, server functions, validation, forms, etc.).
 
