@@ -14,9 +14,13 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
-
-import { sql } from 'drizzle-orm'
+import { getTableColumns, sql } from 'drizzle-orm'
+import type { AnyPgColumn } from 'drizzle-orm/pg-core'
 import { REGION, SERVICE } from '@/lib/constants'
+
+export function lower(column: AnyPgColumn) {
+  return sql`lower(${column})`
+}
 
 // Enum for service types
 // Using SERVICE object directly (pgEnum accepts Record<string, string>)
@@ -29,9 +33,12 @@ export const regionEnum = pgEnum('region', REGION)
 export const suppliers = pgTable(
   'suppliers',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     name: text('name').notNull(),
-    email: text('email').notNull().unique(),
+    email: text('email').notNull(),
+    emailDomain: text('email_domain').generatedAlwaysAs(
+      sql`split_part(email, '@', 2)`,
+    ),
     instagramHandle: text('instagram_handle'),
     tiktokHandle: text('tiktok_handle'),
     region: regionEnum('region'),
@@ -39,17 +46,19 @@ export const suppliers = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
-    index('suppliers_email_idx').on(table.email),
+    uniqueIndex('suppliers_email_unique').on(lower(table.email)),
+    index('suppliers_email_domain_idx').on(table.emailDomain),
     index('suppliers_instagram_handle_idx').on(table.instagramHandle),
     index('suppliers_tiktok_handle_idx').on(table.tiktokHandle),
   ],
 )
+export const supplierColumns = getTableColumns(suppliers)
 
 // Events table
 export const events = pgTable(
   'events',
   {
-    id: uuid('id').primaryKey(),
+    id: uuid('id').primaryKey().defaultRandom(),
     createdByUserId: uuid('created_by_user_id')
       .notNull()
       .references(() => userInNeonAuth.id, { onDelete: 'cascade' }),
@@ -62,6 +71,7 @@ export const events = pgTable(
   },
   (table) => [index('events_created_by_user_id_idx').on(table.createdByUserId)],
 )
+export const eventColumns = getTableColumns(events)
 
 // Event suppliers junction table
 export const eventSuppliers = pgTable(
@@ -80,6 +90,7 @@ export const eventSuppliers = pgTable(
   },
   (table) => [primaryKey({ columns: [table.eventId, table.supplierId] })],
 )
+export const eventSupplierColumns = getTableColumns(eventSuppliers)
 
 // ===================================================
 // Neon Auth schema - for reference only

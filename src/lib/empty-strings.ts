@@ -11,6 +11,8 @@ export function optionalField<T extends z.ZodType<string>>(schema: T) {
   return z.union([schema, z.literal('')])
 }
 
+type WithoutEmptyString<T> = T extends '' ? never : T
+
 /**
  * Converts an empty string to null.
  * Useful for converting empty strings to null before writing to the database.
@@ -19,8 +21,8 @@ export function optionalField<T extends z.ZodType<string>>(schema: T) {
  * emptyStringToNull('') // null
  * emptyStringToNull('hello') // 'hello'
  */
-export function emptyStringToNull<T>(value: T): T | null {
-  return value === '' ? null : value
+export function emptyStringToNull<T>(value: T): WithoutEmptyString<T> | null {
+  return value === '' ? null : (value as WithoutEmptyString<T>)
 }
 
 type NullToEmpty<T> = T extends null ? '' : T

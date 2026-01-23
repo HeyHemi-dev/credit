@@ -1,4 +1,4 @@
-import type { ConstEnum } from '@/lib/generic-types'
+import type { ConstEnum } from '@/lib/types/generic-types'
 
 // New Zealand wedding supplier services
 export const SERVICE = {
@@ -66,3 +66,8 @@ export type RegionKey = keyof typeof REGION
 export const REGION_KEYS = Object.keys(REGION) as Array<RegionKey>
 export type Region = (typeof REGION)[RegionKey]
 export const REGIONS = Object.values(REGION)
+
+export const SHARE_TOKEN_MIN_LENGTH = 32
+export const DEBOUNCE_INPUT_MS = 300
+export const BATCH_AUTOSAVE_MS = 60_000
+export const THROTTLE_COPY_MS = 1500
