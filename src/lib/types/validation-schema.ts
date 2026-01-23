@@ -1,9 +1,15 @@
 import z from 'zod'
-import { REGIONS, SERVICES, SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
+import {
+  AUTH_STATUS,
+  AUTH_TOKEN_TYPE,
+  REGIONS,
+  SERVICES,
+  SHARE_TOKEN_MIN_LENGTH,
+} from '@/lib/constants'
 import { optionalField } from '@/lib/empty-strings'
 
 // ===============================
-// Common Schemas
+// Auth Schemas
 // ===============================
 
 export const authUserIdSchema = z.uuid()
@@ -13,10 +19,22 @@ export const shareTokenSchema = z
   .string()
   .trim()
   .min(SHARE_TOKEN_MIN_LENGTH, 'Invalid share token')
-export const authTokenSchema = z.object({
-  token: z.union([sessionTokenSchema, shareTokenSchema]),
-  tokenType: z.enum(['sessionToken', 'shareToken']),
-})
+export const authTokenSchema = z.discriminatedUnion('status', [
+  z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
+  z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),
+
+  z.object({
+    status: z.literal(AUTH_STATUS.AUTHENTICATED),
+    tokenType: z.literal(AUTH_TOKEN_TYPE.SESSION_TOKEN),
+    token: sessionTokenSchema,
+  }),
+  z.object({
+    status: z.literal(AUTH_STATUS.AUTHENTICATED),
+    tokenType: z.literal(AUTH_TOKEN_TYPE.SHARE_TOKEN),
+    token: shareTokenSchema,
+  }),
+])
+
 export type AuthToken = z.infer<typeof authTokenSchema>
 export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
