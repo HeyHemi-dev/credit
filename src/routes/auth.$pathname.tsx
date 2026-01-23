@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AuthView } from '@neondatabase/neon-js/auth/react/ui'
-import { Main } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 
 export const Route = createFileRoute('/auth/$pathname')({
   component: Auth,
@@ -9,8 +9,8 @@ export const Route = createFileRoute('/auth/$pathname')({
 function Auth() {
   const { pathname } = Route.useParams()
   return (
-    <Main className="flex justify-center items-center ">
+    <Section className="flex items-center justify-center bg-transparent">
       <AuthView pathname={pathname} />
-    </Main>
+    </Section>
   )
 }
