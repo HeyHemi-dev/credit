@@ -18,14 +18,14 @@ export function CreditListItem({
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-4">
-      <div>
+      <div className="grid gap-0.5">
         <p>
-          <span className="text-sm text-muted-foreground">{`${credit.service} • `}</span>
+          <span className="text-foreground">{`${credit.service} • `}</span>
           <span className="font-medium">{credit.name}</span>
         </p>
         {credit.contributionNotes && (
           <p className="text-sm text-muted-foreground">
-            • {credit.contributionNotes}
+            {credit.contributionNotes}
           </p>
         )}
       </div>

@@ -30,20 +30,16 @@ export function IntroModal() {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-sm">
-        <AlertDialogHeader className="place-items-start text-left">
+        <AlertDialogHeader className="grid place-items-start gap-4 text-left">
           <AlertDialogTitle>Help us credit your suppliers</AlertDialogTitle>
+          <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
+            <p>
+              List the suppliers you used for your wedding, so they can easily
+              credit each other on social media.
+            </p>
+            <p>No login required. We'll auto-save as you go.</p>
+          </div>
         </AlertDialogHeader>
-
-        <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
-          <p>
-            Give Credit lets you list the suppliers you used for your wedding.
-          </p>
-          <p>
-            Share the list with your photographer so they can credit and thank
-            them properly.
-          </p>
-          <p>No login needed. We'll auto-save as you go.</p>
-        </div>
 
         <AlertDialogFooter className="flex justify-end">
           <AlertDialogCancel

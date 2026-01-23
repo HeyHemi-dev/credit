@@ -75,7 +75,8 @@ export function CreditList({
             <span className="font-light">{event.eventName}</span>
           </h1>
           <p className="text-pretty text-muted-foreground">
-            Add the suppliers you used and start crediting them.
+            Please list the suppliers you used, so we can accurately credit
+            them.
           </p>
         </div>
         <div className="grid gap-6">
