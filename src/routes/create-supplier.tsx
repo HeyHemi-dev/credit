@@ -1,12 +1,14 @@
 import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
-import type { AuthToken } from '@/lib/types/validation-schema'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Alert02Icon, Loading02Icon } from '@hugeicons/core-free-icons'
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
 import { authClient } from '@/auth'
-import { ERROR } from '@/lib/errors'
+import { resolveAuthToken } from '@/lib/utils'
+import { AUTH_STATUS } from '@/lib/constants'
 
 const createSupplierSearchSchema = z.object({
   shareToken: z.string().optional(),
@@ -25,27 +27,56 @@ function CreateSupplierRoute() {
   const { data, isPending } = authClient.useSession()
   const { shareToken } = Route.useSearch()
 
-  if (isPending) return <div>Loading...</div>
-  if (!data && !shareToken)
-    throw ERROR.NOT_AUTHENTICATED(
-      'Please log in, or request a new link, to create a supplier',
-    )
-
-  const authToken: AuthToken = data
-    ? { token: data.session.token, tokenType: 'sessionToken' }
-    : // we can safely assert shareToken exists because we ensured
-      // either auth data or share token is present
-      { token: shareToken!, tokenType: 'shareToken' }
+  const authToken = resolveAuthToken({
+    isPending,
+    sessionToken: data?.session.token,
+    shareToken,
+  })
 
   return (
     <Section>
-      <div className="flex justify-start">
-        <BackButton />
+      <BackButton />
+
+      <div className="grid gap-6">
+        <div className="grid gap-0.5">
+          <h1 className="text-2xl font-light">Create a new supplier</h1>
+          <p className="text-sm text-muted-foreground">
+            Create a new supplier anyone can use.
+          </p>
+        </div>
+        <CreateSupplierForm authToken={authToken} />
       </div>
 
-      <h1 className="text-2xl font-light">Create a new supplier</h1>
-
-      <CreateSupplierForm authToken={authToken} />
+      {authToken.status ===
+        (AUTH_STATUS.PENDING || AUTH_STATUS.UNAUTHENTICATED) && (
+        <AuthState
+          isPending={authToken.status === AUTH_STATUS.PENDING}
+          message={
+            authToken.status === AUTH_STATUS.PENDING
+              ? 'Checking authentication...'
+              : 'Not authenticated. Please log in, or request a new share link'
+          }
+        />
+      )}
     </Section>
+  )
+}
+
+export function AuthState({
+  isPending,
+  message,
+}: {
+  isPending: boolean
+  message: string
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border p-6 text-muted-foreground">
+      {isPending ? (
+        <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
+      ) : (
+        <HugeiconsIcon icon={Alert02Icon} />
+      )}
+      <p className="text-sm">{message}</p>
+    </div>
   )
 }
