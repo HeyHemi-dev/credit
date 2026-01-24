@@ -82,6 +82,7 @@ function AccountNav() {
               key={view.pathname}
               to="/account/$pathname"
               params={{ pathname: view.pathname }}
+              replace={true}
               activeProps={{ className: 'bg-background text-foreground' }}
               className="label flex h-full min-w-24 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1"
             >
