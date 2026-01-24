@@ -5,10 +5,9 @@ import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
-import { authClient } from '@/auth'
-import { resolveAuthToken } from '@/lib/utils'
 import { AUTH_STATUS } from '@/lib/constants'
 import { AuthState } from '@/components/auth-state'
+import { useAuthToken } from '@/hooks/use-auth-token'
 
 const createSupplierSearchSchema = z.object({
   shareToken: z.string().optional(),
@@ -24,14 +23,8 @@ export const Route = createFileRoute('/create-supplier')({
 })
 
 function CreateSupplierRoute() {
-  const { data, isPending } = authClient.useSession()
   const { shareToken } = Route.useSearch()
-
-  const authToken = resolveAuthToken({
-    isPending,
-    sessionToken: data?.session.token,
-    shareToken,
-  })
+  const authToken = useAuthToken(shareToken)
 
   return (
     <Section>
