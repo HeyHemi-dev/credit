@@ -27,6 +27,8 @@ export const Route = createFileRoute('/')({
 })
 
 function Dashboard() {
+  // TODO: implement auth token check that doesn't remount the component
+
   const { data, isPending } = authClient.useSession()
 
   if (isPending) {

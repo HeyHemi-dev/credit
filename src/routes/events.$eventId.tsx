@@ -33,6 +33,8 @@ export const Route = createFileRoute('/events/$eventId')({
 })
 
 function RouteComponent() {
+  // TODO: implement auth token check that doesn't remount the component
+
   const { data, isPending } = authClient.useSession()
   const { eventId } = Route.useParams()
 
@@ -88,6 +90,9 @@ function EventDetailContent({
     deleteEventMutation.mutate()
     router.navigate({ to: '/' })
   }
+
+  // TODO: edit event name and wedding date
+  // TODO: add event locked checkbox (consider using eventStatus enum with open, submitted, and locked)
 
   return (
     <>

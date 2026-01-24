@@ -62,7 +62,7 @@ export function CreditList({
   const { getEventForCoupleQuery } = useCredits(eventId, shareToken)
   const event = getEventForCoupleQuery.data
 
-  // TODO: add event done checkbox
+  // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
   // TODO: write drawer open state to url search params
 
   return (
