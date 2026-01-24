@@ -2,17 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateEventForm } from '@/components/events/create-event-form'
-import {
-  EventListItem,
-  EventListItemSkeleton,
-} from '@/components/events/event-list-item'
-import {
-  EventListStatus,
-  EventListStatusSkeleton,
-} from '@/components/events/event-list-status'
+
 import { Section } from '@/components/ui/section'
 import { useAuthToken } from '@/hooks/use-auth-token'
-import { useEvents } from '@/hooks/use-events'
+import {
+  EventList,
+  EventListSkeleton,
+} from '@/components/events/event-list-item'
 import { Button } from '@/components/ui/button'
 import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
 import { AuthState } from '@/components/auth-state'
@@ -68,33 +64,5 @@ function RouteComponent() {
         )}
       </ActionDrawer>
     </>
-  )
-}
-
-function EventList({ userId }: { userId: string }) {
-  const { getEventListQuery } = useEvents(userId)
-  const events = getEventListQuery.data
-
-  return (
-    <>
-      <EventListStatus activeEvents={events.length} />
-      <div className="grid gap-4">
-        {events.map((event) => (
-          <EventListItem key={event.id} event={event} />
-        ))}
-      </div>
-    </>
-  )
-}
-
-function EventListSkeleton() {
-  return (
-    <Section>
-      <EventListStatusSkeleton />
-      <div className="grid gap-4">
-        <EventListItemSkeleton />
-        <EventListItemSkeleton />
-      </div>
-    </Section>
   )
 }

@@ -4,6 +4,41 @@ import type { EventListItem } from '@/lib/types/front-end'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CopyButton } from '@/components/copy-button'
 import { useClipboard } from '@/hooks/use-clipboard'
+import { useEvents } from '@/hooks/use-events'
+
+import {
+  EventListStatus,
+  EventListStatusSkeleton,
+} from '@/components/events/event-list-status'
+import { Section } from '@/components/ui/section'
+
+export function EventList({ userId }: { userId: string }) {
+  const { getEventListQuery } = useEvents(userId)
+  const events = getEventListQuery.data
+
+  return (
+    <>
+      <EventListStatus activeEvents={events.length} />
+      <div className="grid gap-4">
+        {events.map((event) => (
+          <EventListItem key={event.id} event={event} />
+        ))}
+      </div>
+    </>
+  )
+}
+
+export function EventListSkeleton() {
+  return (
+    <Section>
+      <EventListStatusSkeleton />
+      <div className="grid gap-4">
+        <EventListItemSkeleton />
+        <EventListItemSkeleton />
+      </div>
+    </Section>
+  )
+}
 
 export function EventListItem({ event }: { event: EventListItem }) {
   const { isCopied, copy } = useClipboard()
