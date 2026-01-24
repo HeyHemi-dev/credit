@@ -22,11 +22,11 @@ export const shareTokenSchema = z
 export const authTokenSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
   z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),
-
   z.object({
     status: z.literal(AUTH_STATUS.AUTHENTICATED),
     tokenType: z.literal(AUTH_TOKEN_TYPE.SESSION_TOKEN),
     token: sessionTokenSchema,
+    authUserId: authUserIdSchema,
   }),
   z.object({
     status: z.literal(AUTH_STATUS.AUTHENTICATED),
