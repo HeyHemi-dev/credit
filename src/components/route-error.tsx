@@ -54,15 +54,24 @@ export function RouteError({ error, info, reset }: ErrorComponentProps) {
   }
 
   return (
-    <Section>
-      <div className="grid gap-2">
-        <h1 className="text-4xl font-light">Something went wrong</h1>
-        <p className="text-muted-foreground">{error.message}</p>
+    <Section className="grid grid-rows-[auto_1fr_auto]">
+      <div className="grid gap-0.5">
+        <h1 className="text-2xl font-light text-balance">
+          Something went wrong
+        </h1>
+        <p className="text-pretty text-muted-foreground">{error.message}</p>
       </div>
 
-      <Button variant="secondary" onClick={onRetry} disabled={isRetrying}>
-        {isRetrying ? 'Retrying…' : 'Try again'}
-      </Button>
+      <div className="grid place-items-center">
+        <Button
+          variant="secondary"
+          className="min-w-32"
+          onClick={onRetry}
+          disabled={isRetrying}
+        >
+          {isRetrying ? 'Loading...' : 'Refresh'}
+        </Button>
+      </div>
 
       {/* Dev-only detail (optional) */}
       {isDev && info?.componentStack ? (
