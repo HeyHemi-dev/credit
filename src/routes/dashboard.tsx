@@ -5,10 +5,7 @@ import { CreateEventForm } from '@/components/events/create-event-form'
 
 import { Section } from '@/components/ui/section'
 import { useAuthToken } from '@/hooks/use-auth-token'
-import {
-  EventList,
-  EventListSkeleton,
-} from '@/components/events/event-list-item'
+import { EventList, EventListSkeleton } from '@/components/events/event-list'
 import { Button } from '@/components/ui/button'
 import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
 import { AuthState } from '@/components/auth-state'
