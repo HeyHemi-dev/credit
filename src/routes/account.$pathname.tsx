@@ -29,29 +29,31 @@ function Account() {
   )
 }
 
-type AccountView = Href & {
+type AccountView = {
+  label: string
+  pathname: string
   isEnabled: boolean
 }
 
 const ACCOUNT_VIEW = {
   SETTINGS: {
     label: 'Settings',
-    href: 'settings',
+    pathname: 'settings',
     isEnabled: true,
   },
   SECURITY: {
     label: 'Security',
-    href: 'security',
+    pathname: 'security',
     isEnabled: true,
   },
   API_KEYS: {
     label: 'API Keys',
-    href: 'api-keys',
+    pathname: 'api-keys',
     isEnabled: false,
   },
   ORGANIZATIONS: {
     label: 'Organizations',
-    href: 'organizations',
+    pathname: 'organizations',
     isEnabled: false,
   },
 } as const satisfies Record<string, AccountView>
@@ -77,9 +79,9 @@ function AccountNav() {
         <TabsList>
           {ENABLED_ACCOUNT_VIEWS.map((view) => (
             <Link
-              key={view.href}
+              key={view.pathname}
               to="/account/$pathname"
-              params={{ pathname: view.href }}
+              params={{ pathname: view.pathname }}
               activeProps={{ className: 'bg-background text-foreground' }}
               className="label flex h-full min-w-24 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1"
             >
