@@ -5,7 +5,6 @@ import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
-import { AUTH_STATUS } from '@/lib/constants'
 import { AuthState } from '@/components/auth-state'
 import { useAuthToken } from '@/hooks/use-auth-token'
 
@@ -40,17 +39,7 @@ function CreateSupplierRoute() {
         <CreateSupplierForm authToken={authToken} />
       </div>
 
-      {authToken.status ===
-        (AUTH_STATUS.PENDING || AUTH_STATUS.UNAUTHENTICATED) && (
-        <AuthState
-          isPending={authToken.status === AUTH_STATUS.PENDING}
-          message={
-            authToken.status === AUTH_STATUS.PENDING
-              ? 'Checking authentication...'
-              : 'Not authenticated. Please log in, or request a new share link'
-          }
-        />
-      )}
+      <AuthState authToken={authToken} />
     </Section>
   )
 }
