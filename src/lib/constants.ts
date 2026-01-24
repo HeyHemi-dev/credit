@@ -71,3 +71,17 @@ export const SHARE_TOKEN_MIN_LENGTH = 32
 export const DEBOUNCE_INPUT_MS = 300
 export const BATCH_AUTOSAVE_MS = 60_000
 export const THROTTLE_COPY_MS = 1500
+
+export const AUTH_STATUS = {
+  AUTHENTICATED: 'authenticated',
+  UNAUTHENTICATED: 'unauthenticated',
+  PENDING: 'pending',
+} as const satisfies ConstEnum
+export type AuthStatus = (typeof AUTH_STATUS)[keyof typeof AUTH_STATUS]
+
+export const AUTH_TOKEN_TYPE = {
+  SESSION_TOKEN: 'sessionToken',
+  SHARE_TOKEN: 'shareToken',
+} as const satisfies ConstEnum
+export type AuthTokenType =
+  (typeof AUTH_TOKEN_TYPE)[keyof typeof AUTH_TOKEN_TYPE]

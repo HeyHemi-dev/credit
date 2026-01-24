@@ -16,6 +16,8 @@ export function CreditListItem({
 }) {
   const { deleteCreditMutation } = useCredit(eventId, credit.id, shareToken)
 
+  // TODO: add credit edit button
+
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-4">
       <div className="grid gap-0.5">

@@ -7,6 +7,9 @@ export const Route = createFileRoute('/auth/$pathname')({
 })
 
 function Auth() {
+  // TODO: Make clear this is for suppliers to log in, not couples.
+  // Add a link for couples to escape this page.
+
   const { pathname } = Route.useParams()
   return (
     <Section className="flex items-center justify-center bg-transparent">

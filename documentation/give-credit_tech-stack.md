@@ -1,34 +1,15 @@
 # Tech Stack
 
-## Framework/UI
-- **TanStack Start** (Vite)
-- **TanStack Query**
-- **TanStack Form** 
-- **Tanstack Pacer** (Debouncer, Throttler, Rate Limiter, Queuer, Batcher)
-- **shadcn/ui**
-- **Tailwind**
-
-## Hosting
-- **Vercel**
-
-## Database
-- **Neon** (Postgres)
-- **Drizzle ORM** (queries, migrations)
-
-## Validation
-- **Zod**
-
-## Authentication
-- **Neon Auth** (Better Auth) + Google OAuth (web app)
-
-## Email
-- **Resend** (transactional)
-
-## CI/CD
-- **GitHub Actions**
-
-## Testing
-- **Vitest**
+| Area | In use | Planned |
+|------|--------|---------|
+| **Framework/UI** | TanStack Start (Vite), TanStack Router, TanStack Query, TanStack Form, TanStack Pacer, shadcn/ui, Tailwind | — |
+| **Database** | Neon (Postgres), Drizzle ORM | — |
+| **Validation** | Zod | — |
+| **Authentication** | Neon Auth (Better Auth) + Google OAuth | — |
+| **Hosting** | Vercel | — |
+| **Testing** | Vitest | — |
+| **Email** | — | Resend (transactional, not yet integrated) |
+| **CI/CD** | — | GitHub Actions (e.g. migrations on `main`, not yet configured) |
 
 # Implementation Notes
 

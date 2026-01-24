@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { REGIONS } from '@/lib/constants'
+import { AUTH_STATUS, REGIONS } from '@/lib/constants'
 import { useCreateSupplier } from '@/hooks/use-suppliers'
 import {
   createSupplierFormSchema,
@@ -49,6 +49,8 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
     },
 
     onSubmit: async ({ value }) => {
+      if (authToken.status !== AUTH_STATUS.AUTHENTICATED) return
+
       await createMutation.mutateAsync({
         ...value,
         instagramHandle: emptyStringToNull(value.instagramHandle),
@@ -177,7 +179,11 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <Button
           type="submit"
           form="create-supplier-form"
-          disabled={form.state.isSubmitting || createMutation.isPending}
+          disabled={
+            form.state.isSubmitting ||
+            createMutation.isPending ||
+            authToken.status === AUTH_STATUS.PENDING
+          }
         >
           {createMutation.isPending ? 'Creating…' : 'Create supplier'}
         </Button>
