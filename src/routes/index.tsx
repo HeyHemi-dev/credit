@@ -7,14 +7,14 @@ import { AUTH_STATUS } from '@/lib/constants'
 
 export const Route = createFileRoute('/')({
   ssr: false,
-  component: Dashboard,
+  component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
 })
 
-function Dashboard() {
-  // TODO: implement auth token check that doesn't remount the component
+function RouteComponent() {
+  // TODO: implement marketing page
 
   const authToken = useAuthToken()
   const navigate = Route.useNavigate()
