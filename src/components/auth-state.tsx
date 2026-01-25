@@ -1,12 +1,11 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Loading02Icon } from '@hugeicons/core-free-icons'
-import type { ComponentProps } from 'react'
+import type { IconSVGObject } from '@/lib/types/generic-types'
 import type { AuthStatus } from '@/lib/constants'
 import type { AuthToken } from '@/lib/types/validation-schema'
 import { AUTH_STATUS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-type IconSVGObject = ComponentProps<typeof HugeiconsIcon>['icon']
 type AuthStateProps = {
   authToken: AuthToken
   messages?: {
