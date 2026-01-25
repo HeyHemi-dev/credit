@@ -20,7 +20,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
 
   if (authToken.status === AUTH_STATUS.AUTHENTICATED)
-    navigate({ to: '/dashboard', replace: true })
+    navigate({ to: '/events', replace: true })
 
   return <Section></Section>
 }

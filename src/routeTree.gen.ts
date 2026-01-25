@@ -9,19 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CreateSupplierRouteImport } from './routes/create-supplier'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as EEventIdRouteImport } from './routes/e.$eventId'
 import { Route as AuthPathnameRouteImport } from './routes/auth.$pathname'
 import { Route as AccountPathnameRouteImport } from './routes/account.$pathname'
 
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CreateSupplierRoute = CreateSupplierRouteImport.update({
   id: '/create-supplier',
   path: '/create-supplier',
@@ -30,6 +25,11 @@ const CreateSupplierRoute = CreateSupplierRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdRoute = EventsEventIdRouteImport.update({
@@ -56,80 +56,73 @@ const AccountPathnameRoute = AccountPathnameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-supplier': typeof CreateSupplierRoute
-  '/dashboard': typeof DashboardRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
   '/e/$eventId': typeof EEventIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events': typeof EventsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-supplier': typeof CreateSupplierRoute
-  '/dashboard': typeof DashboardRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
   '/e/$eventId': typeof EEventIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events': typeof EventsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/create-supplier': typeof CreateSupplierRoute
-  '/dashboard': typeof DashboardRoute
   '/account/$pathname': typeof AccountPathnameRoute
   '/auth/$pathname': typeof AuthPathnameRoute
   '/e/$eventId': typeof EEventIdRoute
   '/events/$eventId': typeof EventsEventIdRoute
+  '/events/': typeof EventsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/create-supplier'
-    | '/dashboard'
     | '/account/$pathname'
     | '/auth/$pathname'
     | '/e/$eventId'
     | '/events/$eventId'
+    | '/events'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/create-supplier'
-    | '/dashboard'
     | '/account/$pathname'
     | '/auth/$pathname'
     | '/e/$eventId'
     | '/events/$eventId'
+    | '/events'
   id:
     | '__root__'
     | '/'
     | '/create-supplier'
-    | '/dashboard'
     | '/account/$pathname'
     | '/auth/$pathname'
     | '/e/$eventId'
     | '/events/$eventId'
+    | '/events/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateSupplierRoute: typeof CreateSupplierRoute
-  DashboardRoute: typeof DashboardRoute
   AccountPathnameRoute: typeof AccountPathnameRoute
   AuthPathnameRoute: typeof AuthPathnameRoute
   EEventIdRoute: typeof EEventIdRoute
   EventsEventIdRoute: typeof EventsEventIdRoute
+  EventsIndexRoute: typeof EventsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/create-supplier': {
       id: '/create-supplier'
       path: '/create-supplier'
@@ -142,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/$eventId': {
@@ -178,11 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateSupplierRoute: CreateSupplierRoute,
-  DashboardRoute: DashboardRoute,
   AccountPathnameRoute: AccountPathnameRoute,
   AuthPathnameRoute: AuthPathnameRoute,
   EEventIdRoute: EEventIdRoute,
   EventsEventIdRoute: EventsEventIdRoute,
+  EventsIndexRoute: EventsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
