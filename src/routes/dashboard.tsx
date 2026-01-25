@@ -1,14 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
+import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateEventForm } from '@/components/events/create-event-form'
 
 import { Section } from '@/components/ui/section'
-import { useAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuthToken, useAuthToken } from '@/hooks/use-auth-token'
 import { EventList, EventListSkeleton } from '@/components/events/event-list'
 import { Button } from '@/components/ui/button'
-import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
+
 import { AuthState } from '@/components/auth-state'
+import { AUTH_STATUS } from '@/lib/constants'
 
 export const Route = createFileRoute('/dashboard')({
   component: RouteComponent,
@@ -19,18 +21,14 @@ function RouteComponent() {
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
-  const authUserId =
-    authToken.status === AUTH_STATUS.AUTHENTICATED &&
-    authToken.tokenType === AUTH_TOKEN_TYPE.SESSION_TOKEN
-      ? authToken.authUserId
-      : null
-
   return (
     <>
+      {authToken.status === AUTH_STATUS.UNAUTHENTICATED && <RedirectToSignIn />}
+
       <Section className="pb-24">
-        {authUserId ? (
+        {isSessionAuthToken(authToken) ? (
           <React.Suspense fallback={<EventListSkeleton />}>
-            <EventList userId={authUserId} />
+            <EventList userId={authToken.authUserId} />
           </React.Suspense>
         ) : (
           <AuthState authToken={authToken} />
@@ -51,14 +49,11 @@ function RouteComponent() {
         content={{ title: 'Create Event' }}
         setContainerRef={containerRef}
       >
-        {authUserId && (
-          <CreateEventForm
-            authUserId={authUserId}
-            onSubmit={() => setDrawerOpen(false)}
-            onCancel={() => setDrawerOpen(false)}
-            containerRef={containerRef}
-          />
-        )}
+        <CreateEventForm
+          onSubmit={() => setDrawerOpen(false)}
+          onCancel={() => setDrawerOpen(false)}
+          containerRef={containerRef}
+        />
       </ActionDrawer>
     </>
   )
