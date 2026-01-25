@@ -11,6 +11,7 @@ import { Header } from '@/components/header'
 import { RouteError } from '@/components/route-error'
 import { Main } from '@/components/ui/section'
 import { isDev } from '@/lib/utils'
+import { RouteNotFound } from '@/components/route-not-found'
 
 // TODO: Rename project to "With Thanks"
 // TODO: create notFound component `notFoundComponent:`
@@ -28,6 +29,7 @@ export const Route = createRootRoute({
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
+  notFoundComponent: () => <RouteNotFound />,
   shellComponent: RootDocument,
 })
 
