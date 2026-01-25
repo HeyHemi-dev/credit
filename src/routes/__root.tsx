@@ -13,6 +13,7 @@ import { Main } from '@/components/ui/section'
 import { isDev } from '@/lib/utils'
 
 // TODO: Rename project to "With Thanks"
+// TODO: create notFound component `notFoundComponent:`
 
 export const Route = createRootRoute({
   ssr: false,
