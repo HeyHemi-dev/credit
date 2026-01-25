@@ -2,7 +2,7 @@ import React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AddSquareIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import { Search01Icon } from '@hugeicons/core-free-icons'
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 
@@ -13,12 +13,12 @@ import {
   CreditListItem,
   CreditListItemSkeleton,
 } from '@/components/credit/credit-list'
-import { ERROR } from '@/lib/errors'
 
 import { shareTokenSchema } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
+import { requireShareAuthToken, useAuthToken } from '@/hooks/use-auth-token'
 
 const creditListRouteSearchSchema = z.object({
   shareToken: shareTokenSchema,
@@ -36,16 +36,18 @@ export const Route = createFileRoute('/e/$eventId')({
 function CoupleEventRoute() {
   const { eventId } = Route.useParams()
   const { shareToken } = Route.useSearch()
-  if (!shareToken) {
-    throw ERROR.NOT_AUTHENTICATED('Share token is required')
-  }
+  const authToken = useAuthToken(shareToken)
+  const shareAuth = requireShareAuthToken(authToken)
 
   return (
     <>
       <IntroModal />
-      <React.Suspense fallback={<CreditListSkeleton />}>
-        <CreditList eventId={eventId} shareToken={shareToken} />
-      </React.Suspense>
+
+      <Section>
+        <React.Suspense fallback={<CreditListSkeleton />}>
+          <CreditList eventId={eventId} shareToken={shareAuth.token} />
+        </React.Suspense>
+      </Section>
     </>
   )
 }
@@ -67,47 +69,45 @@ export function CreditList({
 
   return (
     <>
-      <Section>
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-light">
-            <span className="text-muted-foreground">Event: </span>
-            <span className="font-light">{event.eventName}</span>
-          </h1>
-          <p className="text-pretty text-muted-foreground">
-            Please list the suppliers you used, so we can accurately credit
-            them.
-          </p>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-light">
+          <span className="text-muted-foreground">Event: </span>
+          <span className="font-light">{event.eventName}</span>
+        </h1>
+        <p className="text-pretty text-muted-foreground">
+          Please list the suppliers you used, so we can accurately credit them.
+        </p>
+      </div>
+      <div className="grid gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-light">Supplier List</h2>
+          <Button onClick={() => setDrawerOpen(true)}>
+            <HugeiconsIcon icon={Search01Icon} />
+            <span>Add Supplier</span>
+          </Button>
         </div>
-        <div className="grid gap-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-light">Supplier List</h2>
-            <Button onClick={() => setDrawerOpen(true)}>
-              <HugeiconsIcon icon={Search01Icon} />
-              <span>Add Supplier</span>
+
+        {event.credits.length === 0 ? (
+          <div className="py-6 text-center text-sm text-muted-foreground">
+            <p>No suppliers yet.</p>
+            <Button variant={'link'} onClick={() => setDrawerOpen(true)}>
+              Add one now
             </Button>
           </div>
+        ) : (
+          <div className="grid gap-4">
+            {event.credits.map((credit) => (
+              <CreditListItem
+                key={credit.id}
+                credit={credit}
+                eventId={eventId}
+                shareToken={shareToken}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-          {event.credits.length === 0 ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              <p>No suppliers yet.</p>
-              <Button variant={'link'} onClick={() => setDrawerOpen(true)}>
-                Add one now
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {event.credits.map((credit) => (
-                <CreditListItem
-                  key={credit.id}
-                  credit={credit}
-                  eventId={eventId}
-                  shareToken={shareToken}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </Section>
       <ActionDrawer
         state={{ isOpen: drawerOpen, setIsOpen: setDrawerOpen }}
         content={{ title: 'Credit Supplier' }}
