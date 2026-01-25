@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { AuthState } from '@/components/auth-state'
 import { AUTH_STATUS } from '@/lib/constants'
 
-export const Route = createFileRoute('/dashboard')({
+export const Route = createFileRoute('/events/')({
   component: RouteComponent,
 })
 
