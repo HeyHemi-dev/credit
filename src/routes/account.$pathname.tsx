@@ -7,6 +7,7 @@ import { Section } from '@/components/ui/section'
 
 import { Tabs, TabsList } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/back-button'
 
 export const Route = createFileRoute('/account/$pathname')({
   component: Account,
@@ -29,29 +30,31 @@ function Account() {
   )
 }
 
-type AccountView = Href & {
+type AccountView = {
+  label: string
+  pathname: string
   isEnabled: boolean
 }
 
 const ACCOUNT_VIEW = {
   SETTINGS: {
     label: 'Settings',
-    href: 'settings',
+    pathname: 'settings',
     isEnabled: true,
   },
   SECURITY: {
     label: 'Security',
-    href: 'security',
+    pathname: 'security',
     isEnabled: true,
   },
   API_KEYS: {
     label: 'API Keys',
-    href: 'api-keys',
+    pathname: 'api-keys',
     isEnabled: false,
   },
   ORGANIZATIONS: {
     label: 'Organizations',
-    href: 'organizations',
+    pathname: 'organizations',
     isEnabled: false,
   },
 } as const satisfies Record<string, AccountView>
@@ -62,24 +65,15 @@ const ENABLED_ACCOUNT_VIEWS = Object.values(ACCOUNT_VIEW).filter(
 function AccountNav() {
   return (
     <div className="flex flex-row flex-wrap items-center justify-between gap-2">
-      <Button
-        variant="secondary"
-        className="flex items-center gap-2 justify-self-start"
-        nativeButton={false}
-        render={(props) => (
-          <Link to="/" className={props.className}>
-            <HugeiconsIcon icon={ArrowLeft01Icon} />
-            <span>Dashboard</span>
-          </Link>
-        )}
-      />
+      <BackButton />
       <Tabs>
         <TabsList>
           {ENABLED_ACCOUNT_VIEWS.map((view) => (
             <Link
-              key={view.href}
+              key={view.pathname}
               to="/account/$pathname"
-              params={{ pathname: view.href }}
+              params={{ pathname: view.pathname }}
+              replace={true}
               activeProps={{ className: 'bg-background text-foreground' }}
               className="label flex h-full min-w-24 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1"
             >

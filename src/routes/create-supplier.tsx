@@ -1,14 +1,12 @@
 import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Loading02Icon } from '@hugeicons/core-free-icons'
+
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
-import { authClient } from '@/auth'
-import { resolveAuthToken } from '@/lib/utils'
-import { AUTH_STATUS } from '@/lib/constants'
+import { AuthState } from '@/components/auth-state'
+import { useAuthToken } from '@/hooks/use-auth-token'
 
 const createSupplierSearchSchema = z.object({
   shareToken: z.string().optional(),
@@ -24,14 +22,8 @@ export const Route = createFileRoute('/create-supplier')({
 })
 
 function CreateSupplierRoute() {
-  const { data, isPending } = authClient.useSession()
   const { shareToken } = Route.useSearch()
-
-  const authToken = resolveAuthToken({
-    isPending,
-    sessionToken: data?.session.token,
-    shareToken,
-  })
+  const authToken = useAuthToken(shareToken)
 
   return (
     <Section>
@@ -47,36 +39,7 @@ function CreateSupplierRoute() {
         <CreateSupplierForm authToken={authToken} />
       </div>
 
-      {authToken.status ===
-        (AUTH_STATUS.PENDING || AUTH_STATUS.UNAUTHENTICATED) && (
-        <AuthState
-          isPending={authToken.status === AUTH_STATUS.PENDING}
-          message={
-            authToken.status === AUTH_STATUS.PENDING
-              ? 'Checking authentication...'
-              : 'Not authenticated. Please log in, or request a new share link'
-          }
-        />
-      )}
+      <AuthState authToken={authToken} />
     </Section>
-  )
-}
-
-export function AuthState({
-  isPending,
-  message,
-}: {
-  isPending: boolean
-  message: string
-}) {
-  return (
-    <div className="flex items-center gap-2 rounded-xl border p-6 text-muted-foreground">
-      {isPending ? (
-        <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
-      ) : (
-        <HugeiconsIcon icon={Alert02Icon} />
-      )}
-      <p className="text-sm">{message}</p>
-    </div>
   )
 }

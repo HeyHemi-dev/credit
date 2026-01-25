@@ -9,7 +9,7 @@ import {
 import { optionalField } from '@/lib/empty-strings'
 
 // ===============================
-// Auth Schemas
+// Auth Schema
 // ===============================
 
 export const authUserIdSchema = z.uuid()
@@ -22,11 +22,11 @@ export const shareTokenSchema = z
 export const authTokenSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
   z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),
-
   z.object({
     status: z.literal(AUTH_STATUS.AUTHENTICATED),
     tokenType: z.literal(AUTH_TOKEN_TYPE.SESSION_TOKEN),
     token: sessionTokenSchema,
+    authUserId: authUserIdSchema,
   }),
   z.object({
     status: z.literal(AUTH_STATUS.AUTHENTICATED),
@@ -34,8 +34,12 @@ export const authTokenSchema = z.discriminatedUnion('status', [
     token: shareTokenSchema,
   }),
 ])
-
 export type AuthToken = z.infer<typeof authTokenSchema>
+
+// ===============================
+// Common Schema
+// ===============================
+
 export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
 export const serviceSchema = z.enum(SERVICES, 'Invalid service')
@@ -84,7 +88,7 @@ function stripHandleAtSymbol(value: string): string {
 }
 
 // ===============================
-// Events
+// Event Schema
 // ===============================
 
 export const createEventFormSchema = z.object({
@@ -110,7 +114,7 @@ export const deleteEventSchema = z.object({
 export type DeleteEvent = z.infer<typeof deleteEventSchema>
 
 // ===============================
-// Suppliers
+// Supplier Schema
 // ===============================
 
 export const dedupeSuppliersSchema = z.object({
@@ -148,7 +152,7 @@ export const createSupplierSchema = createSupplierFormSchema.extend({
 export type CreateSupplier = z.infer<typeof createSupplierSchema>
 
 // ===============================
-// Event Credits
+// Credit Schema
 // ===============================
 
 export const getCreditsSchema = z.object({

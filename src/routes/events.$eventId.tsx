@@ -88,7 +88,7 @@ function EventDetailContent({
 
   const handleDeleteEvent = () => {
     deleteEventMutation.mutate()
-    router.navigate({ to: '/' })
+    router.navigate({ to: '/events' })
   }
 
   // TODO: edit event name and wedding date

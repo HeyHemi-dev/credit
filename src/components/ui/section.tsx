@@ -28,4 +28,6 @@ function Section({
   )
 }
 
+// TODO: Section header, content, and footer components
+
 export { Main, Section }
