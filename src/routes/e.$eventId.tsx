@@ -26,33 +26,27 @@ const creditListRouteSearchSchema = z.object({
 
 export const Route = createFileRoute('/e/$eventId')({
   ssr: false,
-  component: CoupleEventRoute,
+  component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
   validateSearch: creditListRouteSearchSchema,
 })
 
-function CoupleEventRoute() {
+function RouteComponent() {
   const { eventId } = Route.useParams()
   const { shareToken } = Route.useSearch()
   const authToken = useAuthToken(shareToken)
   const shareAuth = requireShareAuthToken(authToken)
 
   return (
-    <>
-      <IntroModal />
-
-      <Section>
-        <React.Suspense fallback={<CreditListSkeleton />}>
-          <CreditList eventId={eventId} shareToken={shareAuth.token} />
-        </React.Suspense>
-      </Section>
-    </>
+    <React.Suspense fallback={<EventCreditPageSkeleton />}>
+      <EventCreditPage eventId={eventId} shareToken={shareAuth.token} />
+    </React.Suspense>
   )
 }
 
-export function CreditList({
+export function EventCreditPage({
   eventId,
   shareToken,
 }: {
@@ -69,44 +63,49 @@ export function CreditList({
 
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-light">
-          <span className="text-muted-foreground">Event: </span>
-          <span className="font-light">{event.eventName}</span>
-        </h1>
-        <p className="text-pretty text-muted-foreground">
-          Please list the suppliers you used, so we can accurately credit them.
-        </p>
-      </div>
-      <div className="grid gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-light">Supplier List</h2>
-          <Button onClick={() => setDrawerOpen(true)}>
-            <HugeiconsIcon icon={Search01Icon} />
-            <span>Add Supplier</span>
-          </Button>
-        </div>
+      <IntroModal />
 
-        {event.credits.length === 0 ? (
-          <div className="py-6 text-center text-sm text-muted-foreground">
-            <p>No suppliers yet.</p>
-            <Button variant={'link'} onClick={() => setDrawerOpen(true)}>
-              Add one now
+      <Section>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-light">
+            <span className="text-muted-foreground">Event: </span>
+            <span className="font-light">{event.eventName}</span>
+          </h1>
+          <p className="text-pretty text-muted-foreground">
+            Please list the suppliers you used, so we can accurately credit
+            them.
+          </p>
+        </div>
+        <div className="grid gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-light">Supplier List</h2>
+            <Button onClick={() => setDrawerOpen(true)}>
+              <HugeiconsIcon icon={Search01Icon} />
+              <span>Add Supplier</span>
             </Button>
           </div>
-        ) : (
-          <div className="grid gap-4">
-            {event.credits.map((credit) => (
-              <CreditListItem
-                key={credit.id}
-                credit={credit}
-                eventId={eventId}
-                shareToken={shareToken}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+
+          {event.credits.length === 0 ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              <p>No suppliers yet.</p>
+              <Button variant={'link'} onClick={() => setDrawerOpen(true)}>
+                Add one now
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {event.credits.map((credit) => (
+                <CreditListItem
+                  key={credit.id}
+                  credit={credit}
+                  eventId={eventId}
+                  shareToken={shareToken}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </Section>
 
       <ActionDrawer
         state={{ isOpen: drawerOpen, setIsOpen: setDrawerOpen }}
@@ -125,7 +124,7 @@ export function CreditList({
   )
 }
 
-function CreditListSkeleton() {
+function EventCreditPageSkeleton() {
   return (
     <Section>
       <Skeleton className="h-14 w-full" />
