@@ -14,7 +14,6 @@ import { isDev } from '@/lib/utils'
 import { RouteNotFound } from '@/components/route-not-found'
 
 // TODO: Rename project to "With Thanks"
-// TODO: create notFound component `notFoundComponent:`
 
 export const Route = createRootRoute({
   ssr: false,
