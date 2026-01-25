@@ -8,7 +8,7 @@ import {
   createEventFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
-import { useEvents } from '@/hooks/use-events'
+import { useCreateEvent } from '@/hooks/use-events'
 import { REGIONS } from '@/lib/constants'
 import {
   Select,
@@ -21,6 +21,7 @@ import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
+import { isSessionAuthToken, useAuthToken } from '@/hooks/use-auth-token'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -29,17 +30,17 @@ const defaultValues: CreateEventForm = {
 }
 
 export function CreateEventForm({
-  authUserId,
   onSubmit,
   onCancel,
   containerRef,
 }: {
-  authUserId: string
   onSubmit: () => void
   onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
-  const { createEventMutation } = useEvents(authUserId)
+  const authToken = useAuthToken()
+  const createEvent = useCreateEvent(authToken)
+  const isSession = isSessionAuthToken(authToken)
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -47,7 +48,8 @@ export function CreateEventForm({
       onSubmit: createEventFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await createEventMutation.mutateAsync({
+      if (!isSession) return
+      await createEvent.mutateAsync({
         eventName: value.eventName,
         weddingDate: value.weddingDate,
         region: emptyStringToNull(value.region),
@@ -136,7 +138,7 @@ export function CreateEventForm({
           variant="ghost"
           type="button"
           onClick={() => onCancel()}
-          disabled={form.state.isSubmitting}
+          disabled={form.state.isSubmitting || !isSession}
         >
           Cancel
         </Button>
