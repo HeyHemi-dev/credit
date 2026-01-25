@@ -7,6 +7,7 @@ import {
   deleteEventSchema,
   getCreditsSchema,
   getEventSchema,
+  sessionTokenSchema,
   shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import {
@@ -18,6 +19,7 @@ import {
 import { generateToken } from '@/lib/utils'
 import { ERROR } from '@/lib/errors'
 import { getEventSuppliersWithSupplier } from '@/db/queries/event-suppliers'
+import { isValidSession } from '@/db/queries/auth'
 
 export const listEventsFn = createServerFn({ method: 'GET' })
   .inputValidator(authUserIdSchema)
@@ -33,8 +35,16 @@ export const listEventsFn = createServerFn({ method: 'GET' })
   })
 
 export const createEventFn = createServerFn({ method: 'POST' })
-  .inputValidator(createEventSchema.extend({ authUserId: authUserIdSchema }))
+  .inputValidator(
+    createEventSchema.extend({
+      authUserId: authUserIdSchema,
+      sessionToken: sessionTokenSchema,
+    }),
+  )
   .handler(async ({ data }): Promise<EventListItem> => {
+    const isValid = await isValidSession(data.sessionToken)
+    if (!isValid) throw ERROR.FORBIDDEN()
+
     const shareToken = generateToken(SHARE_TOKEN_MIN_LENGTH)
 
     const event = await createEvent({
