@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon } from '@hugeicons/core-free-icons'
+import type { AuthToken } from '@/lib/types/validation-schema'
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 
@@ -41,21 +42,22 @@ function RouteComponent() {
 
   return (
     <React.Suspense fallback={<EventCreditPageSkeleton />}>
-      <EventCreditPage eventId={eventId} shareToken={shareAuth.token} />
+      <EventCreditPage eventId={eventId} authToken={shareAuth} />
     </React.Suspense>
   )
 }
 
 export function EventCreditPage({
   eventId,
-  shareToken,
+  authToken,
 }: {
   eventId: string
-  shareToken: string
+  authToken: AuthToken
 }) {
+  const shareAuth = requireShareAuthToken(authToken)
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
-  const { getEventForCoupleQuery } = useCredits(eventId, shareToken)
+  const { getEventForCoupleQuery } = useCredits(eventId, shareAuth.token)
   const event = getEventForCoupleQuery.data
 
   // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
@@ -99,7 +101,7 @@ export function EventCreditPage({
                   key={credit.id}
                   credit={credit}
                   eventId={eventId}
-                  shareToken={shareToken}
+                  shareToken={shareAuth.token}
                 />
               ))}
             </div>
@@ -114,7 +116,7 @@ export function EventCreditPage({
       >
         <CreateCreditForm
           eventId={eventId}
-          shareToken={shareToken}
+          shareToken={shareAuth.token}
           onSubmit={() => setDrawerOpen(false)}
           onCancel={() => setDrawerOpen(false)}
           containerRef={containerRef}
