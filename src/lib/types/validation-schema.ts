@@ -35,6 +35,13 @@ export const authTokenSchema = z.discriminatedUnion('status', [
   }),
 ])
 export type AuthToken = z.infer<typeof authTokenSchema>
+export type ShareAuth = Extract<
+  AuthToken,
+  {
+    status: typeof AUTH_STATUS.AUTHENTICATED
+    tokenType: typeof AUTH_TOKEN_TYPE.SHARE_TOKEN
+  }
+>
 
 // ===============================
 // Common Schema
