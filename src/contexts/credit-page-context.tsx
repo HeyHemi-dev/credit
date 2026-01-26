@@ -27,7 +27,7 @@ export function CreditPageProvider({
   )
 }
 
-export function useCreditPage(): CreditPageContextValue {
+export function useCreditPageContext(): CreditPageContextValue {
   const ctx = React.useContext(CreditPageContext)
   if (ctx === undefined) {
     throw ERROR.INVALID_STATE(
