@@ -28,7 +28,7 @@ export function DeleteEvent() {
   return (
     <>
       <div className="grid grow content-end gap-6">
-        <h2 className="text-lg font-light text-destructive">Danger zone</h2>
+        <h2 className="text-lg font-light text-destructive">Danger Zone</h2>
         <Button
           variant="destructive"
           onClick={() => setDeleteConfirmOpen(true)}
