@@ -35,8 +35,6 @@ export const Route = createFileRoute('/events/$eventId')({
 })
 
 function RouteComponent() {
-  // TODO: implement auth token check that doesn't remount the component
-
   const { eventId } = Route.useParams()
   const authToken = useAuthToken()
 
@@ -90,6 +88,7 @@ function EventDetailPage() {
 
   // TODO: edit event name and wedding date
   // TODO: add event locked checkbox (consider using eventStatus enum with open, submitted, and locked)
+  // TODO: add ability to edit credits
 
   return (
     <>
