@@ -1,6 +1,7 @@
 import { Link, useRouter } from '@tanstack/react-router'
 import type { EventListItem } from '@/lib/types/front-end'
 
+import type { AuthToken } from '@/lib/types/validation-schema'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CopyButton } from '@/components/copy-button'
 import { useClipboard } from '@/hooks/use-clipboard'
@@ -12,8 +13,8 @@ import {
 } from '@/components/events/event-list-status'
 import { Section } from '@/components/ui/section'
 
-export function EventList({ userId }: { userId: string }) {
-  const { getEventListQuery } = useEvents(userId)
+export function EventList({ authToken }: { authToken: AuthToken }) {
+  const { getEventListQuery } = useEvents(authToken)
   const events = getEventListQuery.data
 
   return (

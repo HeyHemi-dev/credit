@@ -28,7 +28,7 @@ function RouteComponent() {
       <Section className="pb-24">
         {isSessionAuthToken(authToken) ? (
           <React.Suspense fallback={<EventListSkeleton />}>
-            <EventList userId={authToken.authUserId} />
+            <EventList authToken={authToken} />
           </React.Suspense>
         ) : (
           <AuthState authToken={authToken} />

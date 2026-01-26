@@ -18,12 +18,13 @@ import {
   requireSessionAuthToken,
 } from '@/hooks/use-auth-token'
 
-export function useEvents(authUserId: string) {
+export function useEvents(authToken: AuthToken) {
   const listEvents = useServerFn(listEventsFn)
+  const sessionAuth = requireSessionAuthToken(authToken)
 
   const getEventListQuery = useSuspenseQuery({
-    queryKey: queryKeys.events(authUserId),
-    queryFn: async () => await listEvents({ data: authUserId }),
+    queryKey: queryKeys.events(sessionAuth.authUserId),
+    queryFn: async () => await listEvents({ data: sessionAuth }),
   })
 
   return { getEventListQuery }
@@ -32,45 +33,46 @@ export function useEvents(authUserId: string) {
 export function useCreateEvent(authToken: AuthToken) {
   const queryClient = useQueryClient()
   const createEvent = useServerFn(createEventFn)
+  const sessionAuth = requireSessionAuthToken(authToken)
 
   return useMutation({
     mutationFn: async (data: CreateEvent) => {
-      const session = requireSessionAuthToken(authToken)
       await createEvent({
         data: {
           ...data,
-          authUserId: session.authUserId,
-          sessionToken: session.token,
+          authToken: sessionAuth,
         },
       })
     },
     onSuccess: async () => {
       if (!isSessionAuthToken(authToken)) return
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.events(authToken.authUserId),
+        queryKey: queryKeys.events(sessionAuth.authUserId),
       })
     },
   })
 }
 
-export function useEvent(eventId: string, authUserId: string) {
+export function useEvent(eventId: string, authToken: AuthToken) {
   const queryClient = useQueryClient()
   const getEvent = useServerFn(getEventFn)
   const deleteEvent = useServerFn(deleteEventFn)
+  const sessionAuth = requireSessionAuthToken(authToken)
 
   const getEventQuery = useSuspenseQuery({
     queryKey: queryKeys.event(eventId),
-    queryFn: async () => await getEvent({ data: { eventId, authUserId } }),
+    queryFn: async () =>
+      await getEvent({ data: { eventId, authToken: sessionAuth } }),
   })
 
   const deleteEventMutation = useMutation({
     mutationFn: async () => {
-      await deleteEvent({ data: { eventId, authUserId } })
+      await deleteEvent({ data: { eventId, authToken: sessionAuth } })
     },
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: queryKeys.events(authUserId),
+          queryKey: queryKeys.events(sessionAuth.authUserId),
         }),
         queryClient.invalidateQueries({
           queryKey: queryKeys.event(eventId),

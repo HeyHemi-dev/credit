@@ -20,8 +20,8 @@ import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
 import { requireShareAuthToken, useAuthToken } from '@/hooks/use-auth-token'
 import {
-  CreditPageProvider,
-  useCreditPageContext,
+  CreditProvider,
+  useCreditContext,
 } from '@/contexts/credit-page-context'
 
 const creditListRouteSearchSchema = z.object({
@@ -44,19 +44,22 @@ function RouteComponent() {
   const shareAuth = requireShareAuthToken(authToken)
 
   return (
-    <CreditPageProvider shareAuth={shareAuth} eventId={eventId}>
-      <React.Suspense fallback={<CreditPageSkeleton />}>
-        <CreditPage />
-      </React.Suspense>
-    </CreditPageProvider>
+    <>
+      <IntroModal />
+      <CreditProvider authToken={shareAuth} eventId={eventId}>
+        <React.Suspense fallback={<CreditPageSkeleton />}>
+          <CreditPage />
+        </React.Suspense>
+      </CreditProvider>
+    </>
   )
 }
 
 export function CreditPage() {
-  const { eventId, shareAuth } = useCreditPageContext()
+  const { eventId, authToken } = useCreditContext()
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
-  const { getEventForCoupleQuery } = useCredits(eventId, shareAuth.token)
+  const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
 
   // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
@@ -64,8 +67,6 @@ export function CreditPage() {
 
   return (
     <>
-      <IntroModal />
-
       <Section>
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-light">
