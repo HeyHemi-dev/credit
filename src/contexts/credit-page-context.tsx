@@ -1,38 +1,39 @@
 import React from 'react'
-import type { ShareAuth } from '@/lib/types/validation-schema'
+import type { SessionAuth, ShareAuth } from '@/lib/types/validation-schema'
 import { ERROR } from '@/lib/errors'
+import { isSessionAuthToken, isShareAuthToken } from '@/hooks/use-auth-token'
 
-export type CreditPageContextValue = {
-  shareAuth: ShareAuth
+type CreditContextValue = {
+  authToken: SessionAuth | ShareAuth
   eventId: string
 }
 
-const CreditPageContext = React.createContext<
-  CreditPageContextValue | undefined
->(undefined)
+const CreditContext = React.createContext<CreditContextValue | undefined>(
+  undefined,
+)
 
-export function CreditPageProvider({
-  shareAuth,
+export function CreditProvider({
+  authToken,
   eventId,
   children,
-}: CreditPageContextValue & { children: React.ReactNode }) {
-  const value = React.useMemo(
-    () => ({ shareAuth, eventId }),
-    [shareAuth, eventId],
-  )
+}: CreditContextValue & { children: React.ReactNode }) {
+  const value = React.useMemo(() => {
+    // Either share or session auth tokens are valid for credit operations.
+    if (!isShareAuthToken(authToken) && !isSessionAuthToken(authToken)) {
+      throw ERROR.NOT_AUTHENTICATED()
+    }
+
+    return { authToken, eventId }
+  }, [authToken, eventId])
   return (
-    <CreditPageContext.Provider value={value}>
-      {children}
-    </CreditPageContext.Provider>
+    <CreditContext.Provider value={value}>{children}</CreditContext.Provider>
   )
 }
 
-export function useCreditPageContext(): CreditPageContextValue {
-  const ctx = React.useContext(CreditPageContext)
+export function useCreditContext(): CreditContextValue {
+  const ctx = React.useContext(CreditContext)
   if (ctx === undefined) {
-    throw ERROR.INVALID_STATE(
-      'useCreditPage must be used within CreditPageProvider',
-    )
+    throw ERROR.INVALID_STATE('useCredit must be used within CreditProvider')
   }
   return ctx
 }
