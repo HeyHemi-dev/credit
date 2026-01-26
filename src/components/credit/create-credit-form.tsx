@@ -113,11 +113,7 @@ export function CreateCreditForm({
         <form.Field
           name="contributionNotes"
           children={(field) => (
-            <FormField
-              field={field}
-              label="Contribution notes"
-              isRequired={false}
-            >
+            <FormField field={field} label="Notes" isRequired={false}>
               <Textarea
                 id={field.name}
                 value={field.state.value}
