@@ -18,7 +18,7 @@ function Section({
   return (
     <div
       className={cn(
-        'grid grow content-start gap-y-12 overflow-x-clip rounded-4xl bg-background p-6',
+        'grid grow content-start gap-y-20 overflow-x-clip rounded-4xl bg-background p-6',
         className,
       )}
       {...props}
