@@ -1,5 +1,5 @@
 import React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon } from '@hugeicons/core-free-icons'
@@ -26,6 +26,7 @@ import {
 
 const creditListRouteSearchSchema = z.object({
   shareToken: shareTokenSchema,
+  panel: z.boolean().optional(),
 })
 
 export const Route = createFileRoute('/e/$eventId')({
@@ -57,13 +58,13 @@ function RouteComponent() {
 
 export function CreditPage() {
   const { eventId, authToken } = useCreditContext()
-  const [drawerOpen, setDrawerOpen] = React.useState(false)
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
 
+  const [drawerOpen, setDrawerOpen] = useDrawerOpen()
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+
   // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
-  // TODO: write drawer open state to url search params
 
   return (
     <>
@@ -117,6 +118,30 @@ export function CreditPage() {
       </ActionDrawer>
     </>
   )
+}
+
+// Use a locally scoped hook because tanstack requires Route.id to return search params.
+export function useDrawerOpen() {
+  const navigate = useNavigate()
+  const search = useSearch({ from: Route.id })
+
+  const drawerOpen = search.panel ?? false
+
+  const setDrawerOpen = React.useCallback(
+    (open: boolean) => {
+      navigate({
+        to: '.',
+        replace: true,
+        search: (prev) => ({
+          ...prev,
+          panel: open ? true : undefined,
+        }),
+      })
+    },
+    [navigate],
+  )
+
+  return [drawerOpen, setDrawerOpen] as const
 }
 
 function CreditPageSkeleton() {
