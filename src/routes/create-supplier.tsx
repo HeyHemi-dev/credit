@@ -15,7 +15,7 @@ const createSupplierSearchSchema = z.object({
 export const Route = createFileRoute('/create-supplier')({
   ssr: false,
   component: CreateSupplierRoute,
-  validateSearch: (search) => createSupplierSearchSchema.parse(search),
+  validateSearch: createSupplierSearchSchema,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
