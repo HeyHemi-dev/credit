@@ -1,6 +1,12 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  useNavigate,
+  useRouter,
+  useSearch,
+} from '@tanstack/react-router'
 import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react'
 import React from 'react'
+import z from 'zod'
 import { RouteError } from '@/components/route-error'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Section } from '@/components/ui/section'
@@ -25,6 +31,13 @@ import {
   useCreditContext,
 } from '@/contexts/credit-page-context'
 import { Separator } from '@/components/ui/separator'
+import { ActionDrawer } from '@/components/action-drawer'
+import { CreateCreditForm } from '@/components/credit/create-credit-form'
+import { Button } from '@/components/ui/button'
+
+const eventRouteSearchSchema = z.object({
+  panel: z.boolean().optional(),
+})
 
 export const Route = createFileRoute('/events/$eventId')({
   ssr: false,
@@ -32,6 +45,7 @@ export const Route = createFileRoute('/events/$eventId')({
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
+  validateSearch: eventRouteSearchSchema,
 })
 
 function RouteComponent() {
@@ -64,6 +78,9 @@ function EventDetailPage() {
   const { getEventQuery } = useEvent(eventId, authToken)
   const event = getEventQuery.data
 
+  const [isOpen, setIsOpen] = useDrawerState()
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+
   const { isCopied: isCopiedInstagram, copy: copyInstagram } = useClipboard()
   const { isCopied: isCopiedEmail, copy: copyEmail } = useClipboard()
   const { isCopied: isCopiedShare, copy: copyShare } = useClipboard()
@@ -92,17 +109,19 @@ function EventDetailPage() {
 
   return (
     <>
-      <BackButton />
+      <div className="grid gap-6">
+        <BackButton />
 
-      <div className="flex flex-col">
-        <h1 className="text-2xl font-light">{event.eventName}</h1>
-        <p className="text-sm text-muted-foreground">
-          {formatDate(parseDrizzleDateStringToDate(event.weddingDate))}
-        </p>
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-light">{event.eventName}</h1>
+          <p className="text-sm text-muted-foreground">
+            {formatDate(parseDrizzleDateStringToDate(event.weddingDate))}
+          </p>
+        </div>
       </div>
 
       {/* Credit list */}
-      <div className="grid gap-6">
+      <div className="grid gap-8">
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-light">Supplier List</h2>
           <div className="flex flex-wrap gap-2">
@@ -132,12 +151,26 @@ function EventDetailPage() {
         {event.credits.length === 0 ? (
           <div className="text-sm text-muted-foreground">
             <p>No suppliers yet.</p>
+            <Button
+              variant={'link'}
+              className="justify-self-start p-0"
+              onClick={() => setIsOpen(true)}
+            >
+              Add one now
+            </Button>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-2">
             {event.credits.map((credit) => (
               <CreditListItem key={credit.id} credit={credit} />
             ))}
+            <Button
+              variant={'link'}
+              className="justify-self-start p-0"
+              onClick={() => setIsOpen(true)}
+            >
+              Add supplier
+            </Button>
           </div>
         )}
       </div>
@@ -168,6 +201,42 @@ function EventDetailPage() {
 
       <Separator className="mt-24" />
       <DeleteEvent />
+
+      <ActionDrawer
+        state={{ isOpen, setIsOpen }}
+        content={{ title: 'Credit Supplier' }}
+        setContainerRef={containerRef}
+      >
+        <CreateCreditForm
+          onSubmit={() => setIsOpen(false)}
+          onCancel={() => setIsOpen(false)}
+          containerRef={containerRef}
+        />
+      </ActionDrawer>
     </>
   )
+}
+
+// Use a locally scoped hook because tanstack requires Route.id to return search params.
+export function useDrawerState() {
+  const navigate = useNavigate()
+  const search = useSearch({ from: Route.id })
+
+  const isOpen = search.panel ?? false
+
+  const setIsOpen = React.useCallback(
+    (open: boolean) => {
+      navigate({
+        to: '.',
+        replace: true,
+        search: (prev) => ({
+          ...prev,
+          panel: open ? true : undefined,
+        }),
+      })
+    },
+    [navigate],
+  )
+
+  return [isOpen, setIsOpen] as const
 }
