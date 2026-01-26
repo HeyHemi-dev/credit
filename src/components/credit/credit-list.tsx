@@ -4,17 +4,15 @@ import type { Credit } from '@/lib/types/front-end'
 import { useCredit } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useCreditPageContext } from '@/contexts/credit-page-context'
 
-export function CreditListItem({
-  credit,
-  eventId,
-  shareToken,
-}: {
-  credit: Credit
-  eventId: string
-  shareToken: string
-}) {
-  const { deleteCreditMutation } = useCredit(eventId, credit.id, shareToken)
+export function CreditListItem({ credit }: { credit: Credit }) {
+  const { eventId, shareAuth } = useCreditPageContext()
+  const { deleteCreditMutation } = useCredit(
+    eventId,
+    credit.id,
+    shareAuth.token,
+  )
 
   // TODO: add credit edit button
 

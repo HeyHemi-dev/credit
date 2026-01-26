@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon } from '@hugeicons/core-free-icons'
-import type { AuthToken } from '@/lib/types/validation-schema'
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 
@@ -20,6 +19,10 @@ import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
 import { requireShareAuthToken, useAuthToken } from '@/hooks/use-auth-token'
+import {
+  CreditPageProvider,
+  useCreditPageContext,
+} from '@/contexts/credit-page-context'
 
 const creditListRouteSearchSchema = z.object({
   shareToken: shareTokenSchema,
@@ -41,20 +44,16 @@ function RouteComponent() {
   const shareAuth = requireShareAuthToken(authToken)
 
   return (
-    <React.Suspense fallback={<EventCreditPageSkeleton />}>
-      <EventCreditPage eventId={eventId} authToken={shareAuth} />
-    </React.Suspense>
+    <CreditPageProvider shareAuth={shareAuth} eventId={eventId}>
+      <React.Suspense fallback={<CreditPageSkeleton />}>
+        <CreditPage />
+      </React.Suspense>
+    </CreditPageProvider>
   )
 }
 
-export function EventCreditPage({
-  eventId,
-  authToken,
-}: {
-  eventId: string
-  authToken: AuthToken
-}) {
-  const shareAuth = requireShareAuthToken(authToken)
+export function CreditPage() {
+  const { eventId, shareAuth } = useCreditPageContext()
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
   const { getEventForCoupleQuery } = useCredits(eventId, shareAuth.token)
@@ -97,12 +96,7 @@ export function EventCreditPage({
           ) : (
             <div className="grid gap-4">
               {event.credits.map((credit) => (
-                <CreditListItem
-                  key={credit.id}
-                  credit={credit}
-                  eventId={eventId}
-                  shareToken={shareAuth.token}
-                />
+                <CreditListItem key={credit.id} credit={credit} />
               ))}
             </div>
           )}
@@ -115,8 +109,6 @@ export function EventCreditPage({
         setContainerRef={containerRef}
       >
         <CreateCreditForm
-          eventId={eventId}
-          shareToken={shareAuth.token}
           onSubmit={() => setDrawerOpen(false)}
           onCancel={() => setDrawerOpen(false)}
           containerRef={containerRef}
@@ -126,7 +118,7 @@ export function EventCreditPage({
   )
 }
 
-function EventCreditPageSkeleton() {
+function CreditPageSkeleton() {
   return (
     <Section>
       <Skeleton className="h-14 w-full" />

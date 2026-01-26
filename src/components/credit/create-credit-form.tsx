@@ -18,6 +18,7 @@ import { useCredits } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
 import { SupplierSearchCombobox } from '@/components/credit/supplier-search-combobox'
 import { Textarea } from '@/components/ui/textarea'
+import { useCreditPageContext } from '@/contexts/credit-page-context'
 
 const defaultValues: CreateCreditForm = {
   service: '' as Service,
@@ -28,19 +29,16 @@ const defaultValues: CreateCreditForm = {
 }
 
 export function CreateCreditForm({
-  eventId,
-  shareToken,
   onSubmit,
   onCancel,
   containerRef,
 }: {
-  eventId: string
-  shareToken: string
   onSubmit: () => void
   onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
-  const { createCreditMutation } = useCredits(eventId, shareToken)
+  const { eventId, shareAuth } = useCreditPageContext()
+  const { createCreditMutation } = useCredits(eventId, shareAuth.token)
 
   const form = useForm({
     defaultValues: defaultValues,
@@ -100,7 +98,7 @@ export function CreateCreditForm({
           children={(field) => (
             <FormField field={field} label="Supplier" isRequired={true}>
               <SupplierSearchCombobox
-                shareToken={shareToken}
+                shareToken={shareAuth.token}
                 eventId={eventId}
                 handleChange={(supplierId) => field.handleChange(supplierId)}
                 containerRef={containerRef}
