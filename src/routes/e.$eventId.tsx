@@ -4,7 +4,7 @@ import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon } from '@hugeicons/core-free-icons'
 import { RouteError } from '@/components/route-error'
-import { Section } from '@/components/ui/section'
+import { Section, SectionContent, SectionHeader } from '@/components/ui/section'
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,6 +23,7 @@ import {
   CreditProvider,
   useCreditContext,
 } from '@/contexts/credit-page-context'
+import { uuidToGradient } from '@/lib/id-to-gradient'
 
 const creditListRouteSearchSchema = z.object({
   shareToken: shareTokenSchema,
@@ -36,6 +37,10 @@ export const Route = createFileRoute('/e/$eventId')({
     <RouteError error={error} reset={reset} />
   ),
   validateSearch: creditListRouteSearchSchema,
+  loader: async ({ params }) => {
+    const gradient = await uuidToGradient(params.eventId)
+    return { gradient }
+  },
 })
 
 function RouteComponent() {
@@ -57,6 +62,7 @@ function RouteComponent() {
 }
 
 export function CreditPage() {
+  const { gradient } = Route.useLoaderData()
   const { eventId, authToken } = useCreditContext()
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
@@ -68,41 +74,50 @@ export function CreditPage() {
 
   return (
     <>
-      <Section>
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-light">
-            <span className="text-muted-foreground">Event: </span>
-            <span className="font-light">{event.eventName}</span>
-          </h1>
-          <p className="text-pretty text-muted-foreground">
-            Please list the suppliers you used, so we can accurately credit
-            them.
-          </p>
-        </div>
-        <div className="grid gap-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-light">Supplier List</h2>
-            <Button onClick={() => setIsOpen(true)}>
-              <HugeiconsIcon icon={Search01Icon} />
-              <span>Add Supplier</span>
-            </Button>
+      <Section className="flex flex-col border-2 border-background p-0">
+        <SectionHeader
+          style={{
+            background: `linear-gradient(${gradient.angle}deg, ${gradient.color1}, ${gradient.color2}`,
+          }}
+          className="min-h-[25svh] content-end"
+        >
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-light">
+              <span className="text-muted-foreground">Event: </span>
+              <span className="font-light">{event.eventName}</span>
+            </h1>
+            <p className="text-pretty text-muted-foreground">
+              Add the suppliers you worked with on the day. This helps everyone
+              to be credited properly.
+            </p>
           </div>
-
-          {event.credits.length === 0 ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              <p>No suppliers yet.</p>
-              <Button variant={'link'} onClick={() => setIsOpen(true)}>
-                Add one now
+        </SectionHeader>
+        <SectionContent>
+          <div className="grid gap-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-light">Suppliers</h2>
+              <Button onClick={() => setIsOpen(true)}>
+                <HugeiconsIcon icon={Search01Icon} />
+                <span>Add Supplier</span>
               </Button>
             </div>
-          ) : (
-            <div className="grid gap-4">
-              {event.credits.map((credit) => (
-                <CreditListItem key={credit.id} credit={credit} />
-              ))}
-            </div>
-          )}
-        </div>
+
+            {event.credits.length === 0 ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                <p>No suppliers yet.</p>
+                <Button variant={'link'} onClick={() => setIsOpen(true)}>
+                  Add one now
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {event.credits.map((credit) => (
+                  <CreditListItem key={credit.id} credit={credit} />
+                ))}
+              </div>
+            )}
+          </div>
+        </SectionContent>
       </Section>
 
       <ActionDrawer
