@@ -2,36 +2,36 @@ import React from 'react'
 import type { ShareAuth } from '@/lib/types/validation-schema'
 import { ERROR } from '@/lib/errors'
 
-export type EventPageContextValue = {
+export type EventCreditPageContextValue = {
   shareAuth: ShareAuth
   eventId: string
 }
 
-const EventPageContext = React.createContext<EventPageContextValue | undefined>(
-  undefined,
-)
+const EventCreditPageContext = React.createContext<
+  EventCreditPageContextValue | undefined
+>(undefined)
 
-export function EventPageProvider({
+export function EventCreditPageProvider({
   shareAuth,
   eventId,
   children,
-}: EventPageContextValue & { children: React.ReactNode }) {
+}: EventCreditPageContextValue & { children: React.ReactNode }) {
   const value = React.useMemo(
     () => ({ shareAuth, eventId }),
     [shareAuth, eventId],
   )
   return (
-    <EventPageContext.Provider value={value}>
+    <EventCreditPageContext.Provider value={value}>
       {children}
-    </EventPageContext.Provider>
+    </EventCreditPageContext.Provider>
   )
 }
 
-export function useEventPage(): EventPageContextValue {
-  const ctx = React.useContext(EventPageContext)
+export function useEventCreditPage(): EventCreditPageContextValue {
+  const ctx = React.useContext(EventCreditPageContext)
   if (ctx === undefined) {
     throw ERROR.INVALID_STATE(
-      'useEventPage must be used within EventPageProvider',
+      'useEventCreditPage must be used within EventCreditPageProvider',
     )
   }
   return ctx
