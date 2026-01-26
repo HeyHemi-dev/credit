@@ -61,7 +61,7 @@ export function CreditPage() {
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
 
-  const [drawerOpen, setDrawerOpen] = useDrawerOpen()
+  const [isOpen, setIsOpen] = useDrawerState()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
@@ -82,7 +82,7 @@ export function CreditPage() {
         <div className="grid gap-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-light">Supplier List</h2>
-            <Button onClick={() => setDrawerOpen(true)}>
+            <Button onClick={() => setIsOpen(true)}>
               <HugeiconsIcon icon={Search01Icon} />
               <span>Add Supplier</span>
             </Button>
@@ -91,7 +91,7 @@ export function CreditPage() {
           {event.credits.length === 0 ? (
             <div className="py-6 text-center text-sm text-muted-foreground">
               <p>No suppliers yet.</p>
-              <Button variant={'link'} onClick={() => setDrawerOpen(true)}>
+              <Button variant={'link'} onClick={() => setIsOpen(true)}>
                 Add one now
               </Button>
             </div>
@@ -106,13 +106,13 @@ export function CreditPage() {
       </Section>
 
       <ActionDrawer
-        state={{ isOpen: drawerOpen, setIsOpen: setDrawerOpen }}
+        state={{ isOpen, setIsOpen }}
         content={{ title: 'Credit Supplier' }}
         setContainerRef={containerRef}
       >
         <CreateCreditForm
-          onSubmit={() => setDrawerOpen(false)}
-          onCancel={() => setDrawerOpen(false)}
+          onSubmit={() => setIsOpen(false)}
+          onCancel={() => setIsOpen(false)}
           containerRef={containerRef}
         />
       </ActionDrawer>
@@ -121,13 +121,13 @@ export function CreditPage() {
 }
 
 // Use a locally scoped hook because tanstack requires Route.id to return search params.
-export function useDrawerOpen() {
+export function useDrawerState() {
   const navigate = useNavigate()
   const search = useSearch({ from: Route.id })
 
-  const drawerOpen = search.panel ?? false
+  const isOpen = search.panel ?? false
 
-  const setDrawerOpen = React.useCallback(
+  const setIsOpen = React.useCallback(
     (open: boolean) => {
       navigate({
         to: '.',
@@ -141,7 +141,7 @@ export function useDrawerOpen() {
     [navigate],
   )
 
-  return [drawerOpen, setDrawerOpen] as const
+  return [isOpen, setIsOpen] as const
 }
 
 function CreditPageSkeleton() {
