@@ -14,7 +14,7 @@ import {
 
 type SupplierSearchComboboxProps = {
   eventId: string
-  shareToken: string
+  shareToken?: string
   handleChange: (supplierId: string) => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }
