@@ -14,7 +14,7 @@ import {
 
 type SupplierSearchComboboxProps = {
   eventId: string
-  shareToken: string
+  shareToken?: string
   handleChange: (supplierId: string) => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }
@@ -44,8 +44,9 @@ export function SupplierSearchCombobox({
 
   const statusMessage = React.useMemo(() => {
     if (isPending) return 'Searching...'
-    if (searchQuery.isError) return 'Search failed. Please try again.'
-    if (userInput === '') return 'Start typing to search...'
+    if (searchQuery.isError) return 'Something went wrong. Please try again.'
+    if (userInput === '')
+      return 'Start typing to search. You can create a new supplier if needed.'
   }, [searchQuery.isError, userInput, isPending])
 
   return (
@@ -88,7 +89,7 @@ export function SupplierSearchCombobox({
             </ComboboxItem>
           )}
         </ComboboxList>
-        <ComboboxStatus className="text-sm text-muted-foreground">
+        <ComboboxStatus className="text-sm text-pretty text-muted-foreground">
           {statusMessage}
         </ComboboxStatus>
 

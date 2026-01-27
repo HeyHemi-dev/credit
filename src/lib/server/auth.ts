@@ -15,8 +15,6 @@ export const authClient = createAuthClient(VITE_NEON_AUTH_URL, {
 })
 
 export async function isValidAuthToken(authToken: AuthToken) {
-  console.log({ authToken })
-
   if (authToken.status !== AUTH_STATUS.AUTHENTICATED) {
     return false
   }

@@ -2,13 +2,11 @@ import { createServerFn } from '@tanstack/react-start'
 import type { EventDetail, EventListItem } from '@/lib/types/front-end'
 import { SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import {
-  authUserIdSchema,
+  authTokenSchema,
   createEventSchema,
   deleteEventSchema,
   getCreditsSchema,
   getEventSchema,
-  sessionTokenSchema,
-  shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import {
   createEvent,
@@ -20,11 +18,16 @@ import { generateToken } from '@/lib/utils'
 import { ERROR } from '@/lib/errors'
 import { getEventSuppliersWithSupplier } from '@/db/queries/event-suppliers'
 import { isValidSession } from '@/db/queries/auth'
+import { isValidAuthToken } from '@/lib/server/auth'
+import { isSessionAuthToken } from '@/hooks/use-auth-token'
 
 export const listEventsFn = createServerFn({ method: 'GET' })
-  .inputValidator(authUserIdSchema)
+  .inputValidator(authTokenSchema)
   .handler(async ({ data }): Promise<Array<EventListItem>> => {
-    const events = await getEventsByUserId(data)
+    if (!isSessionAuthToken(data) || !isValidSession(data.token))
+      throw ERROR.NOT_AUTHENTICATED()
+
+    const events = await getEventsByUserId(data.authUserId)
     return events.map((event) => ({
       id: event.id,
       eventName: event.eventName,
@@ -37,18 +40,19 @@ export const listEventsFn = createServerFn({ method: 'GET' })
 export const createEventFn = createServerFn({ method: 'POST' })
   .inputValidator(
     createEventSchema.extend({
-      authUserId: authUserIdSchema,
-      sessionToken: sessionTokenSchema,
+      authToken: authTokenSchema,
     }),
   )
   .handler(async ({ data }): Promise<EventListItem> => {
-    const isValid = await isValidSession(data.sessionToken)
-    if (!isValid) throw ERROR.FORBIDDEN()
+    if (
+      !isSessionAuthToken(data.authToken) ||
+      !isValidSession(data.authToken.token)
+    )
+      throw ERROR.NOT_AUTHENTICATED()
 
     const shareToken = generateToken(SHARE_TOKEN_MIN_LENGTH)
-
     const event = await createEvent({
-      createdByUserId: data.authUserId,
+      createdByUserId: data.authToken.authUserId,
       eventName: data.eventName,
       weddingDate: data.weddingDate,
       region: data.region,
@@ -65,11 +69,19 @@ export const createEventFn = createServerFn({ method: 'POST' })
   })
 
 export const getEventFn = createServerFn({ method: 'GET' })
-  .inputValidator(getEventSchema.extend({ authUserId: authUserIdSchema }))
+  .inputValidator(getEventSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
+    if (
+      !isSessionAuthToken(data.authToken) ||
+      !isValidSession(data.authToken.token)
+    )
+      throw ERROR.NOT_AUTHENTICATED()
+
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-    if (event.createdByUserId !== data.authUserId) throw ERROR.FORBIDDEN()
+    if (event.createdByUserId !== data.authToken.authUserId) {
+      throw ERROR.FORBIDDEN()
+    }
 
     const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
 
@@ -94,13 +106,12 @@ export const getEventFn = createServerFn({ method: 'GET' })
 export const getEventForCoupleFn = createServerFn({
   method: 'GET',
 })
-  .inputValidator(getCreditsSchema.extend({ shareToken: shareTokenSchema }))
+  .inputValidator(getCreditsSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
+    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-    if (event.shareToken !== data.shareToken)
-      throw ERROR.FORBIDDEN('Share token mismatch')
-
     const eventSuppliers = await getEventSuppliersWithSupplier(data.eventId)
 
     return {
@@ -122,15 +133,21 @@ export const getEventForCoupleFn = createServerFn({
   })
 
 export const deleteEventFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteEventSchema.extend({ authUserId: authUserIdSchema }))
+  .inputValidator(deleteEventSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }) => {
+    if (
+      !isSessionAuthToken(data.authToken) ||
+      !isValidSession(data.authToken.token)
+    )
+      throw ERROR.NOT_AUTHENTICATED()
+
     const event = await getEventById(data.eventId)
-    if (!event) {
-      throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-    }
-    if (event.createdByUserId !== data.authUserId) {
+    if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
+
+    if (event.createdByUserId !== data.authToken.authUserId) {
       throw ERROR.FORBIDDEN()
     }
-    await deleteEvent(data.eventId, data.authUserId)
+
+    await deleteEvent(data.eventId, data.authToken.authUserId)
     return
   })

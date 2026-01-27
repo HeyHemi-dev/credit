@@ -19,7 +19,7 @@ export const shareTokenSchema = z
   .string()
   .trim()
   .min(SHARE_TOKEN_MIN_LENGTH, 'Invalid share token')
-export const authTokenSchema = z.discriminatedUnion('status', [
+export const authTokenSchema = z.union([
   z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
   z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),
   z.object({
@@ -35,6 +35,20 @@ export const authTokenSchema = z.discriminatedUnion('status', [
   }),
 ])
 export type AuthToken = z.infer<typeof authTokenSchema>
+export type ShareAuth = Extract<
+  AuthToken,
+  {
+    status: typeof AUTH_STATUS.AUTHENTICATED
+    tokenType: typeof AUTH_TOKEN_TYPE.SHARE_TOKEN
+  }
+>
+export type SessionAuth = Extract<
+  AuthToken,
+  {
+    status: typeof AUTH_STATUS.AUTHENTICATED
+    tokenType: typeof AUTH_TOKEN_TYPE.SESSION_TOKEN
+  }
+>
 
 // ===============================
 // Common Schema

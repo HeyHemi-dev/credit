@@ -1,12 +1,13 @@
 import { useForm } from '@tanstack/react-form'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon } from '@hugeicons/core-free-icons'
-import { Card, CardContent } from '../ui/card'
+import React from 'react'
 import type { Supplier } from '@/lib/types/front-end'
 import type {
   AuthToken,
   CreateSupplierForm,
 } from '@/lib/types/validation-schema'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
@@ -27,6 +28,7 @@ import {
 import { useBack } from '@/components/back-button'
 import { useDedupe } from '@/hooks/use-dedupe'
 import { emptyStringToNull } from '@/lib/empty-strings'
+import { cn } from '@/lib/utils'
 
 const defaultValues: CreateSupplierForm = {
   name: '',
@@ -40,8 +42,13 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
   const handleBack = useBack()
 
   // TODO: check why dedupe is not working
+
   const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
   const dedupeCandidates = dedupeQuery.data ?? []
+  const [selectedCandidate, setSelectedCandidate] = React.useState<
+    string | null
+  >(null)
+
   const { createMutation } = useCreateSupplier(authToken)
 
   const form = useForm({
@@ -63,10 +70,6 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
     },
   })
 
-  function handleDedupe(supplierId: string) {
-    handleBack()
-  }
-
   return (
     <form
       id="create-supplier-form"
@@ -80,12 +83,17 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="name"
           children={(field) => (
-            <FormField field={field} label="Supplier name" isRequired>
+            <FormField field={field} label="Name" isRequired>
               <Input
                 id={field.name}
+                placeholder="Business name"
+                autoComplete="off"
                 value={field.state.value}
-                onBlur={() => setDedupeName(field.state.value)}
-                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={() => {}}
+                onChange={(event) => {
+                  field.handleChange(event.target.value)
+                  setDedupeName(event.target.value)
+                }}
               />
             </FormField>
           )}
@@ -94,9 +102,16 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="email"
           children={(field) => (
-            <FormField field={field} label="Email" isRequired>
+            <FormField
+              field={field}
+              label="Contact email"
+              description="Used for crediting and deduping. Not shown publicly."
+              isRequired
+            >
               <Input
                 id={field.name}
+                placeholder="Email address"
+                autoComplete="off"
                 value={field.state.value}
                 onBlur={() => setDedupeEmail(field.state.value)}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -108,7 +123,11 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="region"
           children={(field) => (
-            <FormField field={field} label="Region">
+            <FormField
+              field={field}
+              label="Based in"
+              description="Optional, helps match suppliers correctly."
+            >
               <Select
                 value={field.state.value}
                 onValueChange={(v) => {
@@ -139,16 +158,20 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="instagramHandle"
           children={(field) => (
-            <FormField field={field} label="Instagram handle">
+            <FormField
+              field={field}
+              label="Instagram handle"
+              description="If you know it."
+            >
               <Input
                 id={field.name}
                 value={field.state.value}
+                placeholder="@supplier"
                 onChange={(event) => {
                   field.handleChange(
                     normalizeInstagramInput(event.target.value),
                   )
                 }}
-                placeholder="@supplier"
               />
             </FormField>
           )}
@@ -157,38 +180,62 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="tiktokHandle"
           children={(field) => (
-            <FormField field={field} label="TikTok handle">
+            <FormField
+              field={field}
+              label="TikTok handle"
+              description="If you know it."
+            >
               <Input
                 id={field.name}
                 value={field.state.value}
+                placeholder="@supplier"
                 onChange={(event) =>
                   field.handleChange(normalizeTiktokInput(event.target.value))
                 }
-                placeholder="@supplier"
               />
             </FormField>
           )}
         />
-
-        {dedupeCandidates.length > 0 && (
-          <DedupeCandidates
-            dedupeCandidates={dedupeCandidates}
-            onClick={handleDedupe}
-          />
-        )}
       </FieldGroup>
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          form="create-supplier-form"
-          disabled={
-            form.state.isSubmitting ||
-            createMutation.isPending ||
-            authToken.status === AUTH_STATUS.PENDING
+
+      {dedupeCandidates.length > 0 && (
+        <DedupeCandidates
+          dedupeCandidates={dedupeCandidates}
+          selectedCandidate={selectedCandidate}
+          setSelectedCandidate={(supplierId) =>
+            setSelectedCandidate(supplierId)
           }
-        >
-          {createMutation.isPending ? 'Creating…' : 'Create supplier'}
-        </Button>
+        />
+      )}
+
+      <div className="grid gap-2">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="submit"
+            form="create-supplier-form"
+            disabled={
+              form.state.isSubmitting ||
+              createMutation.isPending ||
+              authToken.status === AUTH_STATUS.PENDING ||
+              selectedCandidate !== null
+            }
+          >
+            {createMutation.isPending ? 'Creating…' : 'Create supplier'}
+          </Button>
+          {dedupeCandidates.length > 0 && (
+            <Button
+              className="order-first"
+              variant="default"
+              onClick={handleBack}
+              disabled={selectedCandidate === null}
+            >
+              Use existing
+            </Button>
+          )}
+        </div>
+        <p className="text-right text-xs text-muted-foreground/60">
+          Please double-check spelling —this is shared with others.
+        </p>
       </div>
       {createMutation.error?.message && (
         <FormErrorMessage message={createMutation.error.message} />
@@ -210,28 +257,62 @@ function FormErrorMessage({ message }: { message: string }) {
 
 function DedupeCandidates({
   dedupeCandidates,
-  onClick,
+  selectedCandidate,
+  setSelectedCandidate,
 }: {
   dedupeCandidates: Array<Supplier>
-  onClick: (supplierId: string) => void
+  selectedCandidate: string | null
+  setSelectedCandidate: (supplierId: string | null) => void
 }) {
+  function handleClick(supplierId: string) {
+    if (selectedCandidate === supplierId) {
+      setSelectedCandidate(null)
+    } else {
+      setSelectedCandidate(supplierId)
+    }
+  }
+
   return (
-    <div className="grid gap-2">
-      <div className="text-sm text-muted-foreground">
-        Did you mean one of these?
-      </div>
-      {dedupeCandidates.map((supplier) => (
-        <button
-          key={supplier.id}
-          className="rounded-xl border px-3 py-2 text-left hover:bg-muted/30"
-          onClick={() => onClick(supplier.id)}
-          type="button"
-        >
-          <div className="font-medium">{supplier.name}</div>
-          <div className="text-xs text-muted-foreground">{supplier.email}</div>
-        </button>
-      ))}
-    </div>
+    <Card className="bg-primary/5 ring-primary/10">
+      <CardContent className="grid gap-4">
+        <div className="grid gap-0.5">
+          <h2 className="font-medium text-primary">
+            We found some similar suppliers.
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Did you mean one of these?
+          </p>
+        </div>
+
+        <div className="grid gap-2">
+          <div className="flex flex-wrap">
+            {dedupeCandidates.map((supplier) => (
+              <Button
+                key={supplier.id}
+                variant="outline"
+                className={cn(
+                  'flex h-auto flex-col items-start gap-0.5 self-start rounded-xl px-4 py-2 text-left !normal-case',
+                  selectedCandidate === supplier.id &&
+                    'border-primary bg-primary/10',
+                )}
+                onClick={() => handleClick(supplier.id)}
+                type="button"
+              >
+                <p>
+                  <span className="font-medium">{supplier.name}</span>
+                  {supplier.region && (
+                    <span className="font-light">{` (${supplier.region})`}</span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {supplier.email}
+                </p>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

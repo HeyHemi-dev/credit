@@ -1,13 +1,14 @@
-import * as React from 'react'
+import React from 'react'
 import {
   AlertDialog,
-  AlertDialogCancel,
+  AlertDialogAction,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { tryCatchSync } from '@/lib/try-catch'
+import { Brand } from '@/components/header'
 
 const STORAGE_KEY = 'credit.coupleIntroDismissed.v1'
 
@@ -30,25 +31,25 @@ export function IntroModal() {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-sm">
-        <AlertDialogHeader className="grid place-items-start gap-4 text-left">
-          <AlertDialogTitle>Help us credit your suppliers</AlertDialogTitle>
-          <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
-            <p>
-              List the suppliers you used for your wedding, so they can easily
-              credit each other on social media.
-            </p>
-            <p>No login required. We'll auto-save as you go.</p>
+        <AlertDialogHeader className="grid place-items-start gap-y-8">
+          <Brand />
+          <div className="grid gap-4">
+            <AlertDialogTitle>Help us credit your suppliers</AlertDialogTitle>
+            <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
+              <p>
+                Add the suppliers you worked with so everyone can be credited
+                properly. It helps small businesses get seen —and it only takes
+                a minute.
+              </p>
+              <p>No login needed. We’ll save as you go.</p>
+            </div>
           </div>
         </AlertDialogHeader>
 
         <AlertDialogFooter className="flex justify-end">
-          <AlertDialogCancel
-            variant="default"
-            onClick={dismiss}
-            className="min-w-24"
-          >
+          <AlertDialogAction onClick={dismiss} className="min-w-24">
             Got it
-          </AlertDialogCancel>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

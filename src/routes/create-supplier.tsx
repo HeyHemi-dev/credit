@@ -15,7 +15,7 @@ const createSupplierSearchSchema = z.object({
 export const Route = createFileRoute('/create-supplier')({
   ssr: false,
   component: CreateSupplierRoute,
-  validateSearch: (search) => createSupplierSearchSchema.parse(search),
+  validateSearch: createSupplierSearchSchema,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
@@ -33,7 +33,7 @@ function CreateSupplierRoute() {
         <div className="grid gap-0.5">
           <h1 className="text-2xl font-light">Create a new supplier</h1>
           <p className="text-sm text-muted-foreground">
-            Create a new supplier anyone can use.
+            This creates a shared supplier others can use.
           </p>
         </div>
         <CreateSupplierForm authToken={authToken} />

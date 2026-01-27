@@ -70,7 +70,7 @@ export const REGIONS = Object.values(REGION)
 export const SHARE_TOKEN_MIN_LENGTH = 32
 export const DEBOUNCE_INPUT_MS = 300
 export const BATCH_AUTOSAVE_MS = 60_000
-export const THROTTLE_COPY_MS = 1500
+export const THROTTLE_COPY_MS = 500
 
 export const AUTH_STATUS = {
   AUTHENTICATED: 'authenticated',

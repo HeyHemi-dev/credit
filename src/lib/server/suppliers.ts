@@ -14,6 +14,8 @@ import {
 } from '@/db/queries/suppliers'
 import { isValidAuthToken } from '@/lib/server/auth'
 import { ERROR } from '@/lib/errors'
+import { tryCatch } from '@/lib/try-catch'
+import { logger } from '@/lib/logger'
 
 export const searchSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(searchSuppliersSchema)
@@ -29,10 +31,18 @@ export const dedupeSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(dedupeSuppliersSchema)
   .handler(async ({ data }): Promise<Array<Supplier>> => {
     // eventId validity is checked at route level; keep this function generic.
-    const suppliers = await findSupplierDedupeCandidates({
-      email: data.email,
-      name: data.name,
-    })
+    const { data: suppliers, error } = await tryCatch(
+      findSupplierDedupeCandidates({
+        email: data.email,
+        name: data.name,
+      }),
+    )
+    if (error)
+      logger.error('dedupeSuppliersFn', {
+        data,
+        error,
+      })
+    if (!suppliers) return []
     return mapSuppliersToSearchResults(suppliers)
   })
 

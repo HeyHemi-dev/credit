@@ -44,6 +44,15 @@ import { ERROR } from '@/lib/errors'
 export function useAuthToken(shareToken?: string): AuthToken {
   const { data, isPending, isRefetching } = authClient.useSession()
 
+  // Early return for share token
+  if (shareToken) {
+    return {
+      status: AUTH_STATUS.AUTHENTICATED,
+      tokenType: AUTH_TOKEN_TYPE.SHARE_TOKEN,
+      token: shareToken,
+    }
+  }
+
   if (isPending || isRefetching) {
     return { status: AUTH_STATUS.PENDING }
   }
@@ -54,14 +63,6 @@ export function useAuthToken(shareToken?: string): AuthToken {
       tokenType: AUTH_TOKEN_TYPE.SESSION_TOKEN,
       token: data.session.token,
       authUserId: data.session.userId,
-    }
-  }
-
-  if (shareToken) {
-    return {
-      status: AUTH_STATUS.AUTHENTICATED,
-      tokenType: AUTH_TOKEN_TYPE.SHARE_TOKEN,
-      token: shareToken,
     }
   }
 
@@ -88,6 +89,7 @@ export function isShareAuthToken(authToken: AuthToken) {
 }
 
 export function requireShareAuthToken(authToken: AuthToken) {
-  if (!isShareAuthToken(authToken)) throw ERROR.NOT_AUTHENTICATED()
+  if (!isShareAuthToken(authToken))
+    throw ERROR.NOT_AUTHENTICATED('Share token is required')
   return authToken
 }

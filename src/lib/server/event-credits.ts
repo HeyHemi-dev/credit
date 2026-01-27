@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { setResponseStatus } from '@tanstack/react-start/server'
 import type { Credit } from '@/lib/types/front-end'
 import {
+  authTokenSchema,
   createCreditSchema,
   deleteCreditSchema,
   shareTokenSchema,
@@ -13,18 +14,20 @@ import {
   upsertEventSupplier,
 } from '@/db/queries/event-suppliers'
 import { getSupplierById } from '@/db/queries/suppliers'
+import { isValidAuthToken } from '@/lib/server/auth'
 
 export const createCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(createCreditSchema.extend({ shareToken: shareTokenSchema }))
+  .inputValidator(createCreditSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<Credit> => {
+    // Either session or share auth token is valid for creating a credit
+    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+
     // check event and supplier exists
     const [event, supplier] = await Promise.all([
       getEventById(data.eventId),
       getSupplierById(data.supplierId),
     ])
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-    if (event.shareToken !== data.shareToken)
-      throw ERROR.FORBIDDEN('Share token mismatch')
     if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
 
     // insert eventSupplier
@@ -48,12 +51,13 @@ export const createCreditFn = createServerFn({ method: 'POST' })
   })
 
 export const deleteCreditFn = createServerFn({ method: 'POST' })
-  .inputValidator(deleteCreditSchema.extend({ shareToken: shareTokenSchema }))
+  .inputValidator(deleteCreditSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<void> => {
+    // Either session or share auth token is valid for deleting a credit
+    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
-    if (event.shareToken !== data.shareToken)
-      throw ERROR.FORBIDDEN('Share token mismatch')
 
     // delete eventSupplier
     await deleteEventSupplier(data.eventId, data.supplierId)
