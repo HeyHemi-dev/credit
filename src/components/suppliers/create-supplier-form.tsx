@@ -80,9 +80,10 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="name"
           children={(field) => (
-            <FormField field={field} label="Supplier name" isRequired>
+            <FormField field={field} label="Name" isRequired>
               <Input
                 id={field.name}
+                placeholder="Business name"
                 value={field.state.value}
                 onBlur={() => setDedupeName(field.state.value)}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -94,9 +95,15 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="email"
           children={(field) => (
-            <FormField field={field} label="Email" isRequired>
+            <FormField
+              field={field}
+              label="Contact email"
+              description="Used for crediting and deduping. Not shown publicly."
+              isRequired
+            >
               <Input
                 id={field.name}
+                placeholder="Email address"
                 value={field.state.value}
                 onBlur={() => setDedupeEmail(field.state.value)}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -108,7 +115,11 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="region"
           children={(field) => (
-            <FormField field={field} label="Region">
+            <FormField
+              field={field}
+              label="Based in"
+              description="Optional, helps match suppliers correctly."
+            >
               <Select
                 value={field.state.value}
                 onValueChange={(v) => {
@@ -139,16 +150,20 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="instagramHandle"
           children={(field) => (
-            <FormField field={field} label="Instagram handle">
+            <FormField
+              field={field}
+              label="Instagram handle"
+              description="If you know it."
+            >
               <Input
                 id={field.name}
                 value={field.state.value}
+                placeholder="@supplier"
                 onChange={(event) => {
                   field.handleChange(
                     normalizeInstagramInput(event.target.value),
                   )
                 }}
-                placeholder="@supplier"
               />
             </FormField>
           )}
@@ -157,14 +172,18 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
         <form.Field
           name="tiktokHandle"
           children={(field) => (
-            <FormField field={field} label="TikTok handle">
+            <FormField
+              field={field}
+              label="TikTok handle"
+              description="If you know it."
+            >
               <Input
                 id={field.name}
                 value={field.state.value}
+                placeholder="@supplier"
                 onChange={(event) =>
                   field.handleChange(normalizeTiktokInput(event.target.value))
                 }
-                placeholder="@supplier"
               />
             </FormField>
           )}
@@ -177,18 +196,23 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
           />
         )}
       </FieldGroup>
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          form="create-supplier-form"
-          disabled={
-            form.state.isSubmitting ||
-            createMutation.isPending ||
-            authToken.status === AUTH_STATUS.PENDING
-          }
-        >
-          {createMutation.isPending ? 'Creating…' : 'Create supplier'}
-        </Button>
+      <div className="grid gap-2">
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            form="create-supplier-form"
+            disabled={
+              form.state.isSubmitting ||
+              createMutation.isPending ||
+              authToken.status === AUTH_STATUS.PENDING
+            }
+          >
+            {createMutation.isPending ? 'Creating…' : 'Create supplier'}
+          </Button>
+        </div>
+        <p className="text-right text-xs text-muted-foreground/60">
+          Please double-check spelling —this is shared with others.
+        </p>
       </div>
       {createMutation.error?.message && (
         <FormErrorMessage message={createMutation.error.message} />

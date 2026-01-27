@@ -33,7 +33,7 @@ function CreateSupplierRoute() {
         <div className="grid gap-0.5">
           <h1 className="text-2xl font-light">Create a new supplier</h1>
           <p className="text-sm text-muted-foreground">
-            Create a new supplier anyone can use.
+            This creates a shared supplier others can use.
           </p>
         </div>
         <CreateSupplierForm authToken={authToken} />
