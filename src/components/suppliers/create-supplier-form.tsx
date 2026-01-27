@@ -1,7 +1,8 @@
 import { useForm } from '@tanstack/react-form'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon } from '@hugeicons/core-free-icons'
-import { Card, CardContent } from '../ui/card'
+import React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import type { Supplier } from '@/lib/types/front-end'
 import type {
   AuthToken,
@@ -40,8 +41,13 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
   const handleBack = useBack()
 
   // TODO: check why dedupe is not working
+
   const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
   const dedupeCandidates = dedupeQuery.data ?? []
+  const [selectedDedupe, setSelectedDedupe] = React.useState<string | null>(
+    null,
+  )
+
   const { createMutation } = useCreateSupplier(authToken)
 
   const form = useForm({
@@ -191,14 +197,15 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
             </FormField>
           )}
         />
-
-        {dedupeCandidates.length > 0 && (
-          <DedupeCandidates
-            dedupeCandidates={dedupeCandidates}
-            onClick={handleDedupe}
-          />
-        )}
       </FieldGroup>
+
+      {dedupeCandidates.length > 0 && (
+        <DedupeCandidates
+          dedupeCandidates={dedupeCandidates}
+          onClick={(supplierId) => setSelectedDedupe(supplierId)}
+        />
+      )}
+
       <div className="grid gap-2">
         <div className="flex justify-end">
           <Button
@@ -207,7 +214,8 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
             disabled={
               form.state.isSubmitting ||
               createMutation.isPending ||
-              authToken.status === AUTH_STATUS.PENDING
+              authToken.status === AUTH_STATUS.PENDING ||
+              selectedDedupe !== null
             }
           >
             {createMutation.isPending ? 'Creating…' : 'Create supplier'}
@@ -243,22 +251,42 @@ function DedupeCandidates({
   onClick: (supplierId: string) => void
 }) {
   return (
-    <div className="grid gap-2">
-      <div className="text-sm text-muted-foreground">
-        Did you mean one of these?
-      </div>
-      {dedupeCandidates.map((supplier) => (
-        <button
-          key={supplier.id}
-          className="rounded-xl border px-3 py-2 text-left hover:bg-muted/30"
-          onClick={() => onClick(supplier.id)}
-          type="button"
-        >
-          <div className="font-medium">{supplier.name}</div>
-          <div className="text-xs text-muted-foreground">{supplier.email}</div>
-        </button>
-      ))}
-    </div>
+    <Card className="bg-primary/5 ring-primary/10">
+      <CardContent className="grid gap-4">
+        <div className="grid gap-0.5">
+          <h2 className="font-medium text-primary">
+            We found some similar suppliers.
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Did you mean one of these?
+          </p>
+        </div>
+
+        <div className="grid gap-2">
+          <div className="flex flex-wrap">
+            {dedupeCandidates.map((supplier) => (
+              <Button
+                key={supplier.id}
+                variant="outline"
+                className="flex h-auto flex-col items-start gap-0.5 self-start rounded-xl px-4 py-2 text-left !normal-case"
+                onClick={() => onClick(supplier.id)}
+                type="button"
+              >
+                <p>
+                  <span className="font-medium">{supplier.name}</span>
+                  {supplier.region && (
+                    <span className="font-light">{` • ${supplier.region}`}</span>
+                  )}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {supplier.email}
+                </p>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
