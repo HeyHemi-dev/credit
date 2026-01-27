@@ -67,9 +67,25 @@ export function CreateCreditForm({
     >
       <FieldGroup className="grid gap-6">
         <form.Field
+          name="supplierId"
+          children={(field) => (
+            <FormField field={field} label="Who it was" isRequired={true}>
+              <SupplierSearchCombobox
+                shareToken={
+                  isShareAuthToken(authToken) ? authToken.token : undefined
+                }
+                eventId={eventId}
+                handleChange={(supplierId) => field.handleChange(supplierId)}
+                containerRef={containerRef}
+              />
+            </FormField>
+          )}
+        />
+
+        <form.Field
           name="service"
           children={(field) => (
-            <FormField field={field} label="Service" isRequired={true}>
+            <FormField field={field} label="What they did" isRequired={true}>
               <Select
                 value={field.state.value}
                 onValueChange={(value) => {
@@ -95,29 +111,13 @@ export function CreateCreditForm({
         />
 
         <form.Field
-          name="supplierId"
-          children={(field) => (
-            <FormField field={field} label="Supplier" isRequired={true}>
-              <SupplierSearchCombobox
-                shareToken={
-                  isShareAuthToken(authToken) ? authToken.token : undefined
-                }
-                eventId={eventId}
-                handleChange={(supplierId) => field.handleChange(supplierId)}
-                containerRef={containerRef}
-              />
-            </FormField>
-          )}
-        />
-
-        <form.Field
           name="contributionNotes"
           children={(field) => (
             <FormField field={field} label="Notes" isRequired={false}>
               <Textarea
                 id={field.name}
                 value={field.state.value}
-                placeholder="Anything to add? Say it here..."
+                placeholder="Optional —anything worth mentioning?"
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="min-h-24"
               />
@@ -140,7 +140,7 @@ export function CreateCreditForm({
           form="create-event-credit-form"
           disabled={form.state.isSubmitting}
         >
-          Add credit
+          Save
         </Button>
       </div>
     </form>

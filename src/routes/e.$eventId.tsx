@@ -122,7 +122,11 @@ export function CreditPage() {
 
       <ActionDrawer
         state={{ isOpen, setIsOpen }}
-        content={{ title: 'Credit Supplier' }}
+        content={{
+          title: 'Credit Supplier',
+          description:
+            'Add one supplier at a time. Search first —if they’re not listed, you can create a new one.',
+        }}
         setContainerRef={containerRef}
       >
         <CreateCreditForm

@@ -44,8 +44,9 @@ export function SupplierSearchCombobox({
 
   const statusMessage = React.useMemo(() => {
     if (isPending) return 'Searching...'
-    if (searchQuery.isError) return 'Search failed. Please try again.'
-    if (userInput === '') return 'Start typing to search...'
+    if (searchQuery.isError) return 'Something went wrong. Please try again.'
+    if (userInput === '')
+      return 'Start typing to search. You can create a new supplier if needed.'
   }, [searchQuery.isError, userInput, isPending])
 
   return (
