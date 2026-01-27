@@ -87,6 +87,7 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               <Input
                 id={field.name}
                 placeholder="Business name"
+                autoComplete="off"
                 value={field.state.value}
                 onBlur={() => {}}
                 onChange={(event) => {
@@ -110,6 +111,7 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               <Input
                 id={field.name}
                 placeholder="Email address"
+                autoComplete="off"
                 value={field.state.value}
                 onBlur={() => setDedupeEmail(field.state.value)}
                 onChange={(event) => field.handleChange(event.target.value)}
@@ -299,7 +301,7 @@ function DedupeCandidates({
                 <p>
                   <span className="font-medium">{supplier.name}</span>
                   {supplier.region && (
-                    <span className="font-light">{` • ${supplier.region}`}</span>
+                    <span className="font-light">{` (${supplier.region})`}</span>
                   )}
                 </p>
                 <p className="text-xs text-muted-foreground">
