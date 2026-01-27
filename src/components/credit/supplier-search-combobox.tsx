@@ -89,7 +89,7 @@ export function SupplierSearchCombobox({
             </ComboboxItem>
           )}
         </ComboboxList>
-        <ComboboxStatus className="text-sm text-muted-foreground">
+        <ComboboxStatus className="text-sm text-pretty text-muted-foreground">
           {statusMessage}
         </ComboboxStatus>
 
