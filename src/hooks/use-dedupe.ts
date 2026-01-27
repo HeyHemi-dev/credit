@@ -1,5 +1,5 @@
 import { useServerFn } from '@tanstack/react-start'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDebouncedState } from '@tanstack/react-pacer'
 import { dedupeSuppliersFn } from '@/lib/server/suppliers'
 import { queryKeys } from '@/hooks/query-keys'
@@ -25,6 +25,7 @@ export function useDedupe() {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    placeholderData: keepPreviousData,
   })
 
   return { dedupeQuery, setDedupeEmail, setDedupeName }
