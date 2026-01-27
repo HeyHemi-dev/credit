@@ -85,8 +85,11 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
                 id={field.name}
                 placeholder="Business name"
                 value={field.state.value}
-                onBlur={() => setDedupeName(field.state.value)}
-                onChange={(event) => field.handleChange(event.target.value)}
+                onBlur={() => {}}
+                onChange={(event) => {
+                  field.handleChange(event.target.value)
+                  setDedupeName(event.target.value)
+                }}
               />
             </FormField>
           )}
