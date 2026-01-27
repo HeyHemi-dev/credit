@@ -2,12 +2,12 @@ import { useForm } from '@tanstack/react-form'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import type { Supplier } from '@/lib/types/front-end'
 import type {
   AuthToken,
   CreateSupplierForm,
 } from '@/lib/types/validation-schema'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
@@ -28,6 +28,7 @@ import {
 import { useBack } from '@/components/back-button'
 import { useDedupe } from '@/hooks/use-dedupe'
 import { emptyStringToNull } from '@/lib/empty-strings'
+import { cn } from '@/lib/utils'
 
 const defaultValues: CreateSupplierForm = {
   name: '',
@@ -44,9 +45,9 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
 
   const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
   const dedupeCandidates = dedupeQuery.data ?? []
-  const [selectedDedupe, setSelectedDedupe] = React.useState<string | null>(
-    null,
-  )
+  const [selectedCandidate, setSelectedCandidate] = React.useState<
+    string | null
+  >(null)
 
   const { createMutation } = useCreateSupplier(authToken)
 
@@ -68,10 +69,6 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
       handleBack()
     },
   })
-
-  function handleDedupe(supplierId: string) {
-    handleBack()
-  }
 
   return (
     <form
@@ -202,12 +199,15 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
       {dedupeCandidates.length > 0 && (
         <DedupeCandidates
           dedupeCandidates={dedupeCandidates}
-          onClick={(supplierId) => setSelectedDedupe(supplierId)}
+          selectedCandidate={selectedCandidate}
+          setSelectedCandidate={(supplierId) =>
+            setSelectedCandidate(supplierId)
+          }
         />
       )}
 
       <div className="grid gap-2">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
           <Button
             type="submit"
             form="create-supplier-form"
@@ -215,11 +215,21 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               form.state.isSubmitting ||
               createMutation.isPending ||
               authToken.status === AUTH_STATUS.PENDING ||
-              selectedDedupe !== null
+              selectedCandidate !== null
             }
           >
             {createMutation.isPending ? 'Creating…' : 'Create supplier'}
           </Button>
+          {dedupeCandidates.length > 0 && (
+            <Button
+              className="order-first"
+              variant="default"
+              onClick={handleBack}
+              disabled={selectedCandidate === null}
+            >
+              Use existing
+            </Button>
+          )}
         </div>
         <p className="text-right text-xs text-muted-foreground/60">
           Please double-check spelling —this is shared with others.
@@ -245,11 +255,21 @@ function FormErrorMessage({ message }: { message: string }) {
 
 function DedupeCandidates({
   dedupeCandidates,
-  onClick,
+  selectedCandidate,
+  setSelectedCandidate,
 }: {
   dedupeCandidates: Array<Supplier>
-  onClick: (supplierId: string) => void
+  selectedCandidate: string | null
+  setSelectedCandidate: (supplierId: string | null) => void
 }) {
+  function handleClick(supplierId: string) {
+    if (selectedCandidate === supplierId) {
+      setSelectedCandidate(null)
+    } else {
+      setSelectedCandidate(supplierId)
+    }
+  }
+
   return (
     <Card className="bg-primary/5 ring-primary/10">
       <CardContent className="grid gap-4">
@@ -268,8 +288,12 @@ function DedupeCandidates({
               <Button
                 key={supplier.id}
                 variant="outline"
-                className="flex h-auto flex-col items-start gap-0.5 self-start rounded-xl px-4 py-2 text-left !normal-case"
-                onClick={() => onClick(supplier.id)}
+                className={cn(
+                  'flex h-auto flex-col items-start gap-0.5 self-start rounded-xl px-4 py-2 text-left !normal-case',
+                  selectedCandidate === supplier.id &&
+                    'border-primary bg-primary/10',
+                )}
+                onClick={() => handleClick(supplier.id)}
                 type="button"
               >
                 <p>
