@@ -35,6 +35,9 @@ function RouteComponent() {
     <>
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
+          <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
+            Made for wedding professionals
+          </p>
           <h1 className="text-5xl leading-tight font-light sm:text-6xl">
             Tag everyone. Effortlessly.
           </h1>
@@ -62,11 +65,11 @@ function RouteComponent() {
 
         <HowItWorksCard
           index="01"
-          description="Send one private link to the couple"
+          description="Create a private event link and send it to your couple"
         />
         <HowItWorksCard
           index="02"
-          description="They search for and add the suppliers involved"
+          description="They search and add the suppliers they worked with"
         />
         <HowItWorksCard
           index="03"
@@ -173,9 +176,9 @@ function InsetDiv({
 
 function SectionHeading({ text }: { text: string }) {
   return (
-    <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
+    <h2 className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
       {text}
-    </p>
+    </h2>
   )
 }
 
@@ -200,7 +203,7 @@ function HowItWorksCard({
   description: string
 }) {
   return (
-    <InsetDiv className="flex min-h-[25svh] flex-col justify-between rounded-4xl bg-background p-6">
+    <InsetDiv className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
       <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
         {index}
       </span>
