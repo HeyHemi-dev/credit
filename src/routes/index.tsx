@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 
 import { useAuthToken } from '@/hooks/use-auth-token'
 import { AUTH_STATUS } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({
   ssr: false,
@@ -23,150 +24,181 @@ function RouteComponent() {
   if (authToken.status === AUTH_STATUS.AUTHENTICATED)
     navigate({ to: '/events', replace: true })
 
+  const handleCTA = () => {
+    navigate({
+      to: '/auth/$pathname',
+      params: { pathname: 'sign-up' },
+    })
+  }
+
   return (
-    <div className="grid gap-y-20 text-left">
-      <Section className="rounded-none bg-transparent p-0 pt-24">
-        <div className="grid gap-6">
-          <h1 className="text-5xl leading-[1.05] font-light sm:text-6xl">
-            Tag everyone — with thanks.
+    <>
+      <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
+        <TextBlock>
+          <h1 className="text-5xl leading-tight font-light sm:text-6xl">
+            Tag everyone —&#8288;with thanks.
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-xl font-light">
             Send one link. Get copy‑ready tags back.
           </p>
-        </div>
+        </TextBlock>
+        <Button
+          size="lg"
+          variant={'default'}
+          className="min-w-32 justify-self-start"
+          onClick={handleCTA}
+        >
+          Try it
+        </Button>
       </Section>
 
-      <Section className="grid gap-4">
-        <Section className="rounded-none bg-transparent py-0">
-          <p className="text-sm tracking-[0.2em] text-muted-foreground uppercase">
-            How it works
-          </p>
-        </Section>
+      <Section className="grid gap-4 rounded-none bg-transparent p-0">
+        <InsetDiv>
+          <SectionHeading text="How it works" />
+        </InsetDiv>
 
-        <Section className="flex aspect-3/2 flex-col justify-between p-8">
-          <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-            01
-          </span>
-          <p className="text-3xl leading-tight font-light">
-            Send one private link to the couple
-          </p>
-        </Section>
-
-        <Section className="flex aspect-3/2 flex-col justify-between p-8">
-          <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-            02
-          </span>
-          <p className="text-3xl leading-tight font-light">
-            They search for and add the suppliers involved
-          </p>
-        </Section>
-
-        <Section className="flex aspect-3/2 flex-col justify-between p-8">
-          <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-            03
-          </span>
-          <p className="text-3xl leading-tight font-light">
-            You get copy‑ready tags, ready to paste into Instagram
-          </p>
-        </Section>
+        <HowItWorksCard
+          index="01"
+          description="Send one private link to the couple"
+        />
+        <HowItWorksCard
+          index="02"
+          description="They search for and add the suppliers involved"
+        />
+        <HowItWorksCard
+          index="03"
+          description="You get copy‑ready tags, ready to paste into Instagram"
+        />
       </Section>
 
-      <Section className="bg-transparent p-0">
-        <div className="h-[50vh] w-full rounded-4xl border border-border/60 bg-muted/70" />
+      <Section className="min-h-[75svh] bg-linear-to-br from-primary/60 to-primary p-0"></Section>
+
+      <Section className="min-h-[75svh] content-center bg-transparent py-24">
+        <SectionHeading text="Why this exists" />
+        <TextBlock className="text-3xl">
+          <p className="leading-snug">
+            Weddings are collaborative. When photos are shared, tagging and
+            thanking the people involved strengthens our community.
+          </p>
+          <p className="leading-snug">
+            We have good intentions, but sometimes the process breaks down
+            —&#8288;chasing details, incomplete forms, and extra work for
+            couples. The result; details that aren’t filled out well,{' '}
+            <span className="italic">if at all.</span>
+          </p>
+          <p className="leading-snug font-normal">
+            With Thanks makes it easy to follow through —&#8288;for suppliers{' '}
+            <span className="italic">and couples.</span>
+          </p>
+        </TextBlock>
       </Section>
 
-      <Section className="bg-transparent">
-        <div className="grid max-w-120 gap-6">
-          <h2 className="text-sm tracking-[0.2em] text-muted-foreground uppercase">
-            Why this exists
-          </h2>
-          <p className="text-2xl leading-relaxed font-light sm:text-3xl">
-            Weddings are collaborative.
-          </p>
-          <p className="text-lg leading-relaxed font-light text-muted-foreground">
-            When photos are shared, tagging and thanking the people involved
-            strengthens our community.
-          </p>
-          <p className="text-lg leading-relaxed font-light text-muted-foreground">
-            The intent is there. The process breaks down — chasing details,
-            incomplete forms, and extra work for couples.
-          </p>
-          <p className="text-lg leading-relaxed font-light text-muted-foreground">
-            Often, details aren’t filled out well — or at all.
-          </p>
-          <p className="text-lg leading-relaxed font-light text-muted-foreground">
-            With Thanks makes it easy to follow through.
-          </p>
-        </div>
-      </Section>
+      <Section className="flex min-h-[75svh] flex-col justify-between bg-background">
+        <SectionHeading text="Built for wedding professionals" />
 
-      <Section className="bg-background">
-        <div className="grid max-w-120 gap-6">
-          <h2 className="text-2xl leading-relaxed font-light sm:text-3xl">
-            Built for real workflows
-          </h2>
-          <p className="text-lg leading-relaxed text-muted-foreground">
+        <TextBlock className="text-4xl">
+          <p className="leading-snug">
             With Thanks is built by a working photographer, shaped around how
-            weddings actually run.
+            weddings are actually delivered.
           </p>
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            It fits quietly alongside the tools you already use, and focuses on
-            making this one part of the process easier.
+          <p className="leading-snug">
+            It's not trying to transform your workflow —&#8288;it fits quietly
+            alongside the tools you already use, and focuses on making this one
+            part of the process easier.
           </p>
-        </div>
+        </TextBlock>
       </Section>
 
-      <Section className="bg-background">
-        <div className="grid max-w-120 gap-6">
-          <h2 className="text-2xl leading-relaxed font-light sm:text-3xl">
-            Trust & control
-          </h2>
-          <div className="grid gap-4">
-            {[
-              'No accounts or sign‑in for couples',
-              'Private links, shared only by you',
-              'Nothing is posted automatically',
-              'You decide when and how tags are used',
-            ].map((item, index) => (
-              <div key={item} className="flex gap-4">
-                <span className="mt-1 text-xs tracking-[0.2em] text-muted-foreground uppercase">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <p className="text-lg leading-relaxed text-muted-foreground">
-                  {item}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            This exists to support your work — not get in the way of it.
-          </p>
-        </div>
+      <Section className="gap-6 rounded-none bg-transparent py-24">
+        <SectionHeading text="You're in control" />
+
+        <ol className="grid list-outside list-[decimal-leading-zero] gap-6 pl-[2ch] text-2xl font-light marker:text-sm marker:font-normal marker:tracking-[0.2em] marker:text-foreground marker:uppercase">
+          <li>
+            <p className="inline">No accounts or sign‑in for couples</p>
+          </li>
+          <li>
+            <p className="inline">Private links, shared only by you</p>
+          </li>
+          <li>
+            <p className="inline">Nothing is posted automatically</p>
+          </li>
+          <li>
+            <p className="inline">You decide when and how tags are used</p>
+          </li>
+        </ol>
+
+        <p className="text-xl leading-snug font-medium text-pretty">
+          With Thanks exists to support your work, not get in the way of it.
+        </p>
       </Section>
 
-      <Section className="bg-transparent">
+      <Section className="min-h-[33svh] content-center bg-linear-to-br from-primary/60 to-primary text-primary-foreground">
         <div className="grid justify-items-center gap-6 text-center">
-          <p className="text-2xl leading-relaxed font-light sm:text-3xl">
+          <h2 className="text-3xl leading-relaxed font-light">
             Try it on your next wedding.
-          </p>
+          </h2>
           <Button
-            type="button"
             size="lg"
-            onClick={() =>
-              navigate({
-                to: '/auth/$pathname',
-                params: { pathname: 'sign-up' },
-              })
-            }
+            variant={'outline'}
+            className="min-w-32"
+            onClick={handleCTA}
           >
             Try it
           </Button>
         </div>
       </Section>
 
-      <Section className="bg-muted/70">
-        <div className="h-24" />
-      </Section>
+      <div className="h-24" />
+    </>
+  )
+}
+
+function InsetDiv({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'div'>) {
+  return (
+    <div className={cn('px-6', className)} {...props}>
+      {children}
     </div>
+  )
+}
+
+function SectionHeading({ text }: { text: string }) {
+  return (
+    <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
+      {text}
+    </p>
+  )
+}
+
+function TextBlock({ className, children }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn(
+        'grid gap-[1.2em] text-xl font-light text-pretty',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+function HowItWorksCard({
+  index,
+  description,
+}: {
+  index: string
+  description: string
+}) {
+  return (
+    <InsetDiv className="flex min-h-[25svh] flex-col justify-between rounded-4xl bg-background p-6">
+      <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+        {index}
+      </span>
+      <p className="text-3xl leading-snug font-light">{description}</p>
+    </InsetDiv>
   )
 }
