@@ -36,19 +36,22 @@ function RouteComponent() {
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
           <h1 className="text-5xl leading-tight font-light sm:text-6xl">
-            Tag everyone —&#8288;with thanks.
+            Tag everyone. Effortlessly.
           </h1>
           <p className="text-xl font-light">
-            Send one link. Get copy‑ready tags back.
+            Send one link. Get copy‑ready{' '}
+            <span className="text-muted-foreground/60">@</span>tags, formatted
+            and ready for Instagram
+            <span className="italic">—&#8288;with thanks.</span>
           </p>
         </TextBlock>
         <Button
           size="lg"
-          variant={'default'}
-          className="min-w-32 justify-self-start"
+          variant="default"
+          className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary"
           onClick={handleCTA}
         >
-          Try it
+          Try it for Free
         </Button>
       </Section>
 
@@ -71,7 +74,7 @@ function RouteComponent() {
         />
       </Section>
 
-      <Section className="min-h-[75svh] bg-linear-to-br from-primary/60 to-primary p-0"></Section>
+      {/* <Section className="min-h-[75svh] bg-linear-to-br from-primary/60 to-primary p-0"></Section> */}
 
       <Section className="min-h-[75svh] content-center bg-transparent py-24">
         <SectionHeading text="Why this exists" />
@@ -132,10 +135,10 @@ function RouteComponent() {
         </p>
       </Section>
 
-      <Section className="min-h-[33svh] content-center bg-linear-to-br from-primary/60 to-primary text-primary-foreground">
+      <Section className="min-h-[33svh] content-center bg-linear-to-br from-teal-400 to-primary text-primary-foreground">
         <div className="grid justify-items-center gap-6 text-center">
           <h2 className="text-3xl leading-relaxed font-light">
-            Try it on your next wedding.
+            Try it for your next wedding.
           </h2>
           <Button
             size="lg"
@@ -143,8 +146,11 @@ function RouteComponent() {
             className="min-w-32"
             onClick={handleCTA}
           >
-            Try it
+            Try it for Free
           </Button>
+          <p className="text-sm font-light text-balance">
+            Try it on one wedding. No setup, no commitment.
+          </p>
         </div>
       </Section>
 
