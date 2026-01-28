@@ -10,16 +10,16 @@
 
 **Problem**
 
-- Photographers want to **credit suppliers properly** but:
-    - Supplier info is scattered (emails, business cards, memory).
-    - Couples are hard to get complete, accurate details from.
+- Photographers want to **tag suppliers properly** but:
+  - Supplier info is scattered (emails, business cards, memory).
+  - Couples are hard to get complete, accurate details from.
 - Current process is **manual, slow, and error-prone**.
 
 **Existing Alternatives**
 
 - Manually compile from email threads, business cards, memory, and Instagram.
 - Ask couples via messages or questionnaires (often incomplete / inconsistent).
-- Copy and paste from previous weddings (leads to errors and missing credits).
+- Copy and paste from previous weddings (leads to errors and missing tags).
 
 </aside>
 
@@ -34,7 +34,7 @@
 - Couple fills in supplier details once (names, IG handles, websites, roles).
 - Smart supplier search to reduce duplicates.
 - Editable over time (before / after wedding).
-- Photographer gets a **one-click formatted credit list** copied to clipboard.
+- Photographer gets a **one-click formatted tag list** copied to clipboard.
 - Supplier profiles that can later be claimed.
 
 </aside>
@@ -46,8 +46,8 @@
 **Key Metrics**
 
 - Events created.
-- % of events with completed supplier credits.
-- Suppliers credited per event.
+- % of events with completed supplier tags.
+- Suppliers tagged per event.
 - Duplicate supplier rate.
 
 </aside>
@@ -58,11 +58,11 @@
 
 **Unique Value Prop**
 
-- *One link for couples → clean, reusable supplier credits for photographers.*
+- _One link for couples → clean, reusable supplier tags for photographers._
 
 **High-Level Concept**
 
-- “Typeform for wedding supplier credits” + “Google Contacts for suppliers” (shared, deduped, reusable).
+- “Typeform for wedding supplier tags” + “Google Contacts for suppliers” (shared, deduped, reusable).
 
 </aside>
 
@@ -72,7 +72,7 @@
 
 **Unfair Advantage**
 
-- Built *by* a working photographer, for real workflows.
+- Built _by_ a working photographer, for real workflows.
 - Early, structured supplier data (hard to recreate later).
 - Network effects as suppliers + photographers repeat.
 
@@ -101,7 +101,7 @@
 
 **Early Adopters**
 
-- Photographers who post supplier credits consistently and care about relationships/referrals.
+- Photographers who post supplier tags consistently and care about relationships/referrals.
 - Teams already using systems (CRM templates, email automations) and want less manual admin.
 - Photographers shooting enough weddings that reusing supplier data saves time.
 
@@ -129,4 +129,3 @@
 - Strategic value as infrastructure for a future app.
 
 </aside>
-

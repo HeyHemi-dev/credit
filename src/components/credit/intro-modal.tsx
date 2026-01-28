@@ -34,10 +34,10 @@ export function IntroModal() {
         <AlertDialogHeader className="grid place-items-start gap-y-8">
           <Brand />
           <div className="grid gap-4">
-            <AlertDialogTitle>Help us credit your suppliers</AlertDialogTitle>
+            <AlertDialogTitle>Help us thank your suppliers</AlertDialogTitle>
             <div className="grid gap-4 text-sm text-pretty text-muted-foreground">
               <p>
-                Add the suppliers you worked with so everyone can be credited
+                Add the suppliers you worked with so everyone can be tagged
                 properly. It helps small businesses get seen —and it only takes
                 a minute.
               </p>

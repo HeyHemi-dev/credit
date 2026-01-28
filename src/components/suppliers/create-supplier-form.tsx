@@ -105,7 +105,7 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
             <FormField
               field={field}
               label="Contact email"
-              description="Used for crediting and preventing duplicates. Not shown publicly."
+              description="Used for sharing and preventing duplicates. Not shown publicly."
               isRequired
             >
               <Input

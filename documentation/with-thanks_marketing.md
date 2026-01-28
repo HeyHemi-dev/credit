@@ -62,7 +62,7 @@ It’s just there to make this one part of the process go more smoothly.
 - Couples don’t need to create an account or sign in
 - Links are private and shared only by you
 - Nothing is posted or shared automatically
-- You stay in control of when and how credits are used
+- You stay in control of when and how tags are used
 
 This exists to support your work — not get in the way of it.
 

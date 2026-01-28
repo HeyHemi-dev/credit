@@ -39,9 +39,9 @@ function RouteComponent() {
             Tag everyone. Effortlessly.
           </h1>
           <p className="text-xl font-light">
-            Send one link. Get copy‑ready{' '}
-            <span className="text-muted-foreground/60">@</span>tags, formatted
-            and ready for Instagram
+            Send one link. Get wedding supplier{' '}
+            <span className="text-muted-foreground/60">@</span>tags back.
+            Copy-ready and formatted for Instagram{' '}
             <span className="italic">—&#8288;with thanks.</span>
           </p>
         </TextBlock>
@@ -86,8 +86,8 @@ function RouteComponent() {
           <p className="leading-snug">
             We have good intentions, but sometimes the process breaks down
             —&#8288;chasing details, incomplete forms, and extra work for
-            couples. The result; details that aren’t filled out well,{' '}
-            <span className="italic">if at all.</span>
+            couples. The result; details that aren’t filled out well{' '}
+            <span className="italic">...if at all.</span>
           </p>
           <p className="leading-snug font-normal">
             With Thanks makes it easy to follow through —&#8288;for suppliers{' '}
@@ -101,8 +101,8 @@ function RouteComponent() {
 
         <TextBlock className="text-4xl">
           <p className="leading-snug">
-            With Thanks is built by a working photographer, shaped around how
-            weddings are actually delivered.
+            With Thanks is built by a working photographer, and was shaped
+            around how weddings are actually delivered.
           </p>
           <p className="leading-snug">
             It's not trying to transform your workflow —&#8288;it fits quietly
@@ -204,7 +204,9 @@ function HowItWorksCard({
       <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
         {index}
       </span>
-      <p className="text-3xl leading-snug font-light">{description}</p>
+      <p className="text-3xl leading-snug font-light text-pretty">
+        {description}
+      </p>
     </InsetDiv>
   )
 }

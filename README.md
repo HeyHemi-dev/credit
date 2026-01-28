@@ -1,6 +1,6 @@
 # Give Credit
 
-> _Send one link. Get wedding supplier credits back — copy-ready and formatted for Instagram._
+> _Send one link. Get wedding supplier tags back — copy-ready and formatted for Instagram._
 
 Mobile-first web app for the wedding industry. **Primary users:** wedding photographers. Couples contribute supplier details via a private link (no login). NZ-only.
 
