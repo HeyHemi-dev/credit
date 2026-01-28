@@ -142,8 +142,8 @@ function RouteComponent() {
           </h2>
           <Button
             size="lg"
-            variant={'outline'}
-            className="min-w-32"
+            variant="ghost"
+            className="min-w-32 border border-primary-foreground"
             onClick={handleCTA}
           >
             Try it for Free
