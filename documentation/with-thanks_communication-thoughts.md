@@ -1,0 +1,9 @@
+I’ve been thinking about the pitch to couples, and specifically how we talk to them when they first open the link. When a couple clicks the share link, they land on a screen with a short intro—almost like a dialog or pop-up. There’s barely any space, so whatever we say there has to be extremely concise. Once they dismiss it, we can give slightly more context or instructions, but even then it probably needs to stay minimal.
+
+That first moment really isn’t about telling them what to do—it’s about why they should care. From their perspective, they’ve received a link from their photographer and ended up on some unfamiliar website. Before they invest any effort, they need to understand why this matters to them at all.
+
+Part of what I keep coming back to is how unique the wedding industry is. Suppliers genuinely want to credit and support each other. When someone posts photos, they tag everyone involved, and that tagging culture is a big part of how vendors get discovered and get more work. It’s a collaborative ecosystem where one post can lead someone to a florist, a celebrant, or a venue they’d never seen before.
+
+Couples are part of that too. Most of the time, they like the vendors they chose. They’re small businesses, they were part of an important day, and couples generally want to support them—even if the experience wasn’t perfect across the board. Helping credit those vendors feels aligned with how couples already think about their wedding and the people involved.
+
+All of that makes sense to me intuitively, but what I’m trying to work through is how to turn those instincts into copy. The challenge is distilling that bigger idea—community, support, and giving credit—into just a few lines that feel natural, not salesy, and that actually encourage couples to engage with the app.
