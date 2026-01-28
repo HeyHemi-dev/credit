@@ -1,11 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { CheckmarkSquare02Icon, Copy01Icon } from '@hugeicons/core-free-icons'
+import React from 'react'
+import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
 import { useAuthToken } from '@/hooks/use-auth-token'
-import { AUTH_STATUS } from '@/lib/constants'
+import { AUTH_STATUS, SERVICE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { ActionButton } from '@/components/copy-button'
+import { formatInstagramCredits } from '@/lib/formatters'
+import { useClipboard } from '@/hooks/use-clipboard'
+import { Textarea } from '@/components/ui/textarea'
 
 export const Route = createFileRoute('/')({
   ssr: false,
@@ -20,6 +27,8 @@ function RouteComponent() {
 
   const authToken = useAuthToken()
   const navigate = Route.useNavigate()
+  const { isCopied, copy } = useClipboard()
+  const [textAreaValue, setTextAreaValue] = React.useState('')
 
   if (authToken.status === AUTH_STATUS.AUTHENTICATED)
     navigate({ to: '/events', replace: true })
@@ -30,6 +39,10 @@ function RouteComponent() {
       params: { pathname: 'sign-up' },
     })
   }
+
+  const instagramText = React.useMemo(() => {
+    return formatInstagramCredits(SAMPLE_CREDITS)
+  }, [SAMPLE_CREDITS])
 
   return (
     <>
@@ -48,14 +61,54 @@ function RouteComponent() {
             <span className="italic">—&#8288;with thanks.</span>
           </p>
         </TextBlock>
-        <Button
+        {/* <Button
           size="lg"
           variant="default"
           className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
           onClick={handleCTA}
         >
           Try it for Free
-        </Button>
+        </Button> */}
+
+        <div className="grid gap-4">
+          <div className="grid gap-0.5">
+            <SectionHeading text="What you get" />
+            <p className="text-sm text-pretty text-muted-foreground/60">
+              Example tags you'd get back from your couple, ready to paste into
+              Instagram.
+            </p>
+          </div>
+          <div className="grid gap-4">
+            <ActionButton
+              labels={{ idle: 'Copy for Instagram', acting: 'Copied' }}
+              icons={{ idle: Copy01Icon, acting: CheckmarkSquare02Icon }}
+              onClick={() => copy(instagramText)}
+              isActing={isCopied}
+              className="min-w-32 justify-self-start"
+            />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                setTextAreaValue('')
+              }}
+              className="grid gap-4"
+            >
+              <Textarea
+                placeholder="Click to copy, then paste to see the format."
+                value={textAreaValue}
+                onChange={(e) => setTextAreaValue(e.target.value)}
+              />
+              <Button
+                type="submit"
+                className="min-w-32 justify-self-end"
+                variant="outline"
+                disabled={!textAreaValue}
+              >
+                Clear
+              </Button>
+            </form>
+          </div>
+        </div>
       </Section>
 
       <Section className="grid gap-4 rounded-none bg-transparent p-0">
@@ -213,3 +266,42 @@ function HowItWorksCard({
     </InsetDiv>
   )
 }
+
+const SAMPLE_CREDITS: Array<Credit> = [
+  {
+    id: '1',
+    name: 'Patina Photo',
+    email: 'hello@patina.photo',
+    instagramHandle: 'patina.photo.nz',
+    tiktokHandle: null,
+    service: SERVICE.PHOTOGRAPHER,
+    contributionNotes: null,
+  },
+  {
+    id: '2',
+    name: 'Boomrock Wellington',
+    email: 'functions@boomrock.co.nz',
+    instagramHandle: 'boomrocklodge',
+    tiktokHandle: null,
+    service: SERVICE.VENUE,
+    contributionNotes: null,
+  },
+  {
+    id: '3',
+    name: 'Stiletto studio',
+    email: 'becslake@stilettostudio.co.nz',
+    instagramHandle: 'stilettostudiocakes',
+    tiktokHandle: null,
+    service: SERVICE.CAKE,
+    contributionNotes: null,
+  },
+  {
+    id: '4',
+    name: 'The Rolling Mill',
+    email: 'info@therollingmill.com',
+    instagramHandle: 'therollingmill',
+    tiktokHandle: null,
+    service: SERVICE.RINGS,
+    contributionNotes: null,
+  },
+]
