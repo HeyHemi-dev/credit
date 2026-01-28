@@ -8,7 +8,7 @@ To be read in conjunction with the brand document.
 
 **Examples:**
 
-- **Crediting flow:**
+- **Tagging flow:**
   - Button: **Save**
   - Labels: “Who it was”, “What they did”
 
