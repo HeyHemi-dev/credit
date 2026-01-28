@@ -131,7 +131,7 @@
 
 @layer utilities {
   .label {
-    @apply text-xs font-normal uppercase;
+    @apply text-xs font-normal tracking-wider uppercase;
     text-box: trim-both cap alphabetic;
   }
 
