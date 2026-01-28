@@ -105,7 +105,7 @@ function EventDetailPage() {
 
   // TODO: edit event name and wedding date
   // TODO: add event locked checkbox (consider using eventStatus enum with open, submitted, and locked)
-  // TODO: add ability to edit credits
+  // TODO: add ability to edit tags
 
   return (
     <>
@@ -123,7 +123,7 @@ function EventDetailPage() {
       {/* Credit list */}
       <div className="grid gap-8">
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-light">Supplier List</h2>
+          <h2 className="text-lg font-light">Suppliers</h2>
           <div className="flex flex-wrap gap-2">
             <CopyButton
               labels={{
@@ -204,7 +204,11 @@ function EventDetailPage() {
 
       <ActionDrawer
         state={{ isOpen, setIsOpen }}
-        content={{ title: 'Credit Supplier' }}
+        content={{
+          title: 'Tag a supplier',
+          description:
+            'Add one supplier at a time. Try searching first —if they’re not listed, you can create a new one.',
+        }}
         setContainerRef={containerRef}
       >
         <CreateCreditForm

@@ -61,7 +61,7 @@ export function EventListItem({ event }: { event: EventListItem }) {
         <div className="font-medium">{event.eventName}</div>
         <div className="text-sm text-muted-foreground">
           {event.weddingDate}
-          {event.supplierCount > 0 && ` • ${event.supplierCount} credits`}
+          {event.supplierCount > 0 && ` • ${event.supplierCount} tags`}
         </div>
       </Link>
       <div className="h-full max-h-8 border-r border-border"></div>

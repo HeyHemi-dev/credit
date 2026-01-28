@@ -88,7 +88,7 @@ export function CreditPage() {
             </h1>
             <p className="text-pretty text-muted-foreground">
               Add the suppliers you worked with on the day. This helps everyone
-              to be credited properly.
+              to be tagged properly.
             </p>
           </div>
         </SectionHeader>
@@ -123,9 +123,9 @@ export function CreditPage() {
       <ActionDrawer
         state={{ isOpen, setIsOpen }}
         content={{
-          title: 'Credit Supplier',
+          title: 'Tag a supplier',
           description:
-            'Add one supplier at a time. Search first —if they’re not listed, you can create a new one.',
+            'Add one supplier at a time. Try searching first —if they’re not listed, you can create a new one.',
         }}
         setContainerRef={containerRef}
       >

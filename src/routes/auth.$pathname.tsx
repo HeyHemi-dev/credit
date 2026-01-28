@@ -14,6 +14,9 @@ function Auth() {
   const { pathname } = Route.useParams()
   return (
     <Section className="grid content-center gap-12 bg-transparent">
+      <p className="text-center text-2xl font-light text-balance">
+        Tag everyone —with thanks.
+      </p>
       <AuthView
         pathname={pathname}
         localization={{
@@ -27,13 +30,15 @@ function Auth() {
           description: 'text-sm text-muted-foreground text-pretty',
         }}
       />
-      <div className="grid content-center gap-1 text-center text-pretty">
-        <p>Not a wedding supplier, or want more info?</p>
+      <div className="grid content-center gap-1 text-center text-balance">
+        <p>
+          For wedding professionals. Couples never need to create an account.
+        </p>
         <Button
           variant="link"
           render={(props) => (
             <Link to="/" className={props.className}>
-              About Give Credit
+              Learn More
             </Link>
           )}
         />

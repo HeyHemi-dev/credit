@@ -33,7 +33,9 @@ export function CreditProvider({
 export function useCreditContext(): CreditContextValue {
   const ctx = React.useContext(CreditContext)
   if (ctx === undefined) {
-    throw ERROR.INVALID_STATE('useCredit must be used within CreditProvider')
+    throw ERROR.INVALID_STATE(
+      'useCreditContext must be used within CreditProvider',
+    )
   }
   return ctx
 }
