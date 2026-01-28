@@ -43,7 +43,7 @@ function RouteComponent() {
 
       <div className="fixed bottom-6 left-1/2 z-10 -translate-x-1/2">
         <Button
-          className="h-auto border-2 border-primary/20 px-8 py-4 shadow-xl shadow-primary/20"
+          className="h-auto bg-linear-to-br from-teal-400 to-primary px-8 py-4 shadow-xl shadow-primary/20"
           onClick={() => setIsOpen(true)}
         >
           New event

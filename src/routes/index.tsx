@@ -48,7 +48,7 @@ function RouteComponent() {
         <Button
           size="lg"
           variant="default"
-          className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary"
+          className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
           onClick={handleCTA}
         >
           Try it for Free
