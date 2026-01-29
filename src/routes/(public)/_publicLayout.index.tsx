@@ -3,19 +3,17 @@ import { CheckmarkSquare02Icon, Copy01Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
 import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
-import { Main, Section } from '@/components/ui/section'
+import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
-import { useAuthToken } from '@/hooks/use-auth-token'
-import { AUTH_STATUS, SERVICE } from '@/lib/constants'
+import { SERVICE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { ActionButton } from '@/components/copy-button'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { Textarea } from '@/components/ui/textarea'
-import { HeaderHome } from '@/components/header'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/(public)/_publicLayout/')({
   ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
@@ -24,15 +22,9 @@ export const Route = createFileRoute('/')({
 })
 
 function RouteComponent() {
-  // TODO: implement marketing page
-
-  const authToken = useAuthToken()
   const navigate = Route.useNavigate()
   const { isCopied, copy } = useClipboard()
   const [textAreaValue, setTextAreaValue] = React.useState('')
-
-  if (authToken.status === AUTH_STATUS.AUTHENTICATED)
-    navigate({ to: '/events', replace: true })
 
   const handleCTA = () => {
     navigate({
@@ -46,19 +38,7 @@ function RouteComponent() {
   }, [SAMPLE_CREDITS])
 
   return (
-    <Main
-      header={
-        <HeaderHome>
-          <Button
-            variant="default"
-            className="min-w-[9em] justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
-            onClick={handleCTA}
-          >
-            Start Free
-          </Button>
-        </HeaderHome>
-      }
-    >
+    <>
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
           <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
@@ -70,7 +50,7 @@ function RouteComponent() {
           <p className="text-xl font-light">
             Send one link. Get wedding supplier{' '}
             <span className="text-muted-foreground/60">@</span>tags back.
-            Copy-ready and formatted for Instagram{' '}
+            formatted and ready-to-paste into Instagram{' '}
             <span className="italic">—&#8288;with thanks.</span>
           </p>
         </TextBlock>
@@ -79,8 +59,8 @@ function RouteComponent() {
           <div className="grid gap-0.5">
             <SectionHeading text="Try it" />
             <p className="text-sm text-pretty text-muted-foreground/60">
-              Example tags you'd get back from your couple, ready to paste into
-              Instagram.
+              Example tags you'd get back from your couple, ready-to-paste into
+              an Instagram caption.
             </p>
           </div>
           <div className="grid gap-4">
@@ -99,7 +79,7 @@ function RouteComponent() {
               className="grid gap-4"
             >
               <Textarea
-                placeholder="Click to copy, then paste to see the format."
+                placeholder="Click above to copy the example tags, then paste here to see the format."
                 value={textAreaValue}
                 onChange={(e) => setTextAreaValue(e.target.value)}
               />
@@ -147,7 +127,10 @@ function RouteComponent() {
           <p className="leading-snug">
             We have good intentions, but sometimes the process breaks down
             —&#8288;chasing details, incomplete forms, and extra work for
-            couples. The result; details that aren’t filled out well{' '}
+            couples.
+          </p>
+          <p className="leading-snug">
+            The result: details that aren’t filled out well{' '}
             <span className="italic">...if at all.</span>
           </p>
           <p className="leading-snug font-normal">
@@ -222,7 +205,7 @@ function RouteComponent() {
       </Section>
 
       <div className="h-24" />
-    </Main>
+    </>
   )
 }
 
