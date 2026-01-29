@@ -3,7 +3,7 @@ import { CheckmarkSquare02Icon, Copy01Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
 import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
-import { Section } from '@/components/ui/section'
+import { Main, Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
 import { useAuthToken } from '@/hooks/use-auth-token'
@@ -45,7 +45,7 @@ function RouteComponent() {
   }, [SAMPLE_CREDITS])
 
   return (
-    <>
+    <Main>
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
           <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
@@ -211,7 +211,7 @@ function RouteComponent() {
       </Section>
 
       <div className="h-24" />
-    </>
+    </Main>
   )
 }
 
