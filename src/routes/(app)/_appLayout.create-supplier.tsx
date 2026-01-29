@@ -12,7 +12,7 @@ const createSupplierSearchSchema = z.object({
   shareToken: z.string().optional(),
 })
 
-export const Route = createFileRoute('/create-supplier')({
+export const Route = createFileRoute('/(app)/_appLayout/create-supplier')({
   ssr: false,
   component: CreateSupplierRoute,
   validateSearch: createSupplierSearchSchema,
