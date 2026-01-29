@@ -30,7 +30,7 @@ const creditListRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
 })
 
-export const Route = createFileRoute('/e/$eventId')({
+export const Route = createFileRoute('/(app)/_appLayout/e/$eventId')({
   ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (

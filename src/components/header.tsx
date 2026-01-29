@@ -34,6 +34,17 @@ export function Header() {
   )
 }
 
+export function HeaderHome({ children }: { children: React.ReactNode }) {
+  return (
+    <Section className="overflow-visible bg-transparent py-0">
+      <div className="grid grid-cols-[1fr_auto] content-center items-center gap-4">
+        <Brand id="brand" />
+        <div>{children}</div>
+      </div>
+    </Section>
+  )
+}
+
 export function Brand({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div

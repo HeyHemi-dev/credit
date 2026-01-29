@@ -9,77 +9,87 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as CreateSupplierRouteImport } from './routes/create-supplier'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as EventsIndexRouteImport } from './routes/events.index'
-import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
-import { Route as EEventIdRouteImport } from './routes/e.$eventId'
-import { Route as AuthPathnameRouteImport } from './routes/auth.$pathname'
-import { Route as AccountPathnameRouteImport } from './routes/account.$pathname'
+import { Route as appAppLayoutRouteImport } from './routes/(app)/_appLayout'
+import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
+import { Route as appAppLayoutEventsIndexRouteImport } from './routes/(app)/_appLayout.events.index'
+import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_appLayout.events.$eventId'
+import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
+import { Route as appAppLayoutAuthPathnameRouteImport } from './routes/(app)/_appLayout.auth.$pathname'
+import { Route as appAppLayoutAccountPathnameRouteImport } from './routes/(app)/_appLayout.account.$pathname'
 
-const CreateSupplierRoute = CreateSupplierRouteImport.update({
-  id: '/create-supplier',
-  path: '/create-supplier',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventsIndexRoute = EventsIndexRouteImport.update({
+const appAppLayoutRoute = appAppLayoutRouteImport.update({
+  id: '/(app)/_appLayout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appAppLayoutCreateSupplierRoute =
+  appAppLayoutCreateSupplierRouteImport.update({
+    id: '/create-supplier',
+    path: '/create-supplier',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
+const appAppLayoutEventsIndexRoute = appAppLayoutEventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => appAppLayoutRoute,
 } as any)
-const EventsEventIdRoute = EventsEventIdRouteImport.update({
-  id: '/events/$eventId',
-  path: '/events/$eventId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EEventIdRoute = EEventIdRouteImport.update({
+const appAppLayoutEventsEventIdRoute =
+  appAppLayoutEventsEventIdRouteImport.update({
+    id: '/events/$eventId',
+    path: '/events/$eventId',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
+const appAppLayoutEEventIdRoute = appAppLayoutEEventIdRouteImport.update({
   id: '/e/$eventId',
   path: '/e/$eventId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => appAppLayoutRoute,
 } as any)
-const AuthPathnameRoute = AuthPathnameRouteImport.update({
-  id: '/auth/$pathname',
-  path: '/auth/$pathname',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountPathnameRoute = AccountPathnameRouteImport.update({
-  id: '/account/$pathname',
-  path: '/account/$pathname',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const appAppLayoutAuthPathnameRoute =
+  appAppLayoutAuthPathnameRouteImport.update({
+    id: '/auth/$pathname',
+    path: '/auth/$pathname',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
+const appAppLayoutAccountPathnameRoute =
+  appAppLayoutAccountPathnameRouteImport.update({
+    id: '/account/$pathname',
+    path: '/account/$pathname',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/create-supplier': typeof CreateSupplierRoute
-  '/account/$pathname': typeof AccountPathnameRoute
-  '/auth/$pathname': typeof AuthPathnameRoute
-  '/e/$eventId': typeof EEventIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/events': typeof EventsIndexRoute
+  '/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/auth/$pathname': typeof appAppLayoutAuthPathnameRoute
+  '/e/$eventId': typeof appAppLayoutEEventIdRoute
+  '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/create-supplier': typeof CreateSupplierRoute
-  '/account/$pathname': typeof AccountPathnameRoute
-  '/auth/$pathname': typeof AuthPathnameRoute
-  '/e/$eventId': typeof EEventIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/events': typeof EventsIndexRoute
+  '/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/auth/$pathname': typeof appAppLayoutAuthPathnameRoute
+  '/e/$eventId': typeof appAppLayoutEEventIdRoute
+  '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/create-supplier': typeof CreateSupplierRoute
-  '/account/$pathname': typeof AccountPathnameRoute
-  '/auth/$pathname': typeof AuthPathnameRoute
-  '/e/$eventId': typeof EEventIdRoute
-  '/events/$eventId': typeof EventsEventIdRoute
-  '/events/': typeof EventsIndexRoute
+  '/(app)/_appLayout': typeof appAppLayoutRouteWithChildren
+  '/(app)/_appLayout/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/(app)/_appLayout/auth/$pathname': typeof appAppLayoutAuthPathnameRoute
+  '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
+  '/(app)/_appLayout/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/(app)/_appLayout/events/': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -103,33 +113,22 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/create-supplier'
-    | '/account/$pathname'
-    | '/auth/$pathname'
-    | '/e/$eventId'
-    | '/events/$eventId'
-    | '/events/'
+    | '/(app)/_appLayout'
+    | '/(app)/_appLayout/create-supplier'
+    | '/(app)/_appLayout/account/$pathname'
+    | '/(app)/_appLayout/auth/$pathname'
+    | '/(app)/_appLayout/e/$eventId'
+    | '/(app)/_appLayout/events/$eventId'
+    | '/(app)/_appLayout/events/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CreateSupplierRoute: typeof CreateSupplierRoute
-  AccountPathnameRoute: typeof AccountPathnameRoute
-  AuthPathnameRoute: typeof AuthPathnameRoute
-  EEventIdRoute: typeof EEventIdRoute
-  EventsEventIdRoute: typeof EventsEventIdRoute
-  EventsIndexRoute: typeof EventsIndexRoute
+  appAppLayoutRoute: typeof appAppLayoutRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/create-supplier': {
-      id: '/create-supplier'
-      path: '/create-supplier'
-      fullPath: '/create-supplier'
-      preLoaderRoute: typeof CreateSupplierRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -137,52 +136,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events/': {
-      id: '/events/'
+    '/(app)/_appLayout': {
+      id: '/(app)/_appLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appAppLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)/_appLayout/create-supplier': {
+      id: '/(app)/_appLayout/create-supplier'
+      path: '/create-supplier'
+      fullPath: '/create-supplier'
+      preLoaderRoute: typeof appAppLayoutCreateSupplierRouteImport
+      parentRoute: typeof appAppLayoutRoute
+    }
+    '/(app)/_appLayout/events/': {
+      id: '/(app)/_appLayout/events/'
       path: '/events'
       fullPath: '/events'
-      preLoaderRoute: typeof EventsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAppLayoutEventsIndexRouteImport
+      parentRoute: typeof appAppLayoutRoute
     }
-    '/events/$eventId': {
-      id: '/events/$eventId'
+    '/(app)/_appLayout/events/$eventId': {
+      id: '/(app)/_appLayout/events/$eventId'
       path: '/events/$eventId'
       fullPath: '/events/$eventId'
-      preLoaderRoute: typeof EventsEventIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAppLayoutEventsEventIdRouteImport
+      parentRoute: typeof appAppLayoutRoute
     }
-    '/e/$eventId': {
-      id: '/e/$eventId'
+    '/(app)/_appLayout/e/$eventId': {
+      id: '/(app)/_appLayout/e/$eventId'
       path: '/e/$eventId'
       fullPath: '/e/$eventId'
-      preLoaderRoute: typeof EEventIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAppLayoutEEventIdRouteImport
+      parentRoute: typeof appAppLayoutRoute
     }
-    '/auth/$pathname': {
-      id: '/auth/$pathname'
+    '/(app)/_appLayout/auth/$pathname': {
+      id: '/(app)/_appLayout/auth/$pathname'
       path: '/auth/$pathname'
       fullPath: '/auth/$pathname'
-      preLoaderRoute: typeof AuthPathnameRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAppLayoutAuthPathnameRouteImport
+      parentRoute: typeof appAppLayoutRoute
     }
-    '/account/$pathname': {
-      id: '/account/$pathname'
+    '/(app)/_appLayout/account/$pathname': {
+      id: '/(app)/_appLayout/account/$pathname'
       path: '/account/$pathname'
       fullPath: '/account/$pathname'
-      preLoaderRoute: typeof AccountPathnameRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appAppLayoutAccountPathnameRouteImport
+      parentRoute: typeof appAppLayoutRoute
     }
   }
 }
 
+interface appAppLayoutRouteChildren {
+  appAppLayoutCreateSupplierRoute: typeof appAppLayoutCreateSupplierRoute
+  appAppLayoutAccountPathnameRoute: typeof appAppLayoutAccountPathnameRoute
+  appAppLayoutAuthPathnameRoute: typeof appAppLayoutAuthPathnameRoute
+  appAppLayoutEEventIdRoute: typeof appAppLayoutEEventIdRoute
+  appAppLayoutEventsEventIdRoute: typeof appAppLayoutEventsEventIdRoute
+  appAppLayoutEventsIndexRoute: typeof appAppLayoutEventsIndexRoute
+}
+
+const appAppLayoutRouteChildren: appAppLayoutRouteChildren = {
+  appAppLayoutCreateSupplierRoute: appAppLayoutCreateSupplierRoute,
+  appAppLayoutAccountPathnameRoute: appAppLayoutAccountPathnameRoute,
+  appAppLayoutAuthPathnameRoute: appAppLayoutAuthPathnameRoute,
+  appAppLayoutEEventIdRoute: appAppLayoutEEventIdRoute,
+  appAppLayoutEventsEventIdRoute: appAppLayoutEventsEventIdRoute,
+  appAppLayoutEventsIndexRoute: appAppLayoutEventsIndexRoute,
+}
+
+const appAppLayoutRouteWithChildren = appAppLayoutRoute._addFileChildren(
+  appAppLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CreateSupplierRoute: CreateSupplierRoute,
-  AccountPathnameRoute: AccountPathnameRoute,
-  AuthPathnameRoute: AuthPathnameRoute,
-  EEventIdRoute: EEventIdRoute,
-  EventsEventIdRoute: EventsEventIdRoute,
-  EventsIndexRoute: EventsIndexRoute,
+  appAppLayoutRoute: appAppLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

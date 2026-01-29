@@ -39,7 +39,7 @@ const eventRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
 })
 
-export const Route = createFileRoute('/events/$eventId')({
+export const Route = createFileRoute('/(app)/_appLayout/events/$eventId')({
   ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (

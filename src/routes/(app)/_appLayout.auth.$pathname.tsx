@@ -3,7 +3,7 @@ import { AuthView } from '@neondatabase/neon-js/auth/react/ui'
 import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
-export const Route = createFileRoute('/auth/$pathname')({
+export const Route = createFileRoute('/(app)/_appLayout/auth/$pathname')({
   component: Auth,
 })
 

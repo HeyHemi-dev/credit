@@ -60,16 +60,16 @@ export function CopyButton({
 
 type ActionButtonProps = ButtonPrimitive.Props &
   VariantProps<typeof buttonVariants> & {
+    isActing: boolean
     labels: {
       idle: string
       acting: string
     }
-    icons: {
+    icons?: {
       idle: IconSVGObject | null
       acting: IconSVGObject | null
     }
-    iconSide: 'left' | 'right'
-    isActing: boolean
+    iconSide?: 'left' | 'right'
     className?: string
     classNames?: {
       button?: string
