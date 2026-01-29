@@ -50,12 +50,11 @@ function RouteComponent() {
       header={
         <HeaderHome>
           <Button
-            size="lg"
             variant="default"
-            className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
+            className="min-w-[9em] justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
             onClick={handleCTA}
           >
-            Try it for Free
+            Start Free
           </Button>
         </HeaderHome>
       }
@@ -158,13 +157,21 @@ function RouteComponent() {
         </TextBlock>
       </Section>
 
-      <Section className="flex min-h-[75svh] flex-col justify-between bg-background">
+      <Section className="flex flex-col justify-between bg-background">
         <SectionHeading text="Built for wedding professionals" />
 
-        <TextBlock className="text-4xl">
+        <TextBlock className="text-2xl text-muted-foreground">
           <p className="leading-snug">
-            With Thanks is built by a working photographer, and was shaped
-            around how weddings are actually delivered.
+            With Thanks is built by Hemi{' '}
+            <a
+              href="https://patina.photo"
+              target="_blank"
+              className="text-primary"
+            >
+              @patina.photo.nz
+            </a>
+            , a working photographer, and was shaped around how weddings are
+            actually delivered.
           </p>
           <p className="leading-snug">
             It's not trying to transform your workflow —&#8288;it fits quietly
@@ -205,13 +212,13 @@ function RouteComponent() {
           <Button
             size="lg"
             variant="ghost"
-            className="min-w-32 border border-primary-foreground"
+            className="min-w-[9em] border border-primary-foreground"
             onClick={handleCTA}
           >
-            Try it for Free
+            Start Free
           </Button>
           <p className="text-sm font-light text-balance">
-            Try it on one wedding. No setup, no commitment.
+            One event included. No setup, no commitment.
           </p>
         </div>
       </Section>
