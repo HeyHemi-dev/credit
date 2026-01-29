@@ -77,7 +77,7 @@ function RouteComponent() {
 
         <div className="grid gap-4">
           <div className="grid gap-0.5">
-            <SectionHeading text="What you get" />
+            <SectionHeading text="Try it" />
             <p className="text-sm text-pretty text-muted-foreground/60">
               Example tags you'd get back from your couple, ready to paste into
               Instagram.
