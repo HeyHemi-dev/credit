@@ -13,6 +13,7 @@ import { ActionButton } from '@/components/copy-button'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { Textarea } from '@/components/ui/textarea'
+import { HeaderHome } from '@/components/header'
 
 export const Route = createFileRoute('/')({
   ssr: false,
@@ -45,7 +46,20 @@ function RouteComponent() {
   }, [SAMPLE_CREDITS])
 
   return (
-    <Main>
+    <Main
+      header={
+        <HeaderHome>
+          <Button
+            size="lg"
+            variant="default"
+            className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
+            onClick={handleCTA}
+          >
+            Try it for Free
+          </Button>
+        </HeaderHome>
+      }
+    >
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
           <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
@@ -61,14 +75,6 @@ function RouteComponent() {
             <span className="italic">—&#8288;with thanks.</span>
           </p>
         </TextBlock>
-        {/* <Button
-          size="lg"
-          variant="default"
-          className="min-w-32 justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
-          onClick={handleCTA}
-        >
-          Try it for Free
-        </Button> */}
 
         <div className="grid gap-4">
           <div className="grid gap-0.5">
