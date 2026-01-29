@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as publicPublicLayoutRouteImport } from './routes/(public)/_publicLayout'
 import { Route as appAppLayoutRouteImport } from './routes/(app)/_appLayout'
 import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
 import { Route as appAppLayoutEventsIndexRouteImport } from './routes/(app)/_appLayout.events.index'
@@ -21,6 +22,10 @@ import { Route as appAppLayoutAccountPathnameRouteImport } from './routes/(app)/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicPublicLayoutRoute = publicPublicLayoutRouteImport.update({
+  id: '/(public)/_publicLayout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const appAppLayoutRoute = appAppLayoutRouteImport.update({
@@ -84,6 +89,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(app)/_appLayout': typeof appAppLayoutRouteWithChildren
+  '/(public)/_publicLayout': typeof publicPublicLayoutRoute
   '/(app)/_appLayout/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/(app)/_appLayout/auth/$pathname': typeof appAppLayoutAuthPathnameRoute
@@ -114,6 +120,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/(app)/_appLayout'
+    | '/(public)/_publicLayout'
     | '/(app)/_appLayout/create-supplier'
     | '/(app)/_appLayout/account/$pathname'
     | '/(app)/_appLayout/auth/$pathname'
@@ -125,6 +132,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   appAppLayoutRoute: typeof appAppLayoutRouteWithChildren
+  publicPublicLayoutRoute: typeof publicPublicLayoutRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/_publicLayout': {
+      id: '/(public)/_publicLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof publicPublicLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(app)/_appLayout': {
@@ -213,6 +228,7 @@ const appAppLayoutRouteWithChildren = appAppLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   appAppLayoutRoute: appAppLayoutRouteWithChildren,
+  publicPublicLayoutRoute: publicPublicLayoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
