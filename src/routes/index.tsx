@@ -137,7 +137,7 @@ function RouteComponent() {
 
       {/* <Section className="min-h-[75svh] bg-linear-to-br from-primary/60 to-primary p-0"></Section> */}
 
-      <Section className="min-h-[75svh] content-center bg-transparent py-24">
+      <Section className="min-h-[75svh] content-center gap-6 bg-transparent py-24">
         <SectionHeading text="Why this exists" />
         <TextBlock className="text-3xl">
           <p className="leading-snug">
@@ -204,23 +204,21 @@ function RouteComponent() {
         </p>
       </Section>
 
-      <Section className="min-h-[33svh] content-center bg-linear-to-br from-teal-400 to-primary text-primary-foreground">
-        <div className="grid justify-items-center gap-6 text-center">
-          <h2 className="text-3xl leading-relaxed font-light">
-            Try it for your next wedding.
-          </h2>
-          <Button
-            size="lg"
-            variant="ghost"
-            className="min-w-[9em] border border-primary-foreground"
-            onClick={handleCTA}
-          >
-            Start Free
-          </Button>
-          <p className="text-sm font-light text-balance">
-            One event included. No setup, no commitment.
-          </p>
-        </div>
+      <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-teal-400 to-primary text-center text-primary-foreground">
+        <h2 className="text-3xl leading-relaxed font-light">
+          Try it for your next wedding.
+        </h2>
+        <Button
+          size="lg"
+          variant="ghost"
+          className="min-w-[9em] border border-primary-foreground"
+          onClick={handleCTA}
+        >
+          Start Free
+        </Button>
+        <p className="text-sm font-light text-balance">
+          One event included. No setup, no commitment.
+        </p>
       </Section>
 
       <div className="h-24" />
