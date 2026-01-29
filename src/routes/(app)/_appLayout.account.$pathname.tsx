@@ -1,15 +1,11 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { AccountView } from '@neondatabase/neon-js/auth/react/ui'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon } from '@hugeicons/core-free-icons'
-import type { Href } from '@/lib/types/generic-types'
 import { Section } from '@/components/ui/section'
 
 import { Tabs, TabsList } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 import { BackButton } from '@/components/back-button'
 
-export const Route = createFileRoute('/account/$pathname')({
+export const Route = createFileRoute('/(app)/_appLayout/account/$pathname')({
   component: Account,
 })
 
