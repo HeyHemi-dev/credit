@@ -241,25 +241,6 @@ function TextBlock({ className, children }: React.ComponentProps<'div'>) {
   )
 }
 
-function HowItWorksCard({
-  index,
-  description,
-}: {
-  index: string
-  description: string
-}) {
-  return (
-    <SectionContent className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
-      <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-        {index}
-      </span>
-      <p className="text-3xl leading-snug font-light text-pretty">
-        {description}
-      </p>
-    </SectionContent>
-  )
-}
-
 const SAMPLE_CREDITS: Array<Credit> = [
   {
     id: '1',
