@@ -3,7 +3,7 @@ import { CheckmarkSquare02Icon, Copy01Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
 import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
-import { Section } from '@/components/ui/section'
+import { Section, SectionContent } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
 import { SERVICE } from '@/lib/constants'
@@ -39,6 +39,7 @@ function RouteComponent() {
 
   return (
     <>
+      {/* Hero */}
       <Section className="min-h-[75svh] content-center gap-12 rounded-none bg-transparent py-24">
         <TextBlock>
           <p className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
@@ -55,6 +56,7 @@ function RouteComponent() {
           </p>
         </TextBlock>
 
+        {/* Demo */}
         <div className="grid gap-4">
           <div className="grid gap-0.5">
             <SectionHeading text="Try it" />
@@ -96,27 +98,33 @@ function RouteComponent() {
         </div>
       </Section>
 
+      {/* How it works */}
       <Section className="grid gap-4 rounded-none bg-transparent p-0">
-        <InsetDiv>
+        <SectionContent>
           <SectionHeading text="How it works" />
-        </InsetDiv>
+        </SectionContent>
 
-        <HowItWorksCard
-          index="01"
-          description="Create a private event link and send it to your couple"
-        />
-        <HowItWorksCard
-          index="02"
-          description="They search and add the suppliers they worked with"
-        />
-        <HowItWorksCard
-          index="03"
-          description="You get copy‑ready tags, ready to paste into Instagram"
-        />
+        {(() => {
+          const steps = [
+            'Create a private event link and send it to your couple',
+            'They search and add the suppliers they worked with',
+            'You get copy‑ready tags, ready to paste into Instagram',
+          ]
+
+          return steps.map((step, index) => (
+            <SectionContent className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
+              <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <p className="text-3xl leading-snug font-light text-pretty">
+                {step}
+              </p>
+            </SectionContent>
+          ))
+        })()}
       </Section>
 
-      {/* <Section className="min-h-[75svh] bg-linear-to-br from-primary/60 to-primary p-0"></Section> */}
-
+      {/* Why this exists */}
       <Section className="min-h-[75svh] content-center gap-6 bg-transparent py-24">
         <SectionHeading text="Why this exists" />
         <TextBlock className="text-3xl">
@@ -140,6 +148,7 @@ function RouteComponent() {
         </TextBlock>
       </Section>
 
+      {/* About */}
       <Section className="flex flex-col justify-between bg-background">
         <SectionHeading text="Built for wedding professionals" />
 
@@ -164,6 +173,7 @@ function RouteComponent() {
         </TextBlock>
       </Section>
 
+      {/* Trust */}
       <Section className="gap-6 rounded-none bg-transparent py-24">
         <SectionHeading text="You're in control" />
 
@@ -187,6 +197,7 @@ function RouteComponent() {
         </p>
       </Section>
 
+      {/* CTA */}
       <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-teal-400 to-primary text-center text-primary-foreground">
         <h2 className="text-3xl leading-relaxed font-light">
           Try it for your next wedding.
@@ -206,18 +217,6 @@ function RouteComponent() {
 
       <div className="h-24" />
     </>
-  )
-}
-
-function InsetDiv({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<'div'>) {
-  return (
-    <div className={cn('px-6', className)} {...props}>
-      {children}
-    </div>
   )
 }
 
@@ -250,14 +249,14 @@ function HowItWorksCard({
   description: string
 }) {
   return (
-    <InsetDiv className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
+    <SectionContent className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
       <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
         {index}
       </span>
       <p className="text-3xl leading-snug font-light text-pretty">
         {description}
       </p>
-    </InsetDiv>
+    </SectionContent>
   )
 }
 
