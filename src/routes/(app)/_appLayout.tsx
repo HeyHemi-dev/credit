@@ -4,8 +4,8 @@ import {
   SignedOut,
   UserButton,
 } from '@neondatabase/neon-js/auth/react/ui'
-import { Main, Section } from '@/components/ui/section'
-import { Brand } from '@/components/header'
+import { Main } from '@/components/ui/section'
+import { Brand, HeaderLayout } from '@/components/header'
 
 export const Route = createFileRoute('/(app)/_appLayout')({
   component: RouteComponent,
@@ -15,19 +15,20 @@ function RouteComponent() {
   return (
     <Main
       header={
-        <Section className="bg-transparent py-0">
-          <div className="grid grid-cols-[1fr_auto] content-center items-center gap-4">
-            {/* Header left */}
-            <SignedIn>
-              <Link to="/events">
+        <HeaderLayout
+          left={
+            <>
+              <SignedIn>
+                <Link to="/events">
+                  <Brand id="brand" />
+                </Link>
+              </SignedIn>
+              <SignedOut>
                 <Brand id="brand" />
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <Brand id="brand" />
-            </SignedOut>
-
-            {/* Header right */}
+              </SignedOut>
+            </>
+          }
+          right={
             <SignedIn>
               <UserButton
                 variant={'ghost'}
@@ -50,8 +51,8 @@ function RouteComponent() {
                 }}
               />
             </SignedIn>
-          </div>
-        </Section>
+          }
+        />
       }
     >
       <Outlet />
