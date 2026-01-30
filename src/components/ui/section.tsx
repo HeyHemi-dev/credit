@@ -9,7 +9,7 @@ type MainProps = {
 
 function Main({ children, header = null, footer = null }: MainProps) {
   return (
-    <div className="grid grid-cols-[auto_minmax(0,32rem)_auto] bg-muted text-foreground">
+    <div className="grid grid-cols-[auto_minmax(0,32rem)_auto] text-foreground">
       <div
         className={cn(
           'col-start-2 col-end-2 grid min-h-screen p-1',
