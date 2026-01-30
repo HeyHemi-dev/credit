@@ -30,7 +30,6 @@ function RouteComponent() {
       <About />
       <Trust />
       <CTA />
-      <div className="h-24" />
     </>
   )
 }
@@ -104,8 +103,8 @@ function Hero() {
         <div className="grid gap-0.5">
           <H2 text="Try it" />
           <p className="text-sm text-pretty text-muted-foreground/60">
-            Example tags you'd get back from your couple, ready-to-paste into an
-            Instagram caption.
+            An example of tags you'll get back from your couple, ready-to-paste
+            into an Instagram caption.
           </p>
         </div>
         <div className="grid gap-4">
@@ -127,6 +126,7 @@ function Hero() {
               placeholder="Click above to copy the example tags, then paste here to see the format."
               value={textAreaValue}
               onChange={(e) => setTextAreaValue(e.target.value)}
+              className="min-h-12"
             />
             <Button
               type="submit"
