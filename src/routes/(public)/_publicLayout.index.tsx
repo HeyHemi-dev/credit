@@ -102,7 +102,7 @@ function Hero() {
       {/* Demo */}
       <div className="grid gap-4">
         <div className="grid gap-0.5">
-          <SectionHeading text="Try it" />
+          <H2 text="Try it" />
           <p className="text-sm text-pretty text-muted-foreground/60">
             Example tags you'd get back from your couple, ready-to-paste into an
             Instagram caption.
@@ -153,7 +153,7 @@ function How() {
   return (
     <Section className="grid gap-4 rounded-none bg-transparent p-0">
       <SectionContent>
-        <SectionHeading text="How it works" />
+        <H2 text="How it works" />
       </SectionContent>
 
       {STEPS.map((step, index) => (
@@ -161,7 +161,9 @@ function How() {
           <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
             {String(index + 1).padStart(2, '0')}
           </span>
-          <p className="text-3xl leading-snug font-light text-pretty">{step}</p>
+          <p className="text-3xl leading-normal font-light text-pretty">
+            {step}
+          </p>
         </SectionContent>
       ))}
     </Section>
@@ -171,21 +173,21 @@ function How() {
 function Why() {
   return (
     <Section className="min-h-[75svh] content-center gap-6 bg-transparent py-24">
-      <SectionHeading text="Why this exists" />
+      <H2 text="Why this exists" />
       <TextBlock className="text-3xl">
-        <p className="leading-snug">
+        <p className="leading-normal">
           Weddings are collaborative. When photos are shared, tagging and
           thanking the people involved strengthens our community.
         </p>
-        <p className="leading-snug">
+        <p className="leading-normal">
           We have good intentions, but sometimes the process breaks down
           —&#8288;chasing details, incomplete forms, and extra work for couples.
         </p>
-        <p className="leading-snug">
+        <p className="leading-normal">
           The result: details that aren’t filled out well{' '}
           <span className="italic">...if at all.</span>
         </p>
-        <p className="leading-snug font-normal">
+        <p className="leading-normal font-normal">
           With Thanks makes it easy to follow through —&#8288;for suppliers{' '}
           <span className="italic">and couples.</span>
         </p>
@@ -197,10 +199,10 @@ function Why() {
 function About() {
   return (
     <Section className="flex flex-col justify-between bg-background">
-      <SectionHeading text="Built for wedding professionals" />
+      <H2 text="Built for wedding professionals" />
 
       <TextBlock className="text-2xl text-muted-foreground">
-        <p className="leading-snug">
+        <p className="leading-normal">
           With Thanks is built by Hemi{' '}
           <a
             href="https://patina.photo"
@@ -212,7 +214,7 @@ function About() {
           , a working photographer, and was shaped around how weddings are
           actually delivered.
         </p>
-        <p className="leading-snug">
+        <p className="leading-normal">
           It's not trying to transform your workflow —&#8288;it fits quietly
           alongside the tools you already use, and focuses on making this one
           part of the process easier.
@@ -225,7 +227,7 @@ function About() {
 function Trust() {
   return (
     <Section className="gap-6 rounded-none bg-transparent py-24">
-      <SectionHeading text="You're in control" />
+      <H2 text="You're in control" />
 
       <ol className="grid list-outside list-[decimal-leading-zero] gap-6 pl-[2ch] text-2xl font-light marker:text-sm marker:font-normal marker:tracking-[0.2em] marker:text-foreground marker:uppercase">
         <li>
@@ -242,7 +244,7 @@ function Trust() {
         </li>
       </ol>
 
-      <p className="text-xl leading-snug font-medium text-pretty">
+      <p className="text-xl leading-normal font-medium text-pretty">
         With Thanks exists to support your work, not get in the way of it.
       </p>
     </Section>
@@ -261,8 +263,8 @@ function CTA() {
 
   return (
     <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-teal-400 to-primary text-center text-primary-foreground">
-      <h2 className="text-3xl leading-relaxed font-light">
-        Try it for your next wedding.
+      <h2 className="text-3xl leading-tight font-light text-balance">
+        Try With Thanks on your next wedding.
       </h2>
       <Button
         size="lg"
@@ -287,7 +289,7 @@ function CTA() {
   )
 }
 
-function SectionHeading({ text }: { text: string }) {
+function H2({ text }: { text: string }) {
   return (
     <h2 className="text-sm leading-normal font-normal tracking-[0.2em] text-muted-foreground uppercase">
       {text}
