@@ -1,4 +1,4 @@
-import { Section } from '@/components/ui/section'
+import { SectionContent } from '@/components/ui/section'
 import { cn } from '@/lib/utils'
 
 export function HeaderLayout({
@@ -17,7 +17,7 @@ export function HeaderLayout({
   right: React.ReactNode
 }) {
   return (
-    <Section
+    <SectionContent
       className={cn(
         'flex flex-wrap items-center justify-between gap-4 bg-transparent py-0',
         className,
@@ -27,7 +27,7 @@ export function HeaderLayout({
     >
       <div className={cn('grid gap-4', classNames?.left)}>{left}</div>
       <div className={cn('grid gap-4', classNames?.right)}>{right}</div>
-    </Section>
+    </SectionContent>
   )
 }
 
