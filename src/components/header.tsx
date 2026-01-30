@@ -25,12 +25,8 @@ export function HeaderLayout({
       )}
       {...props}
     >
-      <div className={cn('grid justify-start gap-4', classNames?.left)}>
-        {left}
-      </div>
-      <div className={cn('grid justify-end gap-4', classNames?.right)}>
-        {right}
-      </div>
+      <div className={cn('grid gap-4', classNames?.left)}>{left}</div>
+      <div className={cn('grid gap-4', classNames?.right)}>{right}</div>
     </Section>
   )
 }
