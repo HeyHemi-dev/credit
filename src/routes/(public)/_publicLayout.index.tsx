@@ -252,15 +252,6 @@ function Trust() {
 }
 
 function CTA() {
-  const navigate = Route.useNavigate()
-
-  const handleCTA = () => {
-    navigate({
-      to: '/auth/$pathname',
-      params: { pathname: 'sign-up' },
-    })
-  }
-
   return (
     <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-teal-400 to-primary text-center text-primary-foreground">
       <h2 className="text-3xl leading-tight font-light text-balance">
@@ -270,7 +261,6 @@ function CTA() {
         size="lg"
         variant="ghost"
         className="min-w-[9em] border border-primary-foreground"
-        onClick={handleCTA}
         render={(props) => (
           <Link
             to="/auth/$pathname"
