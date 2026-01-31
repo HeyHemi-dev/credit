@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as publicPublicLayoutRouteImport } from './routes/(public)/_publicLayout'
 import { Route as appAppLayoutRouteImport } from './routes/(app)/_appLayout'
 import { Route as publicPublicLayoutIndexRouteImport } from './routes/(public)/_publicLayout.index'
+import { Route as publicPublicLayoutTermsRouteImport } from './routes/(public)/_publicLayout.terms'
+import { Route as publicPublicLayoutPrivacyRouteImport } from './routes/(public)/_publicLayout.privacy'
 import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
 import { Route as appAppLayoutEventsIndexRouteImport } from './routes/(app)/_appLayout.events.index'
 import { Route as publicPublicLayoutAuthPathnameRouteImport } from './routes/(public)/_publicLayout.auth.$pathname'
@@ -32,6 +34,17 @@ const publicPublicLayoutIndexRoute = publicPublicLayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => publicPublicLayoutRoute,
 } as any)
+const publicPublicLayoutTermsRoute = publicPublicLayoutTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => publicPublicLayoutRoute,
+} as any)
+const publicPublicLayoutPrivacyRoute =
+  publicPublicLayoutPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => publicPublicLayoutRoute,
+  } as any)
 const appAppLayoutCreateSupplierRoute =
   appAppLayoutCreateSupplierRouteImport.update({
     id: '/create-supplier',
@@ -69,6 +82,8 @@ const appAppLayoutAccountPathnameRoute =
 
 export interface FileRoutesByFullPath {
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/privacy': typeof publicPublicLayoutPrivacyRoute
+  '/terms': typeof publicPublicLayoutTermsRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -78,6 +93,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/privacy': typeof publicPublicLayoutPrivacyRoute
+  '/terms': typeof publicPublicLayoutTermsRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -90,6 +107,8 @@ export interface FileRoutesById {
   '/(app)/_appLayout': typeof appAppLayoutRouteWithChildren
   '/(public)/_publicLayout': typeof publicPublicLayoutRouteWithChildren
   '/(app)/_appLayout/create-supplier': typeof appAppLayoutCreateSupplierRoute
+  '/(public)/_publicLayout/privacy': typeof publicPublicLayoutPrivacyRoute
+  '/(public)/_publicLayout/terms': typeof publicPublicLayoutTermsRoute
   '/(public)/_publicLayout/': typeof publicPublicLayoutIndexRoute
   '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -101,6 +120,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/create-supplier'
+    | '/privacy'
+    | '/terms'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -110,6 +131,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/create-supplier'
+    | '/privacy'
+    | '/terms'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -121,6 +144,8 @@ export interface FileRouteTypes {
     | '/(app)/_appLayout'
     | '/(public)/_publicLayout'
     | '/(app)/_appLayout/create-supplier'
+    | '/(public)/_publicLayout/privacy'
+    | '/(public)/_publicLayout/terms'
     | '/(public)/_publicLayout/'
     | '/(app)/_appLayout/account/$pathname'
     | '/(app)/_appLayout/e/$eventId'
@@ -155,6 +180,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof publicPublicLayoutIndexRouteImport
+      parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/(public)/_publicLayout/terms': {
+      id: '/(public)/_publicLayout/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof publicPublicLayoutTermsRouteImport
+      parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/(public)/_publicLayout/privacy': {
+      id: '/(public)/_publicLayout/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof publicPublicLayoutPrivacyRouteImport
       parentRoute: typeof publicPublicLayoutRoute
     }
     '/(app)/_appLayout/create-supplier': {
@@ -223,11 +262,15 @@ const appAppLayoutRouteWithChildren = appAppLayoutRoute._addFileChildren(
 )
 
 interface publicPublicLayoutRouteChildren {
+  publicPublicLayoutPrivacyRoute: typeof publicPublicLayoutPrivacyRoute
+  publicPublicLayoutTermsRoute: typeof publicPublicLayoutTermsRoute
   publicPublicLayoutIndexRoute: typeof publicPublicLayoutIndexRoute
   publicPublicLayoutAuthPathnameRoute: typeof publicPublicLayoutAuthPathnameRoute
 }
 
 const publicPublicLayoutRouteChildren: publicPublicLayoutRouteChildren = {
+  publicPublicLayoutPrivacyRoute: publicPublicLayoutPrivacyRoute,
+  publicPublicLayoutTermsRoute: publicPublicLayoutTermsRoute,
   publicPublicLayoutIndexRoute: publicPublicLayoutIndexRoute,
   publicPublicLayoutAuthPathnameRoute: publicPublicLayoutAuthPathnameRoute,
 }
