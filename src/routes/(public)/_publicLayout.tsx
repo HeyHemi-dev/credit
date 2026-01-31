@@ -62,9 +62,9 @@ function Footer() {
     <SectionContent className="grid grid-cols-2 gap-6">
       <div className="col-span-full grid gap-2">
         <h2 aria-label="Footer">
-          <Brand />
+          <Brand className="" />
         </h2>
-        <p className="text-sm text-pretty text-muted-foreground">
+        <p className="text-sm text-pretty text-muted/60">
           Effortlessly collect supplier details from couples, formatted and
           ready-to-paste into Instagram.
         </p>
@@ -86,15 +86,15 @@ function Footer() {
         <h3 className="label">Legal</h3>
         <ul className="grid gap-2">
           <li>
-            <Link to="/">Privacy Policy</Link>
+            <Link to="/privacy">Privacy Policy</Link>
           </li>
           <li>
-            <Link to="/">Terms of Service</Link>
+            <Link to="/terms">Terms of Service</Link>
           </li>
         </ul>
       </div>
       <div className="col-span-full grid gap-2">
-        <p className="text-sm text-muted-foreground/60">
+        <p className="text-sm text-muted-foreground">
           © {new Date().getFullYear()} With Thanks. All rights reserved.
         </p>
       </div>

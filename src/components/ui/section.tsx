@@ -10,7 +10,12 @@ type MainProps = {
 function Main({ children, header = null, footer = null }: MainProps) {
   return (
     <>
-      <div className="grid min-h-screen grid-cols-[auto_minmax(0,32rem)_auto] gap-x-0.5 gap-y-24 text-foreground">
+      <div
+        className={cn(
+          'grid min-h-screen grid-cols-[auto_minmax(0,32rem)_auto] gap-x-0.5 gap-y-24 text-foreground',
+          footer && 'grid-rows-[1fr_auto]',
+        )}
+      >
         <div
           className={cn(
             'col-start-2 col-end-2 grid',
@@ -21,7 +26,7 @@ function Main({ children, header = null, footer = null }: MainProps) {
           <main className="flex flex-col gap-4">{children}</main>
         </div>
         {footer && (
-          <div className="col-start-1 col-end-4 row-start-2 row-end-2 grid grid-cols-subgrid bg-background">
+          <div className="col-start-1 col-end-4 row-start-2 row-end-2 grid grid-cols-subgrid bg-foreground text-background">
             <footer className="col-start-2 col-end-2 pt-16 pb-8">
               {footer}
             </footer>
