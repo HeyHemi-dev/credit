@@ -35,7 +35,7 @@ export function Brand({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'text-xs font-semibold tracking-[0.3em] text-foreground/80 uppercase',
+        'text-xs font-semibold tracking-[0.3em] uppercase opacity-80',
         className,
       )}
       {...props}
