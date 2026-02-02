@@ -72,6 +72,26 @@ export const DEBOUNCE_INPUT_MS = 300
 export const BATCH_AUTOSAVE_MS = 60_000
 export const THROTTLE_COPY_MS = 500
 
+export const DEDUPE_IGNORED_EMAIL_DOMAINS = new Set([
+  'gmail.com',
+  'googlemail.com',
+  'gmail.co.nz',
+  'gmail.co.uk',
+  'hotmail.com',
+  'hotmail.co.nz',
+  'hotmail.co.uk',
+  'outlook.com',
+  'outlook.co.nz',
+  'outlook.co.uk',
+  'yahoo.com',
+  'yahoo.co.nz',
+  'yahoo.co.uk',
+  'icloud.com',
+  'me.com',
+  'live.com',
+  'msn.com',
+])
+
 export const AUTH_STATUS = {
   AUTHENTICATED: 'authenticated',
   UNAUTHENTICATED: 'unauthenticated',
