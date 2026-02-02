@@ -10,8 +10,6 @@ export function CreditListItem({ credit }: { credit: Credit }) {
   const { eventId, authToken } = useCreditContext()
   const { deleteCreditMutation } = useCredit(eventId, credit.id, authToken)
 
-  // TODO: add credit edit button
-
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-4">
       <div className="grid gap-0.5">

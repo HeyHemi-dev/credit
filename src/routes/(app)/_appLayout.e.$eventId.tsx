@@ -79,8 +79,6 @@ export function CreditPage() {
   const [isOpen, setIsOpen] = useDrawerState()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
-  // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
-
   return (
     <>
       <Section className="flex flex-col border-2 border-background p-0">

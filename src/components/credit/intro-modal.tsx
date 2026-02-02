@@ -14,8 +14,6 @@ import { shareIntroModalDismissed } from '@/lib/local-storage'
 import { useCreditContext } from '@/contexts/credit-page-context'
 
 export function IntroModal() {
-  // TODO: add notice about agreeing to the terms of service and privacy policy (By using this link, you agree to our [Terms] and [Privacy Policy]")
-
   const { eventId } = useCreditContext()
   const [open, setOpen] = React.useState(false)
   const { getValue, setValue } = shareIntroModalDismissed(eventId)
