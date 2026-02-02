@@ -50,6 +50,16 @@ export function IntroModal() {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
+          <p className="text-xs text-balance text-muted-foreground/60">
+            By using this link, you agree to our{' '}
+            <Link to="/terms" target="_blank">
+              Terms of Use
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" target="_blank">
+              Privacy Policy
+            </Link>
+          </p>
           <AlertDialogAction onClick={dismiss} className="min-w-24">
             Got it
           </AlertDialogAction>
