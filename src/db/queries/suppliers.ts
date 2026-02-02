@@ -1,6 +1,7 @@
 import { desc, eq, ilike, or, sql } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import { suppliers } from '@/db/schema'
+import { DEDUPE_IGNORED_EMAIL_DOMAINS } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { normalizeEmail, normalizeHandle } from '@/lib/formatters'
 import { tryCatch } from '@/lib/try-catch'
@@ -77,7 +78,10 @@ export async function findSupplierDedupeCandidates(
   const qEmail = normalizeEmail(input.email)
 
   // since suppliers.emailDomain is generated from email, compute the query domain once
-  const qDomain = qEmail.includes('@') ? qEmail.split('@').pop()! : ''
+  let qDomain = qEmail.includes('@') ? qEmail.split('@').pop()! : ''
+  if (qDomain && DEDUPE_IGNORED_EMAIL_DOMAINS.has(qDomain)) {
+    qDomain = ''
+  }
 
   const nameSim = sql<number>`similarity(unaccent(lower(${suppliers.name})), unaccent(${qName}))`
   const emailSim = sql<number>`similarity(lower(${suppliers.email}), ${qEmail})`
