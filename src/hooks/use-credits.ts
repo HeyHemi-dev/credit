@@ -9,7 +9,7 @@ import type { EventDetail } from '@/lib/types/front-end'
 import { createCreditFn, deleteCreditFn } from '@/lib/server/event-credits'
 import { getEventForCoupleFn } from '@/lib/server/events'
 import { queryKeys } from '@/hooks/query-keys'
-import { isSessionAuthToken, isShareAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuth, isShareAuth } from '@/hooks/use-auth'
 
 export function useCredits(eventId: string, authToken: AuthToken) {
   const queryClient = useQueryClient()
@@ -19,7 +19,7 @@ export function useCredits(eventId: string, authToken: AuthToken) {
   const getEventForCoupleQuery = useSuspenseQuery({
     queryKey: queryKeys.event(eventId),
     queryFn: async () => {
-      if (!isShareAuthToken(authToken) && !isSessionAuthToken(authToken))
+      if (!isShareAuth(authToken) && !isSessionAuth(authToken))
         return {} as EventDetail
       return await getEventForCouple({ data: { eventId, authToken } })
     },
@@ -27,7 +27,7 @@ export function useCredits(eventId: string, authToken: AuthToken) {
 
   const createCreditMutation = useMutation({
     mutationFn: async (data: CreateCreditForm) => {
-      if (!isShareAuthToken(authToken) && !isSessionAuthToken(authToken)) return
+      if (!isShareAuth(authToken) && !isSessionAuth(authToken)) return
       return await createCredit({ data: { eventId, authToken, ...data } })
     },
     onSuccess: () => {
@@ -50,7 +50,7 @@ export function useCredit(
 
   const deleteCreditMutation = useMutation({
     mutationFn: async () => {
-      if (!isShareAuthToken(authToken) && !isSessionAuthToken(authToken)) return
+      if (!isShareAuth(authToken) && !isSessionAuth(authToken)) return
       return await deleteCredit({ data: { eventId, supplierId, authToken } })
     },
     onMutate: () => {

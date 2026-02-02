@@ -6,7 +6,7 @@ import { ActionDrawer } from '@/components/action-drawer'
 import { CreateEventForm } from '@/components/events/create-event-form'
 
 import { Section } from '@/components/ui/section'
-import { isSessionAuthToken, useAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuth, useAuth } from '@/hooks/use-auth'
 import { EventList, EventListSkeleton } from '@/components/events/event-list'
 import { Button } from '@/components/ui/button'
 
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/(app)/_appLayout/events/')({
 })
 
 function RouteComponent() {
-  const authToken = useAuthToken()
+  const authToken = useAuth()
   const [isOpen, setIsOpen] = useDrawerState()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -32,7 +32,7 @@ function RouteComponent() {
       {authToken.status === AUTH_STATUS.UNAUTHENTICATED && <RedirectToSignIn />}
 
       <Section className="pb-24">
-        {isSessionAuthToken(authToken) ? (
+        {isSessionAuth(authToken) ? (
           <React.Suspense fallback={<EventListSkeleton />}>
             <EventList authToken={authToken} />
           </React.Suspense>

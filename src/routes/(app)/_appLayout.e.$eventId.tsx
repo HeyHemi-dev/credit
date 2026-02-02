@@ -18,7 +18,7 @@ import { shareTokenSchema } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
-import { requireShareAuthToken, useAuthToken } from '@/hooks/use-auth-token'
+import { requireShareAuth, useAuth } from '@/hooks/use-auth'
 import {
   CreditProvider,
   useCreditContext,
@@ -46,8 +46,8 @@ export const Route = createFileRoute('/(app)/_appLayout/e/$eventId')({
 function RouteComponent() {
   const { eventId } = Route.useParams()
   const { shareToken } = Route.useSearch()
-  const authToken = useAuthToken(shareToken)
-  const shareAuth = requireShareAuthToken(authToken)
+  const authToken = useAuth(shareToken)
+  const shareAuth = requireShareAuth(authToken)
 
   return (
     <>

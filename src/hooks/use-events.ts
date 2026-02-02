@@ -13,14 +13,11 @@ import {
   listEventsFn,
 } from '@/lib/server/events'
 import { logger } from '@/lib/logger'
-import {
-  isSessionAuthToken,
-  requireSessionAuthToken,
-} from '@/hooks/use-auth-token'
+import { isSessionAuth, requireSessionAuth } from '@/hooks/use-auth'
 
 export function useEvents(authToken: AuthToken) {
   const listEvents = useServerFn(listEventsFn)
-  const sessionAuth = requireSessionAuthToken(authToken)
+  const sessionAuth = requireSessionAuth(authToken)
 
   const getEventListQuery = useSuspenseQuery({
     queryKey: queryKeys.events(sessionAuth.authUserId),
@@ -33,7 +30,7 @@ export function useEvents(authToken: AuthToken) {
 export function useCreateEvent(authToken: AuthToken) {
   const queryClient = useQueryClient()
   const createEvent = useServerFn(createEventFn)
-  const sessionAuth = requireSessionAuthToken(authToken)
+  const sessionAuth = requireSessionAuth(authToken)
 
   return useMutation({
     mutationFn: async (data: CreateEvent) => {
@@ -45,7 +42,7 @@ export function useCreateEvent(authToken: AuthToken) {
       })
     },
     onSuccess: async () => {
-      if (!isSessionAuthToken(authToken)) return
+      if (!isSessionAuth(authToken)) return
       await queryClient.invalidateQueries({
         queryKey: queryKeys.events(sessionAuth.authUserId),
       })
@@ -57,7 +54,7 @@ export function useEvent(eventId: string, authToken: AuthToken) {
   const queryClient = useQueryClient()
   const getEvent = useServerFn(getEventFn)
   const deleteEvent = useServerFn(deleteEventFn)
-  const sessionAuth = requireSessionAuthToken(authToken)
+  const sessionAuth = requireSessionAuth(authToken)
 
   const getEventQuery = useSuspenseQuery({
     queryKey: queryKeys.event(eventId),

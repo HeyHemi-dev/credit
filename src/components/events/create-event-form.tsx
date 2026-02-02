@@ -21,7 +21,7 @@ import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
-import { isSessionAuthToken, useAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuth, useAuth } from '@/hooks/use-auth'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -38,9 +38,9 @@ export function CreateEventForm({
   onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
-  const authToken = useAuthToken()
+  const authToken = useAuth()
   const createEvent = useCreateEvent(authToken)
-  const isSession = isSessionAuthToken(authToken)
+  const isSession = isSessionAuth(authToken)
 
   const form = useForm({
     defaultValues: defaultValues,
