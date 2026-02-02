@@ -127,6 +127,41 @@ export function CreditPage() {
             )}
           </div>
         </SectionContent>
+        <SectionFooter>
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-2 select-none">
+              <span className="group-open:hidden">
+                <HugeiconsIcon icon={PlusSignSquareIcon} />
+              </span>
+              <span className="hidden group-open:block group-open:opacity-100">
+                <HugeiconsIcon icon={MinusSignSquareIcon} />
+              </span>
+
+              <h3 className="text-lg font-light">How it works</h3>
+            </summary>
+
+            <ol className="mt-2 grid list-inside list-decimal gap-2 text-sm text-pretty text-muted-foreground">
+              <li>
+                <p className="inline">
+                  Search to{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(true)}
+                    className="text-primary underline-offset-4 hover:text-primary/80 hover:underline"
+                  >
+                    add suppliers
+                  </button>{' '}
+                  you worked with.
+                </p>
+              </li>
+              <li>
+                <p className="inline">
+                  If the supplier is not listed, you can create a new one.
+                </p>
+              </li>
+            </ol>
+          </details>
+        </SectionFooter>
       </Section>
 
       <ActionDrawer
