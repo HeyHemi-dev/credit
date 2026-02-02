@@ -3,8 +3,7 @@ import { authClient } from '@/auth'
 import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 
-// TODO: rename to useAuth
-// useAuth could also return isSessionAuthToken and isShareAuthToken
+// TODO: useAuth could also return isSessionAuthToken and isShareAuthToken
 // Rename the matching schema
 // Create schema for session auth token and share auth token
 // update api (hooks & server functions) to pass the correct auth tokens instead of authUserId
