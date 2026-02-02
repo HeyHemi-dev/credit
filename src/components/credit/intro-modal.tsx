@@ -50,6 +50,9 @@ export function IntroModal() {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
+          <AlertDialogAction onClick={dismiss} className="order-last min-w-24">
+            Got it
+          </AlertDialogAction>
           <p className="text-xs text-balance text-muted-foreground/60">
             By using this link, you agree to our{' '}
             <Link to="/terms" target="_blank">
@@ -60,9 +63,6 @@ export function IntroModal() {
               Privacy Policy
             </Link>
           </p>
-          <AlertDialogAction onClick={dismiss} className="min-w-24">
-            Got it
-          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
