@@ -1,7 +1,7 @@
 import React from 'react'
 import type { SessionAuth, ShareAuth } from '@/lib/types/validation-schema'
 import { ERROR } from '@/lib/errors'
-import { isSessionAuthToken, isShareAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuth, isShareAuth } from '@/hooks/use-auth'
 
 type CreditContextValue = {
   authToken: SessionAuth | ShareAuth
@@ -19,7 +19,7 @@ export function CreditProvider({
 }: CreditContextValue & { children: React.ReactNode }) {
   const value = React.useMemo(() => {
     // Either share or session auth tokens are valid for credit operations.
-    if (!isShareAuthToken(authToken) && !isSessionAuthToken(authToken)) {
+    if (!isShareAuth(authToken) && !isSessionAuth(authToken)) {
       throw ERROR.NOT_AUTHENTICATED()
     }
 

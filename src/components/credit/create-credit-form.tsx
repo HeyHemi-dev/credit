@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { SupplierSearchCombobox } from '@/components/credit/supplier-search-combobox'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreditContext } from '@/contexts/credit-page-context'
-import { isShareAuthToken } from '@/hooks/use-auth-token'
+import { isShareAuth } from '@/hooks/use-auth'
 
 const defaultValues: CreateCreditForm = {
   service: '' as Service,
@@ -72,7 +72,7 @@ export function CreateCreditForm({
             <FormField field={field} label="Who it was" isRequired={true}>
               <SupplierSearchCombobox
                 shareToken={
-                  isShareAuthToken(authToken) ? authToken.token : undefined
+                  isShareAuth(authToken) ? authToken.token : undefined
                 }
                 eventId={eventId}
                 handleChange={(supplierId) => field.handleChange(supplierId)}

@@ -6,7 +6,7 @@ import { Section } from '@/components/ui/section'
 import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
 import { AuthState } from '@/components/auth-state'
-import { useAuthToken } from '@/hooks/use-auth-token'
+import { useAuth } from '@/hooks/use-auth'
 
 const createSupplierSearchSchema = z.object({
   shareToken: z.string().optional(),
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/(app)/_appLayout/create-supplier')({
 
 function CreateSupplierRoute() {
   const { shareToken } = Route.useSearch()
-  const authToken = useAuthToken(shareToken)
+  const authToken = useAuth(shareToken)
 
   return (
     <Section>

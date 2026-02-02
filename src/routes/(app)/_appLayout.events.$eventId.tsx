@@ -19,11 +19,7 @@ import { formatDate, parseDrizzleDateStringToDate } from '@/lib/format-dates'
 import { BackButton } from '@/components/back-button'
 import { CopyButton } from '@/components/copy-button'
 import { InputDiv } from '@/components/ui/input'
-import {
-  isSessionAuthToken,
-  isShareAuthToken,
-  useAuthToken,
-} from '@/hooks/use-auth-token'
+import { isSessionAuth, isShareAuth, useAuth } from '@/hooks/use-auth'
 import { AUTH_STATUS } from '@/lib/constants'
 import { AuthState } from '@/components/auth-state'
 import {
@@ -50,15 +46,15 @@ export const Route = createFileRoute('/(app)/_appLayout/events/$eventId')({
 
 function RouteComponent() {
   const { eventId } = Route.useParams()
-  const authToken = useAuthToken()
+  const authToken = useAuth()
 
   return (
     <>
       {authToken.status === AUTH_STATUS.UNAUTHENTICATED ||
-        (isShareAuthToken(authToken) && <RedirectToSignIn />)}
+        (isShareAuth(authToken) && <RedirectToSignIn />)}
 
       <Section>
-        {isSessionAuthToken(authToken) ? (
+        {isSessionAuth(authToken) ? (
           <CreditProvider authToken={authToken} eventId={eventId}>
             <React.Suspense fallback={<Skeleton />}>
               <EventDetailPage />

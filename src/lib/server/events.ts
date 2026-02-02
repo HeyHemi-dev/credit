@@ -19,12 +19,12 @@ import { ERROR } from '@/lib/errors'
 import { getEventSuppliersWithSupplier } from '@/db/queries/event-suppliers'
 import { isValidSession } from '@/db/queries/auth'
 import { isValidAuthToken } from '@/lib/server/auth'
-import { isSessionAuthToken } from '@/hooks/use-auth-token'
+import { isSessionAuth } from '@/hooks/use-auth'
 
 export const listEventsFn = createServerFn({ method: 'GET' })
   .inputValidator(authTokenSchema)
   .handler(async ({ data }): Promise<Array<EventListItem>> => {
-    if (!isSessionAuthToken(data) || !isValidSession(data.token))
+    if (!isSessionAuth(data) || !isValidSession(data.token))
       throw ERROR.NOT_AUTHENTICATED()
 
     const events = await getEventsByUserId(data.authUserId)
@@ -44,10 +44,7 @@ export const createEventFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }): Promise<EventListItem> => {
-    if (
-      !isSessionAuthToken(data.authToken) ||
-      !isValidSession(data.authToken.token)
-    )
+    if (!isSessionAuth(data.authToken) || !isValidSession(data.authToken.token))
       throw ERROR.NOT_AUTHENTICATED()
 
     const shareToken = generateToken(SHARE_TOKEN_MIN_LENGTH)
@@ -71,10 +68,7 @@ export const createEventFn = createServerFn({ method: 'POST' })
 export const getEventFn = createServerFn({ method: 'GET' })
   .inputValidator(getEventSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
-    if (
-      !isSessionAuthToken(data.authToken) ||
-      !isValidSession(data.authToken.token)
-    )
+    if (!isSessionAuth(data.authToken) || !isValidSession(data.authToken.token))
       throw ERROR.NOT_AUTHENTICATED()
 
     const event = await getEventById(data.eventId)
@@ -135,10 +129,7 @@ export const getEventForCoupleFn = createServerFn({
 export const deleteEventFn = createServerFn({ method: 'POST' })
   .inputValidator(deleteEventSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }) => {
-    if (
-      !isSessionAuthToken(data.authToken) ||
-      !isValidSession(data.authToken.token)
-    )
+    if (!isSessionAuth(data.authToken) || !isValidSession(data.authToken.token))
       throw ERROR.NOT_AUTHENTICATED()
 
     const event = await getEventById(data.eventId)
