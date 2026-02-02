@@ -43,7 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <HeadContent />
         </head>
 
-        <body>
+        <body className="min-h-screen bg-muted">
           {children}
           <DevTools />
           <Scripts />

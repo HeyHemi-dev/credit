@@ -13,6 +13,8 @@ import { Brand } from '@/components/header'
 const STORAGE_KEY = 'credit.coupleIntroDismissed.v1'
 
 export function IntroModal() {
+  // TODO: add notice about agreeing to the terms of service and privacy policy (By using this link, you agree to our [Terms] and [Privacy Policy]")
+
   const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {

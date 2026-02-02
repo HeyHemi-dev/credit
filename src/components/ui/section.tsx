@@ -9,20 +9,31 @@ type MainProps = {
 
 function Main({ children, header = null, footer = null }: MainProps) {
   return (
-    <div className="grid grid-cols-[auto_minmax(0,32rem)_auto] bg-muted text-foreground">
+    <>
       <div
         className={cn(
-          'col-start-2 col-end-2 grid min-h-screen p-1',
-          header && !footer && 'grid-rows-[auto_1fr]',
-          !header && footer && 'grid-rows-[1fr_auto]',
-          header && footer && 'grid-rows-[auto_1fr_auto]',
+          'grid min-h-screen grid-cols-[auto_minmax(0,32rem)_auto] gap-x-0.5 gap-y-24 text-foreground',
+          footer && 'grid-rows-[1fr_auto]',
         )}
       >
-        {header && <header className="py-4">{header}</header>}
-        <main className="flex flex-col gap-4">{children}</main>
-        {footer && <footer className="py-4">{footer}</footer>}
+        <div
+          className={cn(
+            'col-start-2 col-end-2 grid',
+            header && 'grid-rows-[auto_1fr]',
+          )}
+        >
+          {header && <header className="py-4">{header}</header>}
+          <main className="flex flex-col gap-4">{children}</main>
+        </div>
+        {footer && (
+          <div className="col-start-1 col-end-4 row-start-2 row-end-2 grid grid-cols-subgrid bg-foreground text-background">
+            <footer className="col-start-2 col-end-2 pt-16 pb-8">
+              {footer}
+            </footer>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   )
 }
 

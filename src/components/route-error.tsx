@@ -54,31 +54,33 @@ export function RouteError({ error, info, reset }: ErrorComponentProps) {
   }
 
   return (
-    <Section className="grid grid-rows-[auto_1fr_auto]">
-      <div className="grid gap-0.5">
-        <h1 className="text-2xl font-light text-balance">
-          Something went wrong
-        </h1>
-        <p className="text-pretty text-muted-foreground">{error.message}</p>
-      </div>
+    <Main>
+      <Section className="grid grid-rows-[auto_1fr_auto]">
+        <div className="grid gap-0.5">
+          <h1 className="text-2xl font-light text-balance">
+            Something went wrong
+          </h1>
+          <p className="text-pretty text-muted-foreground">{error.message}</p>
+        </div>
 
-      <div className="grid place-items-center">
-        <Button
-          variant="secondary"
-          className="min-w-32"
-          onClick={onRetry}
-          disabled={isRetrying}
-        >
-          {isRetrying ? 'Loading...' : 'Refresh'}
-        </Button>
-      </div>
+        <div className="grid place-items-center">
+          <Button
+            variant="secondary"
+            className="min-w-32"
+            onClick={onRetry}
+            disabled={isRetrying}
+          >
+            {isRetrying ? 'Loading...' : 'Refresh'}
+          </Button>
+        </div>
 
-      {/* Dev-only detail (optional) */}
-      {isDev && info?.componentStack ? (
-        <pre className="mt-4 max-h-40 overflow-auto rounded-md border p-3 text-xs text-muted-foreground">
-          {info.componentStack}
-        </pre>
-      ) : null}
-    </Section>
+        {/* Dev-only detail (optional) */}
+        {isDev && info?.componentStack ? (
+          <pre className="mt-4 max-h-40 overflow-auto rounded-md border p-3 text-xs text-muted-foreground">
+            {info.componentStack}
+          </pre>
+        ) : null}
+      </Section>
+    </Main>
   )
 }

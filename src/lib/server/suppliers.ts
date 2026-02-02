@@ -20,6 +20,8 @@ import { logger } from '@/lib/logger'
 export const searchSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(searchSuppliersSchema)
   .handler(async ({ data }): Promise<Array<Supplier>> => {
+    // TODO: Add auth check/share token or session
+
     const suppliers = await searchSuppliers(data.query)
     return mapSuppliersToSearchResults(suppliers)
   })
@@ -30,6 +32,8 @@ export const searchSuppliersFn = createServerFn({ method: 'GET' })
 export const dedupeSuppliersFn = createServerFn({ method: 'GET' })
   .inputValidator(dedupeSuppliersSchema)
   .handler(async ({ data }): Promise<Array<Supplier>> => {
+    // TODO: Add auth check/share token or session
+
     // eventId validity is checked at route level; keep this function generic.
     const { data: suppliers, error } = await tryCatch(
       findSupplierDedupeCandidates({
@@ -57,6 +61,8 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }): Promise<Supplier> => {
+    // TODO: Log the user or sharetoken that created the user
+
     const isValid = await isValidAuthToken(data.authToken)
     if (!isValid) throw ERROR.FORBIDDEN()
 
