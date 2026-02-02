@@ -1,4 +1,4 @@
-# Give Credit
+# With Thanks
 
 > _Send one link. Get wedding supplier tags back — copy-ready and formatted for Instagram._
 
