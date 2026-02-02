@@ -42,7 +42,7 @@ import { ERROR } from '@/lib/errors'
  * @returns The auth token
  */
 export function useAuthToken(shareToken?: string): AuthToken {
-  const { data, isPending, isRefetching } = authClient.useSession()
+  const { data, isPending } = authClient.useSession()
 
   // Early return for share token
   if (shareToken) {
@@ -53,7 +53,7 @@ export function useAuthToken(shareToken?: string): AuthToken {
     }
   }
 
-  if (isPending || isRefetching) {
+  if (isPending) {
     return { status: AUTH_STATUS.PENDING }
   }
 
