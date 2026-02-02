@@ -156,7 +156,7 @@ export function CreditPage() {
               </li>
               <li>
                 <p className="inline">
-                  If the supplier is not listed, you can create a new one.
+                  If the supplier can't be found, you can create a new one.
                 </p>
               </li>
             </ol>
