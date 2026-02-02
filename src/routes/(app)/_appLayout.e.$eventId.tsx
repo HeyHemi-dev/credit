@@ -2,9 +2,18 @@ import React from 'react'
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Search01Icon } from '@hugeicons/core-free-icons'
+import {
+  MinusSignSquareIcon,
+  PlusSignSquareIcon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons'
 import { RouteError } from '@/components/route-error'
-import { Section, SectionContent, SectionHeader } from '@/components/ui/section'
+import {
+  Section,
+  SectionContent,
+  SectionFooter,
+  SectionHeader,
+} from '@/components/ui/section'
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -92,7 +101,7 @@ export function CreditPage() {
             </p>
           </div>
         </SectionHeader>
-        <SectionContent>
+        <SectionContent className="grow">
           <div className="grid gap-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-light">Suppliers</h2>
@@ -165,12 +174,19 @@ export function useDrawerState() {
 
 function CreditPageSkeleton() {
   return (
-    <Section>
-      <Skeleton className="h-14 w-full" />
+    <Section className="flex flex-col border-2 border-background p-0">
+      <Skeleton className="min-h-[25svh] content-end" />
 
-      <CreditListItemSkeleton />
-      <CreditListItemSkeleton />
-      <CreditListItemSkeleton />
+      <SectionContent className="grow">
+        <div className="grid gap-6">
+          <Skeleton className="h-10 w-full" />
+          <div className="grid gap-4">
+            <CreditListItemSkeleton />
+            <CreditListItemSkeleton />
+            <CreditListItemSkeleton />
+          </div>
+        </div>
+      </SectionContent>
     </Section>
   )
 }
