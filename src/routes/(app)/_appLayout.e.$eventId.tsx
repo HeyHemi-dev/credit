@@ -51,8 +51,8 @@ function RouteComponent() {
 
   return (
     <>
-      <IntroModal />
       <CreditProvider authToken={shareAuth} eventId={eventId}>
+        <IntroModal />
         <React.Suspense fallback={<CreditPageSkeleton />}>
           <CreditPage />
         </React.Suspense>
