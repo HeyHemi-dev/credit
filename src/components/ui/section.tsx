@@ -100,6 +100,4 @@ function SectionFooter({
   )
 }
 
-// TODO: Section header, content, and footer components
-
 export { Main, Section, SectionHeader, SectionContent, SectionFooter }

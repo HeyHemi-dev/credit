@@ -12,8 +12,6 @@ import { RouteError } from '@/components/route-error'
 import { isDev } from '@/lib/utils'
 import { RouteNotFound } from '@/components/route-not-found'
 
-// TODO: Rename project to "With Thanks"
-
 export const Route = createRootRoute({
   ssr: false,
   head: () => ({

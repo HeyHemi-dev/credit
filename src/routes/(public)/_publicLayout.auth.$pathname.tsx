@@ -8,9 +8,6 @@ export const Route = createFileRoute('/(public)/_publicLayout/auth/$pathname')({
 })
 
 function Auth() {
-  // TODO: Make clear this is for suppliers to log in, not couples.
-  // Add a link for couples to escape this page.
-
   const { pathname } = Route.useParams()
   return (
     <Section className="grid content-center gap-12 bg-transparent">
@@ -29,6 +26,18 @@ function Auth() {
           title: 'text-2xl font-light text-balance',
           description: 'text-sm text-muted-foreground text-pretty',
         }}
+        cardFooter={
+          <p className="grow text-center text-xs text-balance text-muted-foreground/60">
+            By continuing, you agree to our{' '}
+            <Link to="/terms" target="_blank">
+              Terms of Use
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" target="_blank">
+              Privacy Policy
+            </Link>
+          </p>
+        }
       />
       <div className="grid content-center gap-1 text-center text-balance">
         <p>

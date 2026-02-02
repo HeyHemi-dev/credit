@@ -41,8 +41,6 @@ const defaultValues: CreateSupplierForm = {
 export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
   const handleBack = useBack()
 
-  // TODO: check why dedupe is not working
-
   const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
   const dedupeCandidates = dedupeQuery.data ?? []
   const [selectedCandidate, setSelectedCandidate] = React.useState<
