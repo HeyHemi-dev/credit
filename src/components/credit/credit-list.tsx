@@ -38,10 +38,10 @@ export function CreditListItem({ credit }: { credit: Credit }) {
 
 export function CreditListItemSkeleton() {
   return (
-    <div>
-      <div>
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-[1fr_auto] items-center gap-4">
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-6 w-24" />
       </div>
       <Skeleton className="size-9" />
     </div>
