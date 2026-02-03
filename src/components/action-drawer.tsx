@@ -47,7 +47,7 @@ export function ActionDrawer({
               )}
             </DrawerHeader>
 
-            <DrawerFooter>{children}</DrawerFooter>
+            <DrawerFooter className="mt-0">{children}</DrawerFooter>
           </div>
         </div>
       </DrawerContent>
