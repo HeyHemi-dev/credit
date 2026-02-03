@@ -21,8 +21,9 @@ export function PillRadioItem({
     <FieldLabel
       htmlFor={id}
       className={cn(
-        'flex cursor-pointer gap-2 rounded-full border py-1.5 pr-1.5 pl-3',
-        isSelected && 'border-primary bg-primary/20',
+        'flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0',
+        isSelected &&
+          'has-data-checked:border-primary has-data-checked:bg-background',
       )}
       onClick={(event) => {
         if (!isSelected) return
@@ -32,14 +33,15 @@ export function PillRadioItem({
     >
       <FieldTitle
         className={cn(
-          'text-xs font-normal text-muted-foreground uppercase',
+          'py-0.5 pl-2.5 text-sm font-normal text-muted-foreground',
           isSelected && 'text-primary',
         )}
       >
         {label}
       </FieldTitle>
-
-      <RadioGroupItem id={id} value={value} aria-label={label} />
+      <div className="flex items-center justify-center p-1.5">
+        <RadioGroupItem id={id} value={value} aria-label={label} />
+      </div>
     </FieldLabel>
   )
 }
