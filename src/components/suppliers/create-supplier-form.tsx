@@ -2,6 +2,8 @@ import { useForm } from '@tanstack/react-form'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
+import { RadioGroup } from '@base-ui/react'
+import { PillRadioItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
 import type {
   AuthToken,
@@ -12,14 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { AUTH_STATUS, REGIONS } from '@/lib/constants'
+import { AUTH_STATUS, REGION, REGION_KEYS } from '@/lib/constants'
 import { useCreateSupplier } from '@/hooks/use-suppliers'
 import {
   createSupplierFormSchema,
@@ -126,29 +121,30 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
               label="Based in"
               description="Optional, helps match suppliers correctly."
             >
-              <Select
+              <RadioGroup
                 value={field.state.value}
-                onValueChange={(v) => {
-                  const { data: region } = regionSchema.safeParse(v)
+                onValueChange={(value) => {
+                  const { data: region } = regionSchema.safeParse(value)
                   field.handleChange(region ?? '')
                 }}
+                className="flex flex-wrap gap-2"
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue>
-                    {field.state.value ? field.state.value : 'Select region'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem key="none" value="">
-                    -
-                  </SelectItem>
-                  {REGIONS.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {REGION_KEYS.map((key) => {
+                  const region = REGION[key]
+                  const isSelected = field.state.value === region
+
+                  return (
+                    <PillRadioItem
+                      key={key}
+                      id={key}
+                      value={region}
+                      label={region}
+                      isSelected={isSelected}
+                      onClick={() => field.handleChange(region)}
+                    />
+                  )
+                })}
+              </RadioGroup>
             </FormField>
           )}
         />

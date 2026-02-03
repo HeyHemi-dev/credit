@@ -4,15 +4,11 @@ import type { CreateCreditForm } from '@/lib/types/validation-schema'
 
 import type { Service } from '@/lib/constants'
 import { FieldGroup } from '@/components/ui/field'
-import { createCreditFormSchema } from '@/lib/types/validation-schema'
-import { SERVICES } from '@/lib/constants'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  createCreditFormSchema,
+  serviceSchema,
+} from '@/lib/types/validation-schema'
+import { SERVICE, SERVICE_KEYS } from '@/lib/constants'
 import { FormField } from '@/components/ui/form-field'
 import { useCredits } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
@@ -20,6 +16,8 @@ import { SupplierSearchCombobox } from '@/components/credit/supplier-search-comb
 import { Textarea } from '@/components/ui/textarea'
 import { useCreditContext } from '@/contexts/credit-page-context'
 import { isShareAuth } from '@/hooks/use-auth'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { PillRadioItem } from '@/components/ui/pill-radio-item'
 
 const defaultValues: CreateCreditForm = {
   service: '' as Service,
@@ -86,26 +84,31 @@ export function CreateCreditForm({
           name="service"
           children={(field) => (
             <FormField field={field} label="What they did" isRequired={true}>
-              <Select
+              <RadioGroup
                 value={field.state.value}
                 onValueChange={(value) => {
-                  if (!value) return
-                  field.handleChange(value)
+                  const { data: service } = serviceSchema.safeParse(value)
+                  if (!service) return
+                  field.handleChange(service)
                 }}
+                className="flex flex-wrap gap-2"
               >
-                <SelectTrigger>
-                  <SelectValue>
-                    {field.state.value ? field.state.value : 'Select service'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent container={containerRef}>
-                  {SERVICES.map((service) => (
-                    <SelectItem key={service} value={service}>
-                      {service}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {SERVICE_KEYS.map((key) => {
+                  const service = SERVICE[key]
+                  const isSelected = field.state.value === service
+
+                  return (
+                    <PillRadioItem
+                      key={key}
+                      id={key}
+                      value={service}
+                      label={service}
+                      isSelected={isSelected}
+                      onClick={() => field.handleChange(service)}
+                    />
+                  )
+                })}
+              </RadioGroup>
             </FormField>
           )}
         />

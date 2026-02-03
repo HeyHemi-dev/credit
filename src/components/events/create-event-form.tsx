@@ -9,19 +9,14 @@ import {
   regionSchema,
 } from '@/lib/types/validation-schema'
 import { useCreateEvent } from '@/hooks/use-events'
-import { REGIONS } from '@/lib/constants'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { REGION, REGION_KEYS } from '@/lib/constants'
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 import { isSessionAuth, useAuth } from '@/hooks/use-auth'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { PillRadioItem } from '@/components/ui/pill-radio-item'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -105,29 +100,30 @@ export function CreateEventForm({
           name="region"
           children={(field) => (
             <FormField field={field} label="Region">
-              <Select
+              <RadioGroup
                 value={field.state.value}
-                onValueChange={(v) => {
-                  const { data: region } = regionSchema.safeParse(v)
+                onValueChange={(value) => {
+                  const { data: region } = regionSchema.safeParse(value)
                   field.handleChange(region ?? '')
                 }}
+                className="flex flex-wrap gap-2"
               >
-                <SelectTrigger>
-                  <SelectValue>
-                    {field.state.value ? field.state.value : 'Select region'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent container={containerRef}>
-                  <SelectItem key="none" value="">
-                    None
-                  </SelectItem>
-                  {REGIONS.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {REGION_KEYS.map((key) => {
+                  const region = REGION[key]
+                  const isSelected = field.state.value === region
+
+                  return (
+                    <PillRadioItem
+                      key={key}
+                      id={key}
+                      value={region}
+                      label={region}
+                      isSelected={isSelected}
+                      onClick={() => field.handleChange('')}
+                    />
+                  )
+                })}
+              </RadioGroup>
             </FormField>
           )}
         />

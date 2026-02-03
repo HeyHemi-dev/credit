@@ -9,7 +9,12 @@ import React from 'react'
 import z from 'zod'
 import { RouteError } from '@/components/route-error'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Section } from '@/components/ui/section'
+import {
+  Section,
+  SectionContent,
+  SectionFooter,
+  SectionHeader,
+} from '@/components/ui/section'
 import { DeleteEvent } from '@/components/events/delete-event'
 import { formatEmailList, formatInstagramCredits } from '@/lib/formatters'
 import { useEvent } from '@/hooks/use-events'
@@ -53,17 +58,17 @@ function RouteComponent() {
       {authToken.status === AUTH_STATUS.UNAUTHENTICATED ||
         (isShareAuth(authToken) && <RedirectToSignIn />)}
 
-      <Section>
-        {isSessionAuth(authToken) ? (
-          <CreditProvider authToken={authToken} eventId={eventId}>
-            <React.Suspense fallback={<Skeleton />}>
-              <EventDetailPage />
-            </React.Suspense>
-          </CreditProvider>
-        ) : (
+      {isSessionAuth(authToken) ? (
+        <CreditProvider authToken={authToken} eventId={eventId}>
+          <React.Suspense fallback={<Skeleton />}>
+            <EventDetailPage />
+          </React.Suspense>
+        </CreditProvider>
+      ) : (
+        <Section>
           <AuthState authToken={authToken} />
-        )}
-      </Section>
+        </Section>
+      )}
     </>
   )
 }
@@ -100,8 +105,8 @@ function EventDetailPage() {
   }, [event.id, event.shareToken])
 
   return (
-    <>
-      <div className="grid gap-6">
+    <Section className="grid-rows-[auto_1fr_auto] p-0">
+      <SectionHeader className="grid gap-6">
         <BackButton />
 
         <div className="flex flex-col">
@@ -110,89 +115,93 @@ function EventDetailPage() {
             {formatDate(parseDrizzleDateStringToDate(event.weddingDate))}
           </p>
         </div>
-      </div>
+      </SectionHeader>
 
-      {/* Credit list */}
-      <div className="grid gap-8">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-light">Suppliers</h2>
-          <div className="flex flex-wrap gap-2">
-            <CopyButton
-              labels={{
-                idle: 'Copy for Instagram',
-                copied: 'Copied',
-              }}
-              isCopied={isCopiedInstagram}
-              onClick={() => copyInstagram(instagramText)}
-              disabled={!event.credits.length}
-              className="grow"
-            />
-            <CopyButton
-              variant="secondary"
-              labels={{
-                idle: 'Copy email list',
-                copied: 'Copied',
-              }}
-              isCopied={isCopiedEmail}
-              onClick={() => copyEmail(emailText)}
-              disabled={!event.credits.length}
-              className="grow"
-            />
+      <SectionContent>
+        {/* Credit list */}
+        <div className="grid gap-8">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-light">Suppliers</h2>
+            <div className="flex flex-wrap gap-2">
+              <CopyButton
+                labels={{
+                  idle: 'Copy for Instagram',
+                  copied: 'Copied',
+                }}
+                isCopied={isCopiedInstagram}
+                onClick={() => copyInstagram(instagramText)}
+                disabled={!event.credits.length}
+                className="grow"
+              />
+              <CopyButton
+                variant="secondary"
+                labels={{
+                  idle: 'Copy email list',
+                  copied: 'Copied',
+                }}
+                isCopied={isCopiedEmail}
+                onClick={() => copyEmail(emailText)}
+                disabled={!event.credits.length}
+                className="grow"
+              />
+            </div>
           </div>
+          {event.credits.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              <p>No suppliers yet.</p>
+              <Button
+                variant={'link'}
+                className="justify-self-start p-0"
+                onClick={() => setIsOpen(true)}
+              >
+                Add one now
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              {event.credits.map((credit) => (
+                <CreditListItem key={credit.id} credit={credit} />
+              ))}
+              <Button
+                variant={'link'}
+                className="justify-self-start p-0"
+                onClick={() => setIsOpen(true)}
+              >
+                Add supplier
+              </Button>
+            </div>
+          )}
         </div>
-        {event.credits.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
-            <p>No suppliers yet.</p>
-            <Button
-              variant={'link'}
-              className="justify-self-start p-0"
-              onClick={() => setIsOpen(true)}
-            >
-              Add one now
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-2">
-            {event.credits.map((credit) => (
-              <CreditListItem key={credit.id} credit={credit} />
-            ))}
-            <Button
-              variant={'link'}
-              className="justify-self-start p-0"
-              onClick={() => setIsOpen(true)}
-            >
-              Add supplier
-            </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Share link */}
-      <div className="grid gap-6">
-        <div className="flex flex-col">
-          <h2 className="text-lg font-light">Share</h2>
-          <p className="text-sm text-muted-foreground">
-            Copy the link below to share this event with your couple.
-          </p>
+        {/* Share link */}
+        <div className="grid gap-6">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-light">Share</h2>
+            <p className="text-sm text-muted-foreground">
+              Copy the link below to share this event with your couple.
+            </p>
+          </div>
+          <InputDiv className="flex h-auto flex-row items-center gap-2 py-0.5 pr-0.5">
+            <span className="truncate text-sm text-muted-foreground">
+              {shareLink}
+            </span>
+            <CopyButton
+              variant={'default'}
+              labels={{
+                idle: 'Copy',
+                copied: '',
+              }}
+              isCopied={isCopiedShare}
+              onClick={() => copyShare(shareLink)}
+            />
+          </InputDiv>
         </div>
-        <InputDiv className="flex h-auto flex-row items-center gap-2 py-0.5 pr-0.5">
-          <span className="truncate text-sm text-muted-foreground">
-            {shareLink}
-          </span>
-          <CopyButton
-            variant={'default'}
-            labels={{
-              idle: 'Copy',
-              copied: '',
-            }}
-            isCopied={isCopiedShare}
-            onClick={() => copyShare(shareLink)}
-          />
-        </InputDiv>
-      </div>
+      </SectionContent>
 
-      <Separator className="mt-24" />
-      <DeleteEvent />
+      <SectionFooter>
+        <Separator />
+        <DeleteEvent />
+      </SectionFooter>
 
       <ActionDrawer
         state={{ isOpen, setIsOpen }}
@@ -209,7 +218,7 @@ function EventDetailPage() {
           containerRef={containerRef}
         />
       </ActionDrawer>
-    </>
+    </Section>
   )
 }
 

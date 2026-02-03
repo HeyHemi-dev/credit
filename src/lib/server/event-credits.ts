@@ -62,6 +62,5 @@ export const deleteCreditFn = createServerFn({ method: 'POST' })
     // delete eventSupplier
     await deleteEventSupplier(data.eventId, data.supplierId)
 
-    setResponseStatus(204)
     return
   })
