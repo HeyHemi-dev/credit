@@ -2,22 +2,21 @@ import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { CreateEventForm } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
-import { FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field'
+import { FieldGroup } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
   createEventFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
 import { useCreateEvent } from '@/hooks/use-events'
-import { REGIONS } from '@/lib/constants'
+import { REGION, REGION_KEYS } from '@/lib/constants'
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 import { isSessionAuth, useAuth } from '@/hooks/use-auth'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { cn } from '@/lib/utils'
-import { regionHelper } from '@/lib/constant-helpers'
+import { RadioGroup } from '@/components/ui/radio-group'
+import { PillRadioItem } from '@/components/ui/pill-radio-item'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -109,39 +108,19 @@ export function CreateEventForm({
                 }}
                 className="flex flex-wrap gap-2"
               >
-                {REGIONS.map((region) => {
+                {REGION_KEYS.map((regionKey) => {
+                  const region = REGION[regionKey]
                   const isSelected = field.state.value === region
-                  const regionId = regionHelper.valueToParam(region)
 
                   return (
-                    <FieldLabel
-                      key={region}
-                      htmlFor={regionId}
-                      className={cn(
-                        'flex cursor-pointer gap-2 rounded-full border py-1.5 pr-1.5 pl-3',
-                        isSelected && 'border-primary bg-primary/20',
-                      )}
-                      onClick={(event) => {
-                        if (!isSelected) return
-                        event.preventDefault()
-                        field.handleChange('')
-                      }}
-                    >
-                      <FieldTitle
-                        className={cn(
-                          'text-xs font-normal text-muted-foreground uppercase',
-                          isSelected && 'text-primary',
-                        )}
-                      >
-                        {region}
-                      </FieldTitle>
-
-                      <RadioGroupItem
-                        id={regionId}
-                        value={region}
-                        aria-label={region}
-                      />
-                    </FieldLabel>
+                    <PillRadioItem
+                      key={regionKey}
+                      id={regionKey}
+                      value={region}
+                      label={region}
+                      isSelected={isSelected}
+                      onClick={() => field.handleChange('')}
+                    />
                   )
                 })}
               </RadioGroup>
