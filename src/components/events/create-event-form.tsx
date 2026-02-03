@@ -10,18 +10,14 @@ import {
 } from '@/lib/types/validation-schema'
 import { useCreateEvent } from '@/hooks/use-events'
 import { REGIONS } from '@/lib/constants'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
 import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 import { isSessionAuth, useAuth } from '@/hooks/use-auth'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { badgeVariants } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -105,29 +101,45 @@ export function CreateEventForm({
           name="region"
           children={(field) => (
             <FormField field={field} label="Region">
-              <Select
+              <RadioGroup
                 value={field.state.value}
-                onValueChange={(v) => {
-                  const { data: region } = regionSchema.safeParse(v)
+                onValueChange={(value) => {
+                  const { data: region } = regionSchema.safeParse(value)
                   field.handleChange(region ?? '')
                 }}
+                className="flex flex-wrap gap-2"
               >
-                <SelectTrigger>
-                  <SelectValue>
-                    {field.state.value ? field.state.value : 'Select region'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent container={containerRef}>
-                  <SelectItem key="none" value="">
-                    None
-                  </SelectItem>
-                  {REGIONS.map((region) => (
-                    <SelectItem key={region} value={region}>
+                {REGIONS.map((region) => {
+                  const isSelected = field.state.value === region
+                  const regionId = `region-${region.toLowerCase().replace(/\s+/g, '-')}`
+
+                  return (
+                    <label
+                      key={region}
+                      htmlFor={regionId}
+                      className={cn(
+                        badgeVariants({
+                          variant: isSelected ? 'default' : 'outline',
+                        }),
+                        'cursor-pointer select-none',
+                      )}
+                    >
+                      <RadioGroupItem
+                        id={regionId}
+                        value={region}
+                        className="sr-only"
+                        aria-label={region}
+                        onClick={(event) => {
+                          if (!isSelected) return
+                          event.preventDefault()
+                          field.handleChange('')
+                        }}
+                      />
                       {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </label>
+                  )
+                })}
+              </RadioGroup>
             </FormField>
           )}
         />
