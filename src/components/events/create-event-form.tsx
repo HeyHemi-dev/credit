@@ -2,7 +2,13 @@ import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { CreateEventForm } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
-import { FieldGroup } from '@/components/ui/field'
+import {
+  Field,
+  FieldContent,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
   createEventFormSchema,
@@ -114,20 +120,22 @@ export function CreateEventForm({
                   const regionId = `region-${region.toLowerCase().replace(/\s+/g, '-')}`
 
                   return (
-                    <label
+                    <FieldLabel
                       key={region}
                       htmlFor={regionId}
                       className={cn(
-                        badgeVariants({
-                          variant: isSelected ? 'default' : 'outline',
-                        }),
-                        'cursor-pointer select-none',
+                        'flex cursor-pointer gap-2 rounded-full border py-1.5 pr-1.5 pl-3',
+                        isSelected && 'border-primary bg-primary/20',
                       )}
                     >
+                      <FieldTitle className="text-xs font-normal text-muted-foreground uppercase">
+                        {region}
+                      </FieldTitle>
+
                       <RadioGroupItem
                         id={regionId}
                         value={region}
-                        className="sr-only"
+                        className=""
                         aria-label={region}
                         onClick={(event) => {
                           if (!isSelected) return
@@ -135,8 +143,7 @@ export function CreateEventForm({
                           field.handleChange('')
                         }}
                       />
-                      {region}
-                    </label>
+                    </FieldLabel>
                   )
                 })}
               </RadioGroup>
