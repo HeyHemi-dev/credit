@@ -127,6 +127,11 @@ export function CreateEventForm({
                         'flex cursor-pointer gap-2 rounded-full border py-1.5 pr-1.5 pl-3',
                         isSelected && 'border-primary bg-primary/20',
                       )}
+                      onClick={(event) => {
+                        if (!isSelected) return
+                        event.preventDefault()
+                        field.handleChange('')
+                      }}
                     >
                       <FieldTitle className="text-xs font-normal text-muted-foreground uppercase">
                         {region}
@@ -135,13 +140,7 @@ export function CreateEventForm({
                       <RadioGroupItem
                         id={regionId}
                         value={region}
-                        className=""
                         aria-label={region}
-                        onClick={(event) => {
-                          if (!isSelected) return
-                          event.preventDefault()
-                          field.handleChange('')
-                        }}
                       />
                     </FieldLabel>
                   )
