@@ -29,8 +29,8 @@ export function ActionDrawer({
   return (
     <Drawer open={state.isOpen} onOpenChange={state.setIsOpen} modal={true}>
       <DrawerContent ref={setContainerRef}>
-        <div className="flex justify-center">
-          <div className="max-w-md grow">
+        <div className="flex h-full justify-center pb-8">
+          <div className="grid h-full max-w-md grow grid-rows-[auto_1fr] overflow-y-auto">
             <DrawerHeader className="grid gap-0.5">
               <div className="flex flex-row items-center justify-between">
                 <DrawerTitle>{content.title}</DrawerTitle>
