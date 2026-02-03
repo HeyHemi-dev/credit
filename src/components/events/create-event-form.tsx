@@ -108,14 +108,14 @@ export function CreateEventForm({
                 }}
                 className="flex flex-wrap gap-2"
               >
-                {REGION_KEYS.map((regionKey) => {
-                  const region = REGION[regionKey]
+                {REGION_KEYS.map((key) => {
+                  const region = REGION[key]
                   const isSelected = field.state.value === region
 
                   return (
                     <PillRadioItem
-                      key={regionKey}
-                      id={regionKey}
+                      key={key}
+                      id={key}
                       value={region}
                       label={region}
                       isSelected={isSelected}
