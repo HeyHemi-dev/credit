@@ -2,9 +2,18 @@ import React from 'react'
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Search01Icon } from '@hugeicons/core-free-icons'
+import {
+  MinusSignSquareIcon,
+  PlusSignSquareIcon,
+  Search01Icon,
+} from '@hugeicons/core-free-icons'
 import { RouteError } from '@/components/route-error'
-import { Section, SectionContent, SectionHeader } from '@/components/ui/section'
+import {
+  Section,
+  SectionContent,
+  SectionFooter,
+  SectionHeader,
+} from '@/components/ui/section'
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -70,8 +79,6 @@ export function CreditPage() {
   const [isOpen, setIsOpen] = useDrawerState()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
-  // TODO: add event done checkbox (consider using eventStatus enum with open, submitted, and locked)
-
   return (
     <>
       <Section className="flex flex-col border-2 border-background p-0">
@@ -92,7 +99,7 @@ export function CreditPage() {
             </p>
           </div>
         </SectionHeader>
-        <SectionContent>
+        <SectionContent className="grow">
           <div className="grid gap-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-light">Suppliers</h2>
@@ -118,6 +125,41 @@ export function CreditPage() {
             )}
           </div>
         </SectionContent>
+        <SectionFooter>
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-2 select-none">
+              <span className="group-open:hidden">
+                <HugeiconsIcon icon={PlusSignSquareIcon} />
+              </span>
+              <span className="hidden group-open:block group-open:opacity-100">
+                <HugeiconsIcon icon={MinusSignSquareIcon} />
+              </span>
+
+              <h3 className="text-lg font-light">How it works</h3>
+            </summary>
+
+            <ol className="mt-2 grid list-inside list-decimal gap-2 text-sm text-pretty text-muted-foreground">
+              <li>
+                <p className="inline">
+                  Search to{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(true)}
+                    className="text-primary underline-offset-4 hover:text-primary/80 hover:underline"
+                  >
+                    add suppliers
+                  </button>{' '}
+                  you worked with.
+                </p>
+              </li>
+              <li>
+                <p className="inline">
+                  If the supplier can't be found, you can create a new one.
+                </p>
+              </li>
+            </ol>
+          </details>
+        </SectionFooter>
       </Section>
 
       <ActionDrawer
@@ -165,12 +207,19 @@ export function useDrawerState() {
 
 function CreditPageSkeleton() {
   return (
-    <Section>
-      <Skeleton className="h-14 w-full" />
+    <Section className="flex flex-col border-2 border-background p-0">
+      <Skeleton className="min-h-[25svh] content-end" />
 
-      <CreditListItemSkeleton />
-      <CreditListItemSkeleton />
-      <CreditListItemSkeleton />
+      <SectionContent className="grow">
+        <div className="grid gap-6">
+          <Skeleton className="h-10 w-full" />
+          <div className="grid gap-4">
+            <CreditListItemSkeleton />
+            <CreditListItemSkeleton />
+            <CreditListItemSkeleton />
+          </div>
+        </div>
+      </SectionContent>
     </Section>
   )
 }

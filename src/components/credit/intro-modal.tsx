@@ -14,8 +14,6 @@ import { shareIntroModalDismissed } from '@/lib/local-storage'
 import { useCreditContext } from '@/contexts/credit-page-context'
 
 export function IntroModal() {
-  // TODO: add notice about agreeing to the terms of service and privacy policy (By using this link, you agree to our [Terms] and [Privacy Policy]")
-
   const { eventId } = useCreditContext()
   const [open, setOpen] = React.useState(false)
   const { getValue, setValue } = shareIntroModalDismissed(eventId)
@@ -50,6 +48,9 @@ export function IntroModal() {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
+          <AlertDialogAction onClick={dismiss} className="order-last min-w-24">
+            Got it
+          </AlertDialogAction>
           <p className="text-xs text-balance text-muted-foreground/60">
             By using this link, you agree to our{' '}
             <Link to="/terms" target="_blank">
@@ -60,9 +61,6 @@ export function IntroModal() {
               Privacy Policy
             </Link>
           </p>
-          <AlertDialogAction onClick={dismiss} className="min-w-24">
-            Got it
-          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

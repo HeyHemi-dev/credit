@@ -99,10 +99,6 @@ function EventDetailPage() {
       .url.toString()
   }, [event.id, event.shareToken])
 
-  // TODO: edit event name and wedding date
-  // TODO: add event locked checkbox (consider using eventStatus enum with open, submitted, and locked)
-  // TODO: add ability to edit tags
-
   return (
     <>
       <div className="grid gap-6">
