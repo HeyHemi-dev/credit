@@ -2,13 +2,7 @@ import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { CreateEventForm } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
-import {
-  Field,
-  FieldContent,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from '@/components/ui/field'
+import { FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import {
   createEventFormSchema,
@@ -22,8 +16,8 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 import { isSessionAuth, useAuth } from '@/hooks/use-auth'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { badgeVariants } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { regionHelper } from '@/lib/constant-helpers'
 
 const defaultValues: CreateEventForm = {
   eventName: '',
@@ -117,7 +111,7 @@ export function CreateEventForm({
               >
                 {REGIONS.map((region) => {
                   const isSelected = field.state.value === region
-                  const regionId = `region-${region.toLowerCase().replace(/\s+/g, '-')}`
+                  const regionId = regionHelper.valueToParam(region)
 
                   return (
                     <FieldLabel
@@ -133,7 +127,12 @@ export function CreateEventForm({
                         field.handleChange('')
                       }}
                     >
-                      <FieldTitle className="text-xs font-normal text-muted-foreground uppercase">
+                      <FieldTitle
+                        className={cn(
+                          'text-xs font-normal text-muted-foreground uppercase',
+                          isSelected && 'text-primary',
+                        )}
+                      >
                         {region}
                       </FieldTitle>
 
