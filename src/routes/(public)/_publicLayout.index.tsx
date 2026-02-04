@@ -253,7 +253,7 @@ function Trust() {
 
 function CTA() {
   return (
-    <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-teal-400 to-primary text-center text-primary-foreground">
+    <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-harakeke-500 to-primary text-center text-primary-foreground">
       <h2 className="text-3xl leading-tight font-light text-balance">
         Try With Thanks on your next wedding.
       </h2>
