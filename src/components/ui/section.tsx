@@ -12,7 +12,8 @@ function Main({ children, header = null, footer = null }: MainProps) {
     <>
       <div
         className={cn(
-          'grid min-h-screen grid-cols-[auto_minmax(0,32rem)_auto] gap-x-0.5 gap-y-24 text-foreground',
+          'grid min-h-screen grid-cols-[auto_minmax(0,32rem)_auto] gap-x-1 gap-y-24 text-foreground',
+          !footer && 'pb-1',
           footer && 'grid-rows-[1fr_auto]',
         )}
       >
@@ -26,7 +27,7 @@ function Main({ children, header = null, footer = null }: MainProps) {
           <main className="flex flex-col gap-4">{children}</main>
         </div>
         {footer && (
-          <div className="col-start-1 col-end-4 row-start-2 row-end-2 grid grid-cols-subgrid bg-foreground text-background">
+          <div className="col-start-1 col-end-4 row-start-2 row-end-2 grid grid-cols-subgrid bg-makara-850 text-background dark:bg-makara-200">
             <footer className="col-start-2 col-end-2 pt-16 pb-8">
               {footer}
             </footer>
