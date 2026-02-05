@@ -39,7 +39,7 @@ function Header() {
           <SignedOut>
             <Button
               variant="default"
-              className="min-w-[9em] justify-self-start bg-linear-to-br from-teal-400 to-primary shadow-xl shadow-primary/20"
+              className="min-w-[9em] justify-self-start bg-linear-to-br from-primary to-harakeke-500 shadow-xl shadow-primary/20"
               render={(props) => (
                 <Link
                   to="/auth/$pathname"
@@ -64,7 +64,7 @@ function Footer() {
         <h2 aria-label="Footer">
           <Brand className="" />
         </h2>
-        <p className="text-sm text-pretty text-muted/60">
+        <p className="text-sm text-pretty opacity-50">
           Effortlessly collect supplier details from couples, formatted and
           ready-to-paste into Instagram.
         </p>
@@ -94,7 +94,7 @@ function Footer() {
         </ul>
       </div>
       <div className="col-span-full grid gap-2">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm opacity-50">
           © {new Date().getFullYear()} With Thanks. All rights reserved.
         </p>
       </div>
