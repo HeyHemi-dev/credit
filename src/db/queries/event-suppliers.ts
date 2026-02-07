@@ -23,7 +23,11 @@ export async function upsertEventSupplier(
     .insert(eventSuppliers)
     .values(input)
     .onConflictDoUpdate({
-      target: [eventSuppliers.eventId, eventSuppliers.supplierId],
+      target: [
+        eventSuppliers.eventId,
+        eventSuppliers.supplierId,
+        eventSuppliers.service,
+      ],
       set: {
         service: input.service,
         contributionNotes: input.contributionNotes,
@@ -37,6 +41,7 @@ export async function upsertEventSupplier(
 export async function deleteEventSupplier(
   eventId: string,
   supplierId: string,
+  service: string,
 ): Promise<void> {
   await db
     .delete(eventSuppliers)
@@ -44,6 +49,7 @@ export async function deleteEventSupplier(
       and(
         eq(eventSuppliers.eventId, eventId),
         eq(eventSuppliers.supplierId, supplierId),
+        eq(eventSuppliers.service, service),
       ),
     )
 }
