@@ -89,12 +89,7 @@ export const eventSuppliers = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.eventId, table.supplierId] }),
-    uniqueIndex('event_suppliers_event_supplier_service_unique').on(
-      table.eventId,
-      table.supplierId,
-      table.service,
-    ),
+    primaryKey({ columns: [table.eventId, table.supplierId, table.service] }),
   ],
 )
 export const eventSupplierColumns = getTableColumns(eventSuppliers)

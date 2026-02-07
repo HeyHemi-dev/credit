@@ -36,6 +36,13 @@
       "when": 1770501952198,
       "tag": "0004_panoramic_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770505435052,
+      "tag": "0005_mixed_falcon",
+      "breakpoints": true
     }
   ]
 }
