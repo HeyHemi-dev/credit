@@ -1,4 +1,5 @@
 import { and, asc, eq } from 'drizzle-orm'
+import type { Service } from '@/lib/constants'
 import type { SupplierRow } from '@/db/queries/suppliers'
 import { db } from '@/db/connection'
 import {
@@ -41,7 +42,7 @@ export async function upsertEventSupplier(
 export async function deleteEventSupplier(
   eventId: string,
   supplierId: string,
-  service: string,
+  service: Service,
 ): Promise<void> {
   await db
     .delete(eventSuppliers)
