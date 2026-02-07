@@ -160,7 +160,10 @@ function EventDetailPage() {
           ) : (
             <div className="grid gap-2">
               {event.credits.map((credit) => (
-                <CreditListItem key={credit.id} credit={credit} />
+                <CreditListItem
+                  key={`${credit.id}:${credit.service}`}
+                  credit={credit}
+                />
               ))}
               <Button
                 variant={'link'}

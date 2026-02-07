@@ -8,7 +8,12 @@ import { useCreditContext } from '@/contexts/credit-page-context'
 
 export function CreditListItem({ credit }: { credit: Credit }) {
   const { eventId, authToken } = useCreditContext()
-  const { deleteCreditMutation } = useCredit(eventId, credit.id, authToken)
+  const { deleteCreditMutation } = useCredit(
+    eventId,
+    credit.id,
+    credit.service,
+    authToken,
+  )
 
   return (
     <div className="grid grid-cols-[1fr_auto] items-center gap-4">

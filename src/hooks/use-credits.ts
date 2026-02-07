@@ -6,6 +6,7 @@ import {
 import { useServerFn } from '@tanstack/react-start'
 import type { AuthToken, CreateCreditForm } from '@/lib/types/validation-schema'
 import type { EventDetail } from '@/lib/types/front-end'
+import type { Service } from '@/lib/constants'
 import { createCreditFn, deleteCreditFn } from '@/lib/server/event-credits'
 import { getEventForCoupleFn } from '@/lib/server/events'
 import { queryKeys } from '@/hooks/query-keys'
@@ -43,6 +44,7 @@ export function useCredits(eventId: string, authToken: AuthToken) {
 export function useCredit(
   eventId: string,
   supplierId: string,
+  service: Service,
   authToken: AuthToken,
 ) {
   const queryClient = useQueryClient()
@@ -51,7 +53,9 @@ export function useCredit(
   const deleteCreditMutation = useMutation({
     mutationFn: async () => {
       if (!isShareAuth(authToken) && !isSessionAuth(authToken)) return
-      return await deleteCredit({ data: { eventId, supplierId, authToken } })
+      return await deleteCredit({
+        data: { eventId, supplierId, service, authToken },
+      })
     },
     onMutate: () => {
       queryClient.setQueryData<EventDetail>(queryKeys.event(eventId), (old) => {
