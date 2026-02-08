@@ -196,10 +196,12 @@ export const createCreditSchema = createCreditFormSchema.extend({
 
 export const deleteCreditFormSchema = z.object({
   supplierId: z.uuid(),
+  service: serviceSchema,
 })
 export type DeleteCreditForm = z.infer<typeof deleteCreditFormSchema>
 
 export const deleteCreditSchema = z.object({
   eventId: eventIdSchema,
   supplierId: z.uuid(),
+  service: serviceSchema,
 })

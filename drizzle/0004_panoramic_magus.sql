@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "event_suppliers_event_supplier_service_unique" ON "event_suppliers" USING btree ("event_id","supplier_id","service");

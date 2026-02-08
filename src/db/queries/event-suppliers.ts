@@ -1,4 +1,5 @@
 import { and, asc, eq } from 'drizzle-orm'
+import type { Service } from '@/lib/constants'
 import type { SupplierRow } from '@/db/queries/suppliers'
 import { db } from '@/db/connection'
 import {
@@ -23,7 +24,11 @@ export async function upsertEventSupplier(
     .insert(eventSuppliers)
     .values(input)
     .onConflictDoUpdate({
-      target: [eventSuppliers.eventId, eventSuppliers.supplierId],
+      target: [
+        eventSuppliers.eventId,
+        eventSuppliers.supplierId,
+        eventSuppliers.service,
+      ],
       set: {
         service: input.service,
         contributionNotes: input.contributionNotes,
@@ -37,6 +42,7 @@ export async function upsertEventSupplier(
 export async function deleteEventSupplier(
   eventId: string,
   supplierId: string,
+  service: Service,
 ): Promise<void> {
   await db
     .delete(eventSuppliers)
@@ -44,6 +50,7 @@ export async function deleteEventSupplier(
       and(
         eq(eventSuppliers.eventId, eventId),
         eq(eventSuppliers.supplierId, supplierId),
+        eq(eventSuppliers.service, service),
       ),
     )
 }

@@ -119,7 +119,10 @@ export function CreditPage() {
             ) : (
               <div className="grid gap-4">
                 {event.credits.map((credit) => (
-                  <CreditListItem key={credit.id} credit={credit} />
+                  <CreditListItem
+                    key={`${credit.id}:${credit.service}`}
+                    credit={credit}
+                  />
                 ))}
               </div>
             )}

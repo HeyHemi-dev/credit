@@ -1,11 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseStatus } from '@tanstack/react-start/server'
 import type { Credit } from '@/lib/types/front-end'
 import {
   authTokenSchema,
   createCreditSchema,
   deleteCreditSchema,
-  shareTokenSchema,
 } from '@/lib/types/validation-schema'
 import { getEventById } from '@/db/queries/events'
 import { ERROR } from '@/lib/errors'
@@ -60,7 +58,7 @@ export const deleteCreditFn = createServerFn({ method: 'POST' })
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
 
     // delete eventSupplier
-    await deleteEventSupplier(data.eventId, data.supplierId)
+    await deleteEventSupplier(data.eventId, data.supplierId, data.service)
 
     return
   })
