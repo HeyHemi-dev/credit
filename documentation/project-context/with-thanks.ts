@@ -133,10 +133,20 @@ export const withThanksCaseStudyDraft = {
           'Search is a core workflow, and typing-driven UX can easily create noisy requests and janky UI (especially with dedupe checks and “typeahead” search).',
         decision: {
           type: 'md',
-          text: 'Adopted TanStack Pacer early for debounced and throttled state so high-frequency interactions (supplier search inputs, dedupe checks, and copy-to-clipboard feedback) stay responsive without spamming requests.',
+          text: 'Adopted TanStack Pacer early for debounced/throttled state so high-frequency interactions (supplier search inputs, dedupe checks, and copy-to-clipboard feedback) stay responsive without spamming requests.',
         },
         tradeOff:
-          'Requires careful tuning of debounce/throttle timing and doesn’t replace server-side protections. Planned: expand into batching and rate-limiting patterns as usage grows.',
+          'Requires careful tuning of debounce/throttle timing and doesn’t replace server-side protections. Planned: expand into explicit rate-limiting patterns as usage grows.',
+      },
+      {
+        constraint:
+          'I wanted the UI to feel lightweight — actions like creating an event or tagging a supplier should feel quick, not like a “workflow” that pulls you away from what you were doing.',
+        decision: {
+          type: 'md',
+          text: 'Used a drawer-first interaction pattern for common actions (e.g. create event, add/tag supplier) so forms appear in-context instead of full page navigations.',
+        },
+        tradeOff:
+          'Drawers are effectively modal dialogs, so stacking portal-based UI primitives (popovers/selects/date pickers) can create “popup-on-popup” and focus/portaling issues. In practice this constrained some input choices in favor of simpler components.',
       },
       {
         constraint:
