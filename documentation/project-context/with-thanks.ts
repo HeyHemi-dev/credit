@@ -25,17 +25,32 @@ export const withThanksCaseStudyDraft = {
   roles: ['Founder', 'Full-Stack Dev', 'Design'],
 
   techStack: [
-    { type: 'md', text: '**TanStack Start (Vite)** - full-stack React via server functions' },
+    {
+      type: 'md',
+      text: '**TanStack Start (Vite)** - full-stack React via server functions',
+    },
     { type: 'md', text: '**TanStack Router** - file-based routing' },
     { type: 'md', text: '**TanStack Query** - caching + mutations' },
     { type: 'md', text: '**TanStack Form** - typed form state' },
-    { type: 'md', text: '**TanStack Pacer** - batching/debouncing (autosave UX)' },
-    { type: 'md', text: '**Zod** - runtime validation at the request boundary' },
+    {
+      type: 'md',
+      text: '**TanStack Pacer** - batching/debouncing (autosave UX)',
+    },
+    {
+      type: 'md',
+      text: '**Zod** - runtime validation at the request boundary',
+    },
     { type: 'md', text: '**Drizzle ORM** - typed data layer' },
     { type: 'md', text: '**Neon Postgres** - primary database' },
-    { type: 'md', text: '**Neon Auth (Better Auth) + Google OAuth** - photographer sign-in' },
+    {
+      type: 'md',
+      text: '**Neon Auth (Better Auth) + Google OAuth** - photographer sign-in',
+    },
     { type: 'md', text: '**Tailwind CSS + shadcn/ui** - UI system' },
-    { type: 'md', text: '**Vercel** - hosting (planned/assumed from repo docs)' },
+    {
+      type: 'md',
+      text: '**Vercel** - hosting (planned/assumed from repo docs)',
+    },
     { type: 'md', text: '**Vitest** - test runner' },
   ],
 
@@ -44,41 +59,57 @@ export const withThanksCaseStudyDraft = {
       'Wedding photographers want to tag every supplier accurately, but collecting handles/emails after the event is tedious and error-prone — so credits get missed or tagged inconsistently.',
     solution:
       'With Thanks turns credit collection into a low-friction collaboration: the photographer creates an event and shares one private link; the couple adds suppliers; the photographer gets copy-ready Instagram tags and email lists back.',
-    technicalWhy:
-      'The architecture centers on dual access modes: a session-authenticated dashboard for event administration, and a share-link authenticated guest flow for collaboration without creating accounts.',
   },
 
   architecture: {
     diagram: {
-      // Export the Mermaid diagram to SVG and place it in heyhemi.
-      src: '/projects/with-thanks/access-mode-architecture.svg',
-      alt: 'Access-mode architecture. Photographer uses a session-authenticated dashboard; couple uses a share-link token. Authorization happens in server functions before Drizzle queries run against Neon Postgres.',
+      // Export `documentation/project-context/with-thanks-architecture-sequence.mmd` to SVG and place it in heyhemi.
+      src: '/projects/with-thanks/architecture-sequence.svg',
+      alt: 'Request flow architecture. Route renders, a hook calls a TanStack Start server function, the server function validates/authorizes, then Drizzle runs against Neon Postgres and returns a DTO back to the UI.',
       caption:
-        'With Thanks access-mode architecture: a session-authenticated photographer dashboard and a share-link authenticated couple collaboration flow.',
+        'With Thanks request flow: routes and hooks call TanStack Start server functions, which validate/authorize before Drizzle queries run against Neon Postgres.',
     },
     content: [
       {
         type: 'md',
         text: [
-          'I designed With Thanks around two distinct access modes to minimize friction for couples while keeping photographers’ admin actions protected.',
+          'With Thanks is a small full-stack app built on TanStack Start, where backend capabilities are expressed as type-safe server functions instead of a separate API service.',
           '',
-          'Photographers use an account-based session (Neon Auth) to create and manage events, while couples never log in — instead they collaborate via a private event link that carries a share token.',
+          'I chose TanStack (Start + Router) for strong end-to-end type-safety at the routing boundary and its ergonomics for layering in middleware-style enforcement over time (planned). Zod fits cleanly into this: routes can validate and type search params, and server functions validate incoming payloads at the request boundary before any business logic runs.',
           '',
-          'Both experiences call the same backend surface area (TanStack Start server functions), where authorization is enforced per function: session-required functions power event administration, and share-token functions allow only collaboration actions like viewing the event and adding/removing credits.',
+          'At a high level, routes render UI and delegate data loading and mutations to hooks (TanStack Query + `useServerFn`). Those hooks call server functions (`createServerFn`), which validate inputs and enforce authorization before executing database reads/writes.',
           '',
-          'After authorization, all persistence happens server-side through Drizzle queries using server environment credentials, so tokens are used strictly for request authorization rather than database access.',
+          'The client never talks to the database directly. All database reads and writes run server-side through Drizzle against Neon Postgres using server environment credentials. Client tokens are used strictly for request authorization, not for database access.',
           '',
-          'Planned next step: make the couple link a single rotatable share link per event — photographers can rotate the token to invalidate any previously shared link without needing permission levels or couple accounts.',
+          'A key product-specific detail is that the app supports two access modes (session dashboard vs share-link collaboration), but the architecture remains consistent: both modes still flow through the same server-function boundary.',
         ].join('\n'),
       },
       {
         type: 'ul',
         items: [
-          { type: 'md', text: '**Session (photographer):** event admin + collaboration capabilities.' },
-          { type: 'md', text: '**Share link (couple):** collaboration-only capabilities (no event administration).' },
-          { type: 'md', text: '**Server boundary:** Zod-validated inputs + per-function authorization.' },
-          { type: 'md', text: '**Data layer:** Drizzle queries against Neon Postgres.' },
+          {
+            type: 'md',
+            text: '**Route layer:** file-based routes compose UI and local state.',
+          },
+          {
+            type: 'md',
+            text: '**Hook layer:** TanStack Query caching/invalidation + `useServerFn` calls.',
+          },
+          {
+            type: 'md',
+            text: '**Server boundary:** server functions validate inputs and authorize capabilities.',
+          },
+          {
+            type: 'md',
+            text: '**Data layer:** Drizzle queries against Neon Postgres (server-side env creds).',
+          },
         ],
+      },
+      {
+        type: 'callout',
+        title: 'Note',
+        content:
+          'The “two access modes” (session vs share link) is the most distinctive system behavior. It’s best explained as a deep dive, but it sits on top of this same request-flow architecture.',
       },
     ],
   },
@@ -120,46 +151,6 @@ export const withThanksCaseStudyDraft = {
     ],
   },
 
-  deepDive: {
-    title: 'Dual access modes (session vs share link)',
-    content: [
-      { type: 'h3', text: 'The Problem' },
-      {
-        type: 'md',
-        text: [
-          'With Thanks needs two different experiences:',
-          '- a protected dashboard where photographers manage events, and',
-          '- a zero-login collaboration flow where couples can add suppliers quickly.',
-          '',
-          'The architectural goal is to keep this split explicit so capabilities are easy to reason about and evolve.',
-        ].join('\n'),
-      },
-      { type: 'h3', text: 'What I Built' },
-      {
-        type: 'ul',
-        items: [
-          'Session-authenticated event administration (create/list/manage events).',
-          'Share-link authenticated collaboration (view event + add/remove credits).',
-          'A single server-function surface where each function explicitly declares what auth is required.',
-        ],
-      },
-      { type: 'h3', text: 'Planned Improvements' },
-      {
-        type: 'ul',
-        items: [
-          {
-            type: 'md',
-            text: '**Rotatable share links:** rotate token to invalidate previously shared links.',
-          },
-          {
-            type: 'md',
-            text: 'Optional future: per-link permissions (read-only vs edit) if user demand emerges.',
-          },
-        ],
-      },
-    ],
-  },
-
   // TODO: choose final palette for heyhemi (these are placeholders)
   theme: {
     brandBg: '#0b3b35',
@@ -172,4 +163,3 @@ export const withThanksCaseStudyDraft = {
     descriptionText: '#0b3b35',
   },
 } as const
-
