@@ -34,7 +34,7 @@ export const withThanksCaseStudyDraft = {
     { type: 'md', text: '**TanStack Form** - typed form state' },
     {
       type: 'md',
-      text: '**TanStack Pacer** - batching/debouncing (autosave UX)',
+      text: '**TanStack Pacer** - debounced/throttled UI state (search + UX polish)',
     },
     {
       type: 'md',
@@ -127,6 +127,16 @@ export const withThanksCaseStudyDraft = {
         },
         tradeOff:
           'Token security becomes a first-class concern: links can be forwarded or leaked, so the system needs rotation/revocation and careful capability scoping.',
+      },
+      {
+        constraint:
+          'Search is a core workflow, and typing-driven UX can easily create noisy requests and janky UI (especially with dedupe checks and “typeahead” search).',
+        decision: {
+          type: 'md',
+          text: 'Adopted TanStack Pacer early for debounced and throttled state so high-frequency interactions (supplier search inputs, dedupe checks, and copy-to-clipboard feedback) stay responsive without spamming requests.',
+        },
+        tradeOff:
+          'Requires careful tuning of debounce/throttle timing and doesn’t replace server-side protections. Planned: expand into batching and rate-limiting patterns as usage grows.',
       },
       {
         constraint:
