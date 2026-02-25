@@ -94,7 +94,7 @@ export function CreditPage() {
           style={{
             background: `linear-gradient(${gradient.angle}deg, ${gradient.color1}, ${gradient.color2}`,
           }}
-          className="min-h-[25svh] content-end"
+          className="min-h-[25svh] content-end gap-y-4"
         >
           <div className="flex flex-col items-start gap-2">
             <h1 className="text-2xl font-light">
@@ -114,7 +114,7 @@ export function CreditPage() {
             isCopied={isCopiedInstagram}
             onClick={() => copyInstagram(instagramText)}
             disabled={!event.credits.length}
-            className="bg-white text-foreground hover:bg-white/90"
+            className="justify-self-start bg-white text-foreground hover:bg-white/90"
           />
         </SectionHeader>
         <SectionContent className="grow">
