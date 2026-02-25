@@ -33,6 +33,9 @@ import {
   useCreditContext,
 } from '@/contexts/credit-page-context'
 import { uuidToGradient } from '@/lib/id-to-gradient'
+import { useClipboard } from '@/hooks/use-clipboard'
+import { formatInstagramCredits } from '@/lib/formatters'
+import { CopyButton } from '@/components/copy-button'
 
 const creditListRouteSearchSchema = z.object({
   shareToken: shareTokenSchema,
@@ -75,6 +78,11 @@ export function CreditPage() {
   const { eventId, authToken } = useCreditContext()
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
+  const { isCopied: isCopiedInstagram, copy: copyInstagram } = useClipboard()
+
+  const instagramText = React.useMemo(() => {
+    return formatInstagramCredits(event.credits)
+  }, [event.credits])
 
   const [isOpen, setIsOpen] = useDrawerState()
   const containerRef = React.useRef<HTMLDivElement | null>(null)
@@ -86,9 +94,9 @@ export function CreditPage() {
           style={{
             background: `linear-gradient(${gradient.angle}deg, ${gradient.color1}, ${gradient.color2}`,
           }}
-          className="min-h-[25svh] content-end"
+          className="min-h-[25svh] content-end gap-y-4"
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-start gap-2">
             <h1 className="text-2xl font-light">
               <span className="text-muted-foreground">Event: </span>
               <span className="font-light">{event.eventName}</span>
@@ -98,6 +106,16 @@ export function CreditPage() {
               to be tagged properly.
             </p>
           </div>
+          <CopyButton
+            labels={{
+              idle: 'Copy for Instagram',
+              copied: 'Copied',
+            }}
+            isCopied={isCopiedInstagram}
+            onClick={() => copyInstagram(instagramText)}
+            disabled={!event.credits.length}
+            className="justify-self-start bg-white text-foreground hover:bg-white/90"
+          />
         </SectionHeader>
         <SectionContent className="grow">
           <div className="grid gap-6">
