@@ -29,29 +29,27 @@ export const withThanksCaseStudyDraft = {
       type: 'md',
       text: '**TanStack Start (Vite)** - full-stack React via server functions',
     },
-    { type: 'md', text: '**TanStack Router** - file-based routing' },
-    { type: 'md', text: '**TanStack Query** - caching + mutations' },
-    { type: 'md', text: '**TanStack Form** - typed form state' },
+    { type: 'md', text: '**TanStack Query**' },
+    { type: 'md', text: '**TanStack Form**' },
     {
       type: 'md',
-      text: '**TanStack Pacer** - debounced/throttled UI state (search + UX polish)',
+      text: '**TanStack Pacer** - debouncing, throttling, batching (search + UI state)',
     },
     {
       type: 'md',
       text: '**Zod** - runtime validation at the request boundary',
     },
-    { type: 'md', text: '**Drizzle ORM** - typed data layer' },
-    { type: 'md', text: '**Neon Postgres** - primary database' },
+    { type: 'md', text: '**Drizzle ORM** - typed data layer, no client-side queries' },
+    { type: 'md', text: '**Neon Postgres** - DB branching for preview deployments' },
     {
       type: 'md',
-      text: '**Neon Auth (Better Auth) + Google OAuth** - photographer sign-in',
+      text: '**Neon Auth** (Better Auth) - photographer sign-in',
     },
-    { type: 'md', text: '**Tailwind CSS + shadcn/ui** - UI system' },
+    { type: 'md', text: '**Tailwind CSS + shadcn/ui**' },
     {
       type: 'md',
-      text: '**Vercel** - hosting (planned/assumed from repo docs)',
+      text: '**Vercel** - deployment branching (preview deployments)',
     },
-    { type: 'md', text: '**Vitest** - test runner' },
   ],
 
   problemSolution: {
@@ -120,20 +118,10 @@ export const withThanksCaseStudyDraft = {
     rows: [
       {
         constraint:
-          'Couples need to contribute supplier details without onboarding friction (no accounts, no passwords, no “submit” ceremony).',
-        decision: {
-          type: 'md',
-          text: 'Built a share-link authenticated collaboration surface where possession of a private event token authorizes scoped edits.',
-        },
-        tradeOff:
-          'Token security becomes a first-class concern: links can be forwarded or leaked, so the system needs rotation/revocation and careful capability scoping.',
-      },
-      {
-        constraint:
           'Search is a core workflow, and typing-driven UX can easily create noisy requests and janky UI (especially with dedupe checks and “typeahead” search).',
         decision: {
           type: 'md',
-          text: 'Adopted TanStack Pacer early for debounced/throttled state so high-frequency interactions (supplier search inputs, dedupe checks, and copy-to-clipboard feedback) stay responsive without spamming requests.',
+          text: 'Adopted TanStack Pacer early for debounced/throttled state so high-frequency interactions (supplier search inputs, dedupe checks, and copy-to-clipboard feedback) stay responsive and “batch” into fewer requests.',
         },
         tradeOff:
           'Requires careful tuning of debounce/throttle timing and doesn’t replace server-side protections. Planned: expand into explicit rate-limiting patterns as usage grows.',
@@ -150,23 +138,132 @@ export const withThanksCaseStudyDraft = {
       },
       {
         constraint:
-          'Supplier tagging needs to be copy-ready (consistent ordering + formatting) even when some data is missing (e.g. no Instagram handle).',
+          'I envisioned the app being used primarily on a phone, and didn’t want to maintain separate “desktop vs mobile” layout complexity.',
         decision: {
           type: 'md',
-          text: 'Centralized output formatting into utilities that sort by service order and fall back to supplier names when handles are missing.',
+          text: 'Constrained the main app layout to a phone-like max width so the UI stays consistent and easy to design for, even when opened on desktop.',
         },
         tradeOff:
-          'You must keep the formatting rules in sync with evolving UX requirements, and ensure the DTOs contain the minimal fields needed for outputs.',
+          'The desktop experience intentionally doesn’t use the full screen. Some UI patterns need extra care at larger breakpoints to avoid looking sparse while keeping the phone-first feel.',
       },
       {
         constraint:
-          'The supplier database must stay usable over time (avoid duplicate suppliers, normalize handles/emails, and keep credits consistent).',
+          'Encourage crowdsourcing of supplier information while minimizing duplicate suppliers as the database grows.',
         decision: {
           type: 'md',
-          text: 'Used a normalized schema (events, suppliers, event_suppliers) with uniqueness on supplier email and a composite key for credits.',
+          text: [
+            'Allow couples to contribute supplier details, but with dedupe guardrails designed to keep the shared supplier database usable over time.',
+            '',
+            '- **Canonical identifier:** supplier email (supports future supplier profile claiming), enforced as a case-insensitive unique constraint on normalized email.',
+            '- **UI guardrail:** a “did you mean…?” step that ranks potential duplicates using fuzzy matching on name/email plus email-domain signals (e.g. `hello@domain` vs `info@domain`).',
+          ].join('\n'),
         },
         tradeOff:
-          'Dedupe and data quality become ongoing product work; some correctness is enforced in DB constraints, and some must be handled via UI/validation.',
+          'Some duplicates will still slip through (aliases, generic inboxes, similar names). Over time, keeping the supplier database clean likely requires manual merge tools or admin workflows.',
+      },
+    ],
+  },
+
+  deepDive: {
+    title: 'Dual access modes (session vs share link)',
+    content: [
+      { type: 'h3', text: 'The Problem' },
+      {
+        type: 'md',
+        text: [
+          'With Thanks has two very different user experiences:',
+          '',
+          '- Photographers need a protected dashboard to create and manage events.',
+          '- Couples need to contribute supplier details with near-zero friction (no accounts, no onboarding).',
+          '',
+          'The architecture challenge is to make the couple experience extremely low-friction while keeping the higher-risk actions protected and permissions easy to reason about.',
+        ].join('\n'),
+      },
+
+      { type: 'h3', text: 'What I Built' },
+      {
+        type: 'image',
+        src: '/projects/with-thanks/access-mode-architecture.svg',
+        alt: 'Access-mode architecture. Photographer uses a session-authenticated dashboard; couple uses a share-link token. Authorization happens in server functions before Drizzle queries run against Neon Postgres.',
+        caption:
+          'With Thanks access-mode architecture: session-authenticated event admin plus a share-link authenticated collaboration surface.',
+      },
+      {
+        type: 'ul',
+        items: [
+          {
+            type: 'md',
+            text: '**Session-authenticated dashboard (photographer):** create/manage events and copy outputs.',
+          },
+          {
+            type: 'md',
+            text: '**Share-link authenticated collaboration (couple):** add suppliers and update credits via a private event link with a token in the URL.',
+          },
+          {
+            type: 'md',
+            text: '**Single backend surface:** both modes call the same TanStack Start server functions; each function enforces its own required auth.',
+          },
+          {
+            type: 'md',
+            text: '**Server-side persistence:** after authorization, all reads/writes happen server-side via Drizzle + Neon Postgres.',
+          },
+        ],
+      },
+
+      { type: 'h3', text: 'The Security Trade-off (and why it’s worth it)' },
+      {
+        type: 'md',
+        text: [
+          'A share link is inherently less secure than a signed-in account: it can be forwarded, screenshotted, or guessed if implemented poorly.',
+          '',
+          'I accepted that additional risk because the product’s core value depends on couples actually completing the data entry — and account creation would destroy the conversion rate for a one-time guest action.',
+          '',
+          'The key is scoping: the share-link mode is intentionally limited to collaboration actions, while event administration stays session-only.',
+        ].join('\n'),
+      },
+
+      { type: 'h3', text: 'Capability scoping' },
+      {
+        type: 'ul',
+        items: [
+          {
+            type: 'md',
+            text: '**Session only (photographer):** manage events (create/list/delete) and access the full dashboard.',
+          },
+          {
+            type: 'md',
+            text: '**Session or share link:** collaboration on an event (view the event as a couple, add suppliers, add/remove credits).',
+          },
+        ],
+      },
+
+      { type: 'h3', text: 'Mitigations (current + planned hardening)' },
+      {
+        type: 'ul',
+        items: [
+          {
+            type: 'md',
+            text: '**Server-side authorization per function:** every write goes through a server function that checks required auth before hitting the database.',
+          },
+          {
+            type: 'md',
+            text: '**Planned: rotatable share links:** rotate the event’s share token to invalidate previously shared links without introducing permission levels or couple accounts.',
+          },
+          {
+            type: 'md',
+            text: '**Planned: additional abuse controls:** rate limiting and tighter scoping/validation as usage grows.',
+          },
+        ],
+      },
+
+      { type: 'h3', text: 'Outcome' },
+      {
+        type: 'ul',
+        items: [
+          'Photographers get a protected admin surface without adding friction for couples.',
+          'Couples can contribute quickly from a phone without onboarding.',
+          'Authorization stays explicit and capability-based at the server-function boundary, so the product can evolve without tangled permissions.',
+        ],
       },
     ],
   },
