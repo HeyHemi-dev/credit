@@ -31,23 +31,23 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <NeonAuthUIProvider
-      authClient={authClient}
-      social={{ providers: ['google'] }}
-      credentials={false}
-    >
-      <html lang="en">
-        <head>
-          <HeadContent />
-        </head>
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
 
-        <body className="min-h-screen bg-muted">
+      <body className="min-h-screen bg-muted">
+        <NeonAuthUIProvider
+          authClient={authClient}
+          social={{ providers: ['google'] }}
+          credentials={false}
+        >
           {children}
           <DevTools />
           <Scripts />
-        </body>
-      </html>
-    </NeonAuthUIProvider>
+        </NeonAuthUIProvider>
+      </body>
+    </html>
   )
 }
 
