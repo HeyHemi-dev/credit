@@ -157,7 +157,10 @@ function How() {
       </SectionContent>
 
       {STEPS.map((step, index) => (
-        <SectionContent className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6">
+        <SectionContent
+          key={step}
+          className="flex min-h-[25svh] flex-col justify-between gap-6 rounded-4xl bg-background p-6"
+        >
           <span className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
             {String(index + 1).padStart(2, '0')}
           </span>

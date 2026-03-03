@@ -1,60 +1,52 @@
 import { createAuthClient } from 'better-auth/react'
-import { ERROR } from '@/lib/errors'
+const DEFAULT_AUTH_PROXY_PATH = '/api/auth'
+const DEV_SERVER_ORIGIN_FALLBACK = 'http://localhost:5173'
 
-const AUTH_PROXY_URL = import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? '/api/auth'
-
-function normalizeProxyPath(rawProxyUrl: string) {
+function resolveAuthProxyPath() {
+  const configuredPath =
+    import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? DEFAULT_AUTH_PROXY_PATH
   const proxyPath = (() => {
-    if (/^https?:\/\//i.test(rawProxyUrl)) {
-      const parsed = new URL(rawProxyUrl)
+    if (/^https?:\/\//i.test(configuredPath)) {
+      const parsed = new URL(configuredPath)
       return `${parsed.pathname}${parsed.search}`
     }
-    return rawProxyUrl
+    return configuredPath
   })()
 
-  // Back-compat: route all legacy neondb auth paths through the first-party proxy.
+  // Back-compat: remap legacy Neon path to the app's first-party auth proxy.
   if (/^\/neondb\/auth(?=\/|$)/.test(proxyPath)) {
-    return proxyPath.replace(/^\/neondb\/auth(?=\/|$)/, '/api/auth')
+    return proxyPath.replace(/^\/neondb\/auth(?=\/|$)/, DEFAULT_AUTH_PROXY_PATH)
   }
 
-  // Guardrail: only allow the first-party proxy base path in this app.
   if (!/^\/api\/auth(?=\/|$)/.test(proxyPath)) {
-    return '/api/auth'
+    return DEFAULT_AUTH_PROXY_PATH
   }
 
   return proxyPath
 }
 
 function resolveAuthClientBaseUrl() {
-  const normalizedProxyPath = normalizeProxyPath(AUTH_PROXY_URL)
-
-  // Client: always resolve first-party proxy against current origin.
-  if (!import.meta.env.SSR) {
-    return new URL(normalizedProxyPath, window.location.origin).toString()
+  if (typeof window !== 'undefined') {
+    return window.location.origin
   }
 
-  // Server render/dev worker: Better Auth requires an absolute URL.
-  // Use absolute upstream URL as a safe fallback to avoid startup failures.
-  const serverFallback = import.meta.env.VITE_NEON_AUTH_URL
-  if (serverFallback && /^https?:\/\//i.test(serverFallback)) {
-    return serverFallback
-  }
-
-  throw ERROR.INVALID_STATE(
-    'Auth base URL must be absolute on the server. Set VITE_NEON_AUTH_URL.',
-  )
+  // `Route.ssr = false` means this client is only consumed in the browser.
+  // Keep an absolute fallback for server-side module evaluation only.
+  return DEV_SERVER_ORIGIN_FALLBACK
 }
 
+const authProxyPath = resolveAuthProxyPath()
 const authClientBaseURL = resolveAuthClientBaseUrl()
 
 if (import.meta.env.DEV && !import.meta.env.SSR) {
   console.info('[auth env]', {
     VITE_NEON_AUTH_PROXY_URL: import.meta.env.VITE_NEON_AUTH_PROXY_URL,
-    VITE_NEON_AUTH_URL: import.meta.env.VITE_NEON_AUTH_URL,
   })
   console.info('[auth] better-auth client base URL', authClientBaseURL)
+  console.info('[auth] better-auth proxy path', authProxyPath)
 }
 
 export const authClient = createAuthClient({
   baseURL: authClientBaseURL,
+  basePath: authProxyPath,
 })
