@@ -4,7 +4,7 @@ import {
   useRouter,
   useSearch,
 } from '@tanstack/react-router'
-import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react'
+import { RedirectToSignIn } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import z from 'zod'
 import { RouteError } from '@/components/route-error'

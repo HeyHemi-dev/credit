@@ -1,26 +1,36 @@
-import { createAuthClient } from '@neondatabase/neon-js/auth'
-import { BetterAuthReactAdapter } from '@neondatabase/neon-js/auth/react'
+import { createAuthClient } from 'better-auth/react'
 import { ERROR } from '@/lib/errors'
 
-const AUTH_PROXY_URL =
-  import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? '/api/auth'
-if (!AUTH_PROXY_URL) {
-  throw ERROR.INVALID_STATE('VITE_NEON_AUTH_PROXY_URL is not set')
+const AUTH_PROXY_URL = import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? '/api/auth'
+
+function normalizeProxyPath(rawProxyUrl: string) {
+  const proxyPath = (() => {
+    if (/^https?:\/\//i.test(rawProxyUrl)) {
+      const parsed = new URL(rawProxyUrl)
+      return `${parsed.pathname}${parsed.search}`
+    }
+    return rawProxyUrl
+  })()
+
+  // Back-compat: route all legacy neondb auth paths through the first-party proxy.
+  if (/^\/neondb\/auth(?=\/|$)/.test(proxyPath)) {
+    return proxyPath.replace(/^\/neondb\/auth(?=\/|$)/, '/api/auth')
+  }
+
+  // Guardrail: only allow the first-party proxy base path in this app.
+  if (!/^\/api\/auth(?=\/|$)/.test(proxyPath)) {
+    return '/api/auth'
+  }
+
+  return proxyPath
 }
 
 function resolveAuthClientBaseUrl() {
-  // Normalize to a path so browser requests always stay same-origin.
-  const proxyPath = (() => {
-    if (/^https?:\/\//i.test(AUTH_PROXY_URL)) {
-      const parsed = new URL(AUTH_PROXY_URL)
-      return `${parsed.pathname}${parsed.search}`
-    }
-    return AUTH_PROXY_URL
-  })()
+  const normalizedProxyPath = normalizeProxyPath(AUTH_PROXY_URL)
 
-  // Client: preserve first-party proxy behavior by resolving against current origin.
-  if (typeof window !== 'undefined') {
-    return new URL(proxyPath, window.location.origin).toString()
+  // Client: always resolve first-party proxy against current origin.
+  if (!import.meta.env.SSR) {
+    return new URL(normalizedProxyPath, window.location.origin).toString()
   }
 
   // Server render/dev worker: Better Auth requires an absolute URL.
@@ -35,6 +45,16 @@ function resolveAuthClientBaseUrl() {
   )
 }
 
-export const authClient = createAuthClient(resolveAuthClientBaseUrl(), {
-  adapter: BetterAuthReactAdapter(),
+const authClientBaseURL = resolveAuthClientBaseUrl()
+
+if (import.meta.env.DEV && !import.meta.env.SSR) {
+  console.info('[auth env]', {
+    VITE_NEON_AUTH_PROXY_URL: import.meta.env.VITE_NEON_AUTH_PROXY_URL,
+    VITE_NEON_AUTH_URL: import.meta.env.VITE_NEON_AUTH_URL,
+  })
+  console.info('[auth] better-auth client base URL', authClientBaseURL)
+}
+
+export const authClient = createAuthClient({
+  baseURL: authClientBaseURL,
 })

@@ -3,10 +3,12 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { NeonAuthUIProvider } from '@neondatabase/neon-js/auth/react'
+import { AuthQueryProvider } from '@daveyplate/better-auth-tanstack'
+import { AuthUIProviderTanstack } from '@daveyplate/better-auth-ui/tanstack'
 import { authClient } from '@/auth'
 
 import appCss from '@/styles.css?url'
+import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 
 import { RouteError } from '@/components/route-error'
 import { isDev } from '@/lib/utils'
@@ -20,7 +22,10 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'With Thanks' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'stylesheet', href: betterAuthCss },
+    ],
   }),
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
@@ -37,15 +42,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
 
       <body className="min-h-screen bg-muted">
-        <NeonAuthUIProvider
-          authClient={authClient}
-          social={{ providers: ['google'] }}
-          credentials={false}
-        >
-          {children}
-          <DevTools />
-          <Scripts />
-        </NeonAuthUIProvider>
+        <AuthQueryProvider>
+          <AuthUIProviderTanstack
+            authClient={authClient}
+            social={{ providers: ['google'] }}
+            credentials={false}
+            organization={false}
+            teams={false}
+          >
+            {children}
+            <DevTools />
+            <Scripts />
+          </AuthUIProviderTanstack>
+        </AuthQueryProvider>
       </body>
     </html>
   )

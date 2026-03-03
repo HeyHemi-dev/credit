@@ -1,9 +1,5 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@neondatabase/neon-js/auth/react/ui'
+import { SignedIn, SignedOut, UserButton } from '@daveyplate/better-auth-ui'
 import { Main } from '@/components/ui/section'
 import { Brand, HeaderLayout } from '@/components/header'
 

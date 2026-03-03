@@ -13,6 +13,7 @@ import { Route as ApiSessionRouteImport } from './routes/api.session'
 import { Route as publicPublicLayoutRouteImport } from './routes/(public)/_publicLayout'
 import { Route as appAppLayoutRouteImport } from './routes/(app)/_appLayout'
 import { Route as publicPublicLayoutIndexRouteImport } from './routes/(public)/_publicLayout.index'
+import { Route as NeondbAuthSplatRouteImport } from './routes/neondb.auth.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as publicPublicLayoutTermsRouteImport } from './routes/(public)/_publicLayout.terms'
 import { Route as publicPublicLayoutPrivacyRouteImport } from './routes/(public)/_publicLayout.privacy'
@@ -40,6 +41,11 @@ const publicPublicLayoutIndexRoute = publicPublicLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => publicPublicLayoutRoute,
+} as any)
+const NeondbAuthSplatRoute = NeondbAuthSplatRouteImport.update({
+  id: '/neondb/auth/$',
+  path: '/neondb/auth/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/neondb/auth/$': typeof NeondbAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/neondb/auth/$': typeof NeondbAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/(public)/_publicLayout/privacy': typeof publicPublicLayoutPrivacyRoute
   '/(public)/_publicLayout/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/neondb/auth/$': typeof NeondbAuthSplatRoute
   '/(public)/_publicLayout/': typeof publicPublicLayoutIndexRoute
   '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/api/auth/$'
+    | '/neondb/auth/$'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/api/auth/$'
+    | '/neondb/auth/$'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/(public)/_publicLayout/privacy'
     | '/(public)/_publicLayout/terms'
     | '/api/auth/$'
+    | '/neondb/auth/$'
     | '/(public)/_publicLayout/'
     | '/(app)/_appLayout/account/$pathname'
     | '/(app)/_appLayout/e/$eventId'
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   publicPublicLayoutRoute: typeof publicPublicLayoutRouteWithChildren
   ApiSessionRoute: typeof ApiSessionRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  NeondbAuthSplatRoute: typeof NeondbAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof publicPublicLayoutIndexRouteImport
       parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/neondb/auth/$': {
+      id: '/neondb/auth/$'
+      path: '/neondb/auth/$'
+      fullPath: '/neondb/auth/$'
+      preLoaderRoute: typeof NeondbAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   publicPublicLayoutRoute: publicPublicLayoutRouteWithChildren,
   ApiSessionRoute: ApiSessionRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  NeondbAuthSplatRoute: NeondbAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

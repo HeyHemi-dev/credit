@@ -31,7 +31,20 @@ function stripCookieDomainAttribute(cookie: string) {
 /** Maps `/api/auth/*` request URLs to the equivalent Neon Auth upstream URL. */
 function getNeonAuthProxyUrl(request: Request) {
   const incoming = new URL(request.url)
-  const path = incoming.pathname.replace(/^\/api\/auth/, '') || '/'
+  const supportedPrefixes = ['/api/auth', '/neondb/auth']
+
+  let path = incoming.pathname
+  for (const prefix of supportedPrefixes) {
+    if (incoming.pathname === prefix) {
+      path = '/'
+      break
+    }
+    if (incoming.pathname.startsWith(`${prefix}/`)) {
+      path = incoming.pathname.slice(prefix.length) || '/'
+      break
+    }
+  }
+
   return toAuthUrl(`${path}${incoming.search}`)
 }
 
