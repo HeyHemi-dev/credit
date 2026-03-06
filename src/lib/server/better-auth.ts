@@ -24,10 +24,18 @@ function requiredEnv(name: string) {
 const AUTH_SECRET = requiredEnv('AUTH_SECRET')
 const GOOGLE_CLIENT_ID = requiredEnv('GOOGLE_CLIENT_ID')
 const GOOGLE_CLIENT_SECRET = requiredEnv('GOOGLE_CLIENT_SECRET')
-const BETTER_AUTH_URL =
-  process.env.BETTER_AUTH_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
-  'http://localhost:5173'
+
+function resolveBetterAuthUrl() {
+  const configured =
+    process.env.BETTER_AUTH_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
+    'http://localhost:5173'
+
+  const parsed = new URL(configured)
+  return parsed.origin
+}
+
+const BETTER_AUTH_URL = resolveBetterAuthUrl()
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,

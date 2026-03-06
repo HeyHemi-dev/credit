@@ -5,10 +5,10 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { AuthQueryProvider } from '@daveyplate/better-auth-tanstack'
 import { AuthUIProviderTanstack } from '@daveyplate/better-auth-ui/tanstack'
+import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
 
 import appCss from '@/styles.css?url'
-import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 
 import { RouteError } from '@/components/route-error'
 import { isDev } from '@/lib/utils'

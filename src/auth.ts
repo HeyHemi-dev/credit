@@ -1,4 +1,5 @@
 import { createAuthClient } from 'better-auth/react'
+
 const DEFAULT_AUTH_PROXY_PATH = '/api/auth'
 const DEV_SERVER_ORIGIN_FALLBACK = 'http://localhost:5173'
 
@@ -30,16 +31,8 @@ function resolveAuthClientBaseUrl() {
   return DEV_SERVER_ORIGIN_FALLBACK
 }
 
-const authProxyPath = resolveAuthProxyPath()
 const authClientBaseURL = resolveAuthClientBaseUrl()
-
-if (import.meta.env.DEV && !import.meta.env.SSR) {
-  console.info('[auth env]', {
-    VITE_NEON_AUTH_PROXY_URL: import.meta.env.VITE_NEON_AUTH_PROXY_URL,
-  })
-  console.info('[auth] better-auth client base URL', authClientBaseURL)
-  console.info('[auth] better-auth proxy path', authProxyPath)
-}
+const authProxyPath = resolveAuthProxyPath()
 
 export const authClient = createAuthClient({
   baseURL: authClientBaseURL,
