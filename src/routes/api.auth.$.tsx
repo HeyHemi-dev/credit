@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { proxyNeonAuthRequest } from '@/lib/server/neon-auth'
+import { auth } from '@/lib/server/better-auth'
 
 export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {
-      ANY: ({ request }) => proxyNeonAuthRequest(request),
+      ANY: ({ request }) => auth.handler(request),
     },
   },
 })

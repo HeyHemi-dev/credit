@@ -13,11 +13,6 @@ function resolveAuthProxyPath() {
     return configuredPath
   })()
 
-  // Back-compat: remap legacy Neon path to the app's first-party auth proxy.
-  if (/^\/neondb\/auth(?=\/|$)/.test(proxyPath)) {
-    return proxyPath.replace(/^\/neondb\/auth(?=\/|$)/, DEFAULT_AUTH_PROXY_PATH)
-  }
-
   if (!/^\/api\/auth(?=\/|$)/.test(proxyPath)) {
     return DEFAULT_AUTH_PROXY_PATH
   }

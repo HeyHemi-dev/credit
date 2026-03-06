@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getServerSession } from '@/lib/server/neon-auth'
+import { getServerSession } from '@/lib/server/better-auth'
 
 export const Route = createFileRoute('/api/session')({
   server: {
