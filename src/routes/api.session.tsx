@@ -1,11 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getServerSession } from '@/lib/server/better-auth'
+import { auth } from '@/lib/server/better-auth'
 
 export const Route = createFileRoute('/api/session')({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const session = await getServerSession(request)
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
 
         if (!session) {
           return Response.json({ authenticated: false }, { status: 401 })
