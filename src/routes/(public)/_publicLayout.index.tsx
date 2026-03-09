@@ -258,14 +258,9 @@ function Trust() {
 function FAQ() {
   const FAQS = [
     {
-      question: 'How much does With Thanks cost?',
+      question: 'Is With Thanks free to use?',
       answer:
-        'You can start free. Right now, one event is included so you can test it in a real workflow before committing.',
-    },
-    {
-      question: 'How does With Thanks make money?',
-      answer:
-        'With Thanks is currently free to use while the product is still early. If paid plans are introduced later, pricing will be shared clearly before changes take effect.',
+        'With Thanks is currently free to use during early access, with no limit on events. Running software has real costs, so we may introduce paid plans later, but we’ll give plenty of notice before anything changes.',
     },
     {
       question: 'Do couples need to create an account?',
@@ -336,7 +331,7 @@ function CTA() {
       />
 
       <p className="text-sm font-light text-balance">
-        One event included. No setup, no commitment.
+        Currently free during early access. No setup, no commitment.
       </p>
     </Section>
   )
