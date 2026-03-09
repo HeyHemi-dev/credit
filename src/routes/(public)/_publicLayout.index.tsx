@@ -291,12 +291,12 @@ function FAQ() {
 
   return (
     <Section className="grid gap-4 rounded-none bg-transparent p-0">
-      <SectionContent>
+      <div className="grid gap-2 px-6">
         <H2 text="FAQ" />
         <p className="text-xl leading-normal font-light text-pretty">
           Quick answers to common questions before you start.
         </p>
-      </SectionContent>
+      </div>
 
       {FAQS.map((item) => (
         <SectionContent
