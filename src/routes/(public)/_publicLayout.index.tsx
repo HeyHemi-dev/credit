@@ -298,13 +298,13 @@ function FAQ() {
       {FAQS.map((item) => (
         <SectionContent
           key={item.question}
-          className="rounded-4xl bg-background p-6"
+          className="rounded-4xl bg-background p-0"
         >
-          <details className="grid gap-3">
-            <summary className="cursor-pointer list-none pr-6 text-xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
+          <details>
+            <summary className="block cursor-pointer list-none p-6 text-xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
               {item.question}
             </summary>
-            <p className="text-lg leading-relaxed font-light text-muted-foreground">
+            <p className="px-6 pb-6 text-lg leading-relaxed font-light text-muted-foreground">
               {item.answer}
             </p>
           </details>
