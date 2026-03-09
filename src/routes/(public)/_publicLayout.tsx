@@ -69,7 +69,7 @@ function Footer() {
           ready-to-paste into Instagram.
         </p>
       </div>
-      <div className="grid content-start gap-2">
+      <div className="grid content-start gap-4">
         <h3 className="label">Links</h3>
         <ul className="grid gap-2">
           <li>
@@ -82,7 +82,7 @@ function Footer() {
           </li>
         </ul>
       </div>
-      <div className="grid content-start gap-2">
+      <div className="grid content-start gap-4">
         <h3 className="label">Legal</h3>
         <ul className="grid gap-2">
           <li>
