@@ -152,7 +152,7 @@ function How() {
   ]
 
   return (
-    <Section className="grid gap-4 rounded-none bg-transparent p-0">
+    <Section className="grid gap-4 rounded-none bg-transparent px-0 py-24">
       <SectionContent>
         <H2 text="How it works" />
       </SectionContent>
@@ -290,12 +290,9 @@ function FAQ() {
   ] as const
 
   return (
-    <Section className="grid gap-4 rounded-none bg-transparent p-0">
+    <Section className="grid gap-4 rounded-none bg-transparent px-0 py-24">
       <div className="grid gap-2 px-6">
         <H2 text="FAQ" />
-        <p className="text-xl leading-normal font-light text-pretty">
-          Quick answers to common questions before you start.
-        </p>
       </div>
 
       {FAQS.map((item) => (
@@ -304,7 +301,7 @@ function FAQ() {
           className="rounded-4xl bg-background p-6"
         >
           <details className="grid gap-3">
-            <summary className="cursor-pointer list-none pr-6 text-2xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
+            <summary className="cursor-pointer list-none pr-6 text-xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
               {item.question}
             </summary>
             <p className="text-lg leading-relaxed font-light text-muted-foreground">
