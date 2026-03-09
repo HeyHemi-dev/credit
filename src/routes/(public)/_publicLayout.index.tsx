@@ -290,29 +290,29 @@ function FAQ() {
   ] as const
 
   return (
-    <Section className="gap-6 bg-background">
-      <div className="grid gap-2">
+    <Section className="grid gap-4 rounded-none bg-transparent p-0">
+      <SectionContent>
         <H2 text="FAQ" />
         <p className="text-xl leading-normal font-light text-pretty">
           Quick answers to common questions before you start.
         </p>
-      </div>
+      </SectionContent>
 
-      <div className="grid gap-3">
-        {FAQS.map((item) => (
-          <details
-            key={item.question}
-            className="rounded-3xl border border-border bg-background px-5 py-4 open:bg-muted/30"
-          >
-            <summary className="cursor-pointer list-none pr-6 text-lg leading-normal font-normal marker:hidden [&::-webkit-details-marker]:hidden">
+      {FAQS.map((item) => (
+        <SectionContent
+          key={item.question}
+          className="rounded-4xl bg-background p-6"
+        >
+          <details className="grid gap-3">
+            <summary className="cursor-pointer list-none pr-6 text-2xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
               {item.question}
             </summary>
-            <p className="pt-3 text-base leading-relaxed font-light text-muted-foreground">
+            <p className="text-lg leading-relaxed font-light text-muted-foreground">
               {item.answer}
             </p>
           </details>
-        ))}
-      </div>
+        </SectionContent>
+      ))}
     </Section>
   )
 }
