@@ -5,7 +5,6 @@ import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
 import { Section, SectionContent } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
-import { FAQSection } from '@/components/public/faq-section'
 
 import { SERVICE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -30,8 +29,8 @@ function RouteComponent() {
       <Why />
       <About />
       <Trust />
-      <FAQ />
       <CTA />
+      <FAQ />
     </>
   )
 }
@@ -292,11 +291,28 @@ function FAQ() {
 
   return (
     <Section className="gap-6 bg-background">
-      <FAQSection
-        title="FAQ"
-        intro="Quick answers to common questions before you start."
-        items={FAQS}
-      />
+      <div className="grid gap-2">
+        <H2 text="FAQ" />
+        <p className="text-xl leading-normal font-light text-pretty">
+          Quick answers to common questions before you start.
+        </p>
+      </div>
+
+      <div className="grid gap-3">
+        {FAQS.map((item) => (
+          <details
+            key={item.question}
+            className="rounded-3xl border border-border bg-background px-5 py-4 open:bg-muted/30"
+          >
+            <summary className="cursor-pointer list-none pr-6 text-lg leading-normal font-normal marker:hidden [&::-webkit-details-marker]:hidden">
+              {item.question}
+            </summary>
+            <p className="pt-3 text-base leading-relaxed font-light text-muted-foreground">
+              {item.answer}
+            </p>
+          </details>
+        ))}
+      </div>
     </Section>
   )
 }
