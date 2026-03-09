@@ -1,12 +1,40 @@
-import { createAuthClient } from '@neondatabase/neon-js/auth'
-import { BetterAuthReactAdapter } from '@neondatabase/neon-js/auth/react'
-import { ERROR } from '@/lib/errors'
+import { createAuthClient } from 'better-auth/react'
 
-const VITE_NEON_AUTH_URL = import.meta.env.VITE_NEON_AUTH_URL
-if (!VITE_NEON_AUTH_URL) {
-  throw ERROR.INVALID_STATE('VITE_NEON_AUTH_URL is not set')
+const DEFAULT_AUTH_PROXY_PATH = '/api/auth'
+const DEV_SERVER_ORIGIN_FALLBACK = 'http://localhost:5173'
+
+function resolveAuthProxyPath() {
+  const configuredPath =
+    import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? DEFAULT_AUTH_PROXY_PATH
+  const proxyPath = (() => {
+    if (/^https?:\/\//i.test(configuredPath)) {
+      const parsed = new URL(configuredPath)
+      return `${parsed.pathname}${parsed.search}`
+    }
+    return configuredPath
+  })()
+
+  if (!/^\/api\/auth(?=\/|$)/.test(proxyPath)) {
+    return DEFAULT_AUTH_PROXY_PATH
+  }
+
+  return proxyPath
 }
 
-export const authClient = createAuthClient(VITE_NEON_AUTH_URL, {
-  adapter: BetterAuthReactAdapter(),
+function resolveAuthClientBaseUrl() {
+  if (typeof window !== 'undefined') {
+    return window.location.origin
+  }
+
+  // `Route.ssr = false` means this client is only consumed in the browser.
+  // Keep an absolute fallback for server-side module evaluation only.
+  return DEV_SERVER_ORIGIN_FALLBACK
+}
+
+const authClientBaseURL = resolveAuthClientBaseUrl()
+const authProxyPath = resolveAuthProxyPath()
+
+export const authClient = createAuthClient({
+  baseURL: authClientBaseURL,
+  basePath: authProxyPath,
 })

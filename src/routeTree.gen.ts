@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ApiSessionRouteImport } from './routes/api.session'
 import { Route as publicPublicLayoutRouteImport } from './routes/(public)/_publicLayout'
 import { Route as appAppLayoutRouteImport } from './routes/(app)/_appLayout'
 import { Route as publicPublicLayoutIndexRouteImport } from './routes/(public)/_publicLayout.index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as publicPublicLayoutTermsRouteImport } from './routes/(public)/_publicLayout.terms'
 import { Route as publicPublicLayoutPrivacyRouteImport } from './routes/(public)/_publicLayout.privacy'
 import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
@@ -21,6 +23,11 @@ import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_a
 import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
 import { Route as appAppLayoutAccountPathnameRouteImport } from './routes/(app)/_appLayout.account.$pathname'
 
+const ApiSessionRoute = ApiSessionRouteImport.update({
+  id: '/api/session',
+  path: '/api/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const publicPublicLayoutRoute = publicPublicLayoutRouteImport.update({
   id: '/(public)/_publicLayout',
   getParentRoute: () => rootRouteImport,
@@ -33,6 +40,11 @@ const publicPublicLayoutIndexRoute = publicPublicLayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => publicPublicLayoutRoute,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const publicPublicLayoutTermsRoute = publicPublicLayoutTermsRouteImport.update({
   id: '/terms',
@@ -81,9 +93,11 @@ const appAppLayoutAccountPathnameRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/api/session': typeof ApiSessionRoute
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -92,9 +106,11 @@ export interface FileRoutesByFullPath {
   '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/api/session': typeof ApiSessionRoute
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -106,9 +122,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)/_appLayout': typeof appAppLayoutRouteWithChildren
   '/(public)/_publicLayout': typeof publicPublicLayoutRouteWithChildren
+  '/api/session': typeof ApiSessionRoute
   '/(app)/_appLayout/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/(public)/_publicLayout/privacy': typeof publicPublicLayoutPrivacyRoute
   '/(public)/_publicLayout/terms': typeof publicPublicLayoutTermsRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/(public)/_publicLayout/': typeof publicPublicLayoutIndexRoute
   '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -119,9 +137,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/api/session'
     | '/create-supplier'
     | '/privacy'
     | '/terms'
+    | '/api/auth/$'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -130,9 +150,11 @@ export interface FileRouteTypes {
     | '/events'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/api/session'
     | '/create-supplier'
     | '/privacy'
     | '/terms'
+    | '/api/auth/$'
     | '/'
     | '/account/$pathname'
     | '/e/$eventId'
@@ -143,9 +165,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(app)/_appLayout'
     | '/(public)/_publicLayout'
+    | '/api/session'
     | '/(app)/_appLayout/create-supplier'
     | '/(public)/_publicLayout/privacy'
     | '/(public)/_publicLayout/terms'
+    | '/api/auth/$'
     | '/(public)/_publicLayout/'
     | '/(app)/_appLayout/account/$pathname'
     | '/(app)/_appLayout/e/$eventId'
@@ -157,10 +181,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   appAppLayoutRoute: typeof appAppLayoutRouteWithChildren
   publicPublicLayoutRoute: typeof publicPublicLayoutRouteWithChildren
+  ApiSessionRoute: typeof ApiSessionRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/api/session': {
+      id: '/api/session'
+      path: '/api/session'
+      fullPath: '/api/session'
+      preLoaderRoute: typeof ApiSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(public)/_publicLayout': {
       id: '/(public)/_publicLayout'
       path: ''
@@ -181,6 +214,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof publicPublicLayoutIndexRouteImport
       parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(public)/_publicLayout/terms': {
       id: '/(public)/_publicLayout/terms'
@@ -281,6 +321,8 @@ const publicPublicLayoutRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   appAppLayoutRoute: appAppLayoutRouteWithChildren,
   publicPublicLayoutRoute: publicPublicLayoutRouteWithChildren,
+  ApiSessionRoute: ApiSessionRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

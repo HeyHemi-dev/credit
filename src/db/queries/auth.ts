@@ -1,23 +1,39 @@
-import { and, eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
+import { getRequestHeaders } from '@tanstack/react-start/server'
 import { db } from '@/db/connection'
-import { events, sessionInNeonAuth } from '@/db/schema'
+import { events } from '@/db/schema'
+import { logger } from '@/lib/logger'
+import { auth } from '@/lib/server/better-auth'
+import { tryCatch } from '@/lib/try-catch'
 
 export async function isValidSession(sessionToken: string) {
-  return sessionToken.length > 0
-  const any = await db
-    .select()
-    .from(sessionInNeonAuth)
-    .where(eq(sessionInNeonAuth.token, sessionToken))
-  console.log({ any })
-
-  const count = await db.$count(
-    sessionInNeonAuth,
-    and(
-      eq(sessionInNeonAuth.token, sessionToken),
-      sql`${sessionInNeonAuth.expiresAt} > CURRENT_TIMESTAMP`,
-    ),
+  const { data, error } = await tryCatch(
+    auth.api.getSession({
+      headers: getRequestHeaders(),
+    }),
   )
-  return count > 0
+
+  if (error) {
+    logger.error('auth.isValidSession.context.error', {
+      sessionToken,
+      error: error instanceof Error ? error.message : String(error),
+    })
+  } else if (!data) {
+    logger.info('auth.isValidSession.context.noSession', {
+      sessionToken,
+      hasBetterAuthSession: false,
+    })
+  } else {
+    logger.info('auth.isValidSession.context', {
+      sessionToken,
+      hasBetterAuthSession: true,
+      betterAuthSession: data.session.token,
+      betterAuthUserId: data.user.id,
+    })
+  }
+
+  // Keep current auth behavior for this PR. Next step can enforce Better Auth session.
+  return sessionToken.length > 0
 }
 
 export async function isValidShareToken(shareToken: string) {

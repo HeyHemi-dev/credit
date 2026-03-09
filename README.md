@@ -32,7 +32,16 @@ vercel env pull .env.local
 | Variable             | Purpose                                                                       |
 | -------------------- | ----------------------------------------------------------------------------- |
 | `CR_DATABASE_URL`    | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
-| `VITE_NEON_AUTH_URL` | Neon Auth / Better Auth backend URL.                                          |
+| `AUTH_SECRET`        | Better Auth secret for signing/encryption. |
+| `GOOGLE_CLIENT_ID`   | Google OAuth client ID for Better Auth social sign-in. |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in. |
+| `VITE_NEON_AUTH_PROXY_URL` | First-party auth proxy base for browser auth client (default: `/api/auth`). |
+
+## Auth Proxy
+
+- Browser auth calls go to first-party `/api/auth/*`
+- TanStack serves `/api/auth/*` locally via Better Auth
+- Session proof endpoint: `GET /api/session` (returns authenticated status from server-side cookie read)
 
 ## Database
 

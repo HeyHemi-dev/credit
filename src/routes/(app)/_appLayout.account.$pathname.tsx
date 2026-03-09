@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { AccountView } from '@neondatabase/neon-js/auth/react/ui'
+import { AccountView } from '@daveyplate/better-auth-ui'
 import { Section } from '@/components/ui/section'
 
 import { Tabs, TabsList } from '@/components/ui/tabs'

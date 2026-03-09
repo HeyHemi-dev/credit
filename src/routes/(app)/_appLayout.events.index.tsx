@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import React from 'react'
-import { RedirectToSignIn } from '@neondatabase/neon-js/auth/react'
+import { RedirectToSignIn } from '@daveyplate/better-auth-ui'
 import z from 'zod'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateEventForm } from '@/components/events/create-event-form'

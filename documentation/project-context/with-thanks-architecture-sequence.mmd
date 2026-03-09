@@ -1,0 +1,17 @@
+sequenceDiagram
+  actor U as User
+  participant R as Route (TanStack Router)
+  participant H as Hook (TanStack Query + useServerFn)
+  participant SF as Server Function (createServerFn)
+  participant DB as Neon Postgres (Drizzle)
+
+  U->>R: Navigate to page
+  R->>H: Render + request data
+  H->>SF: Call server function (validated input)
+  SF->>SF: Validate + authorize request
+  SF->>DB: Run query/mutation
+  DB-->>SF: Result rows
+  SF-->>H: DTO response
+  H-->>R: Cache + provide data
+  R-->>U: Render UI / updates
+
