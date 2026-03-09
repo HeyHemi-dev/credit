@@ -331,7 +331,7 @@ function CTA() {
       />
 
       <p className="text-sm font-light text-balance">
-        Free during early access. No setup, no commitment.
+        No setup, no commitment.
       </p>
     </Section>
   )
