@@ -5,6 +5,7 @@ import type { Credit } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
 import { Section, SectionContent } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
+import { FAQSection } from '@/components/public/faq-section'
 
 import { SERVICE } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -29,6 +30,7 @@ function RouteComponent() {
       <Why />
       <About />
       <Trust />
+      <FAQ />
       <CTA />
     </>
   )
@@ -250,6 +252,51 @@ function Trust() {
       <p className="text-xl leading-normal font-medium text-pretty">
         With Thanks exists to support your work, not get in the way of it.
       </p>
+    </Section>
+  )
+}
+
+function FAQ() {
+  const FAQS = [
+    {
+      question: 'How much does With Thanks cost?',
+      answer:
+        'You can start free. Right now, one event is included so you can test it in a real workflow before committing.',
+    },
+    {
+      question: 'How does With Thanks make money?',
+      answer:
+        'With Thanks is currently free to use while the product is still early. If paid plans are introduced later, pricing will be shared clearly before changes take effect.',
+    },
+    {
+      question: 'Do couples need to create an account?',
+      answer:
+        'No. Couples open the private link you send and add supplier details without signing in.',
+    },
+    {
+      question: 'Will anything be posted automatically?',
+      answer:
+        'No. Nothing is posted for you. You choose when and where to use the formatted tags.',
+    },
+    {
+      question: "What if a couple can't find a supplier?",
+      answer:
+        'They can still add supplier details manually, so you are not blocked if someone is missing from search.',
+    },
+    {
+      question: 'Can I edit the tags before posting?',
+      answer:
+        'Yes. The output is copy-ready, but you stay in control and can adjust wording or order before you post.',
+    },
+  ] as const
+
+  return (
+    <Section className="gap-6 bg-background">
+      <FAQSection
+        title="FAQ"
+        intro="Quick answers to common questions before you start."
+        items={FAQS}
+      />
     </Section>
   )
 }
