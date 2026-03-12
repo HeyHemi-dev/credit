@@ -21,7 +21,7 @@ export async function isValidAuthToken(authToken: AuthToken) {
   }
 
   if (authToken.tokenType === 'sessionToken') {
-    const isValid = await isValidSession(authToken.token)
+    const isValid = await isValidSession()
     if (!isValid) return false
   }
 
