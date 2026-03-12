@@ -105,7 +105,7 @@ export const getEventForCoupleFn = createServerFn({
 })
   .inputValidator(getCreditsSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<EventDetail> => {
-    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+    if (!await isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
 
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')

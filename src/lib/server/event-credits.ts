@@ -18,7 +18,7 @@ export const createCreditFn = createServerFn({ method: 'POST' })
   .inputValidator(createCreditSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<Credit> => {
     // Either session or share auth token is valid for creating a credit
-    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+    if (!await isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
 
     // check event and supplier exists
     const [event, supplier] = await Promise.all([
@@ -52,7 +52,7 @@ export const deleteCreditFn = createServerFn({ method: 'POST' })
   .inputValidator(deleteCreditSchema.extend({ authToken: authTokenSchema }))
   .handler(async ({ data }): Promise<void> => {
     // Either session or share auth token is valid for deleting a credit
-    if (!isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
+    if (!await isValidAuthToken(data.authToken)) throw ERROR.NOT_AUTHENTICATED()
 
     const event = await getEventById(data.eventId)
     if (!event) throw ERROR.RESOURCE_NOT_FOUND('Event not found')
