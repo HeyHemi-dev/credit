@@ -30,6 +30,7 @@ function RouteComponent() {
       <About />
       <Trust />
       <CTA />
+      <FAQ />
     </>
   )
 }
@@ -151,7 +152,7 @@ function How() {
   ]
 
   return (
-    <Section className="grid gap-4 rounded-none bg-transparent p-0">
+    <Section className="grid gap-4 rounded-none bg-transparent px-0 py-24">
       <SectionContent>
         <H2 text="How it works" />
       </SectionContent>
@@ -254,6 +255,60 @@ function Trust() {
   )
 }
 
+function FAQ() {
+  const FAQS = [
+    {
+      question: 'Is With Thanks free to use?',
+      answer:
+        'With Thanks is currently free to use during early access, with no limit on events. Running software has real costs, so we may introduce paid plans later, but we’ll give plenty of notice before anything changes.',
+    },
+    {
+      question: 'Do couples need to create an account?',
+      answer:
+        'No. Couples open the private link you send and add supplier details without signing in.',
+    },
+    {
+      question: 'Will anything be posted automatically?',
+      answer:
+        'No. Nothing is posted for you. You choose when and where to use the formatted tags.',
+    },
+    {
+      question: "What if a couple can't find a supplier?",
+      answer:
+        'They can still add supplier details manually, so you are not blocked if someone is missing from search.',
+    },
+    {
+      question: 'Can I edit the tags before posting?',
+      answer:
+        'Yes. The output is copy-ready, but you stay in control and can adjust wording or order before you post.',
+    },
+  ] as const
+
+  return (
+    <Section className="grid gap-4 rounded-none bg-transparent px-0 py-24">
+      <div className="grid gap-2 px-6">
+        <H2 text="FAQ" />
+      </div>
+
+      {FAQS.map((item) => (
+        <SectionContent
+          key={item.question}
+          className="rounded-4xl bg-background p-0"
+        >
+          <details>
+            <summary className="block cursor-pointer list-none p-6 text-xl leading-normal font-light marker:hidden [&::-webkit-details-marker]:hidden">
+              {item.question}
+            </summary>
+            <p className="px-6 pb-6 text-lg leading-relaxed font-light text-muted-foreground">
+              {item.answer}
+            </p>
+          </details>
+        </SectionContent>
+      ))}
+    </Section>
+  )
+}
+
 function CTA() {
   return (
     <Section className="min-h-[33svh] content-center justify-items-center gap-6 bg-linear-to-br from-harakeke-500 to-primary text-center text-primary-foreground">
@@ -276,7 +331,7 @@ function CTA() {
       />
 
       <p className="text-sm font-light text-balance">
-        One event included. No setup, no commitment.
+        No setup, no commitment.
       </p>
     </Section>
   )
