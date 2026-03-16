@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm'
 import { events, userInNeonAuth } from '@/db/schema'
 import { SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
+import { generateToken } from '@/lib/generate-token'
 import { db } from '@/db/connection'
-import { generateToken } from '@/lib/utils'
 
 function requireEnv(name: string): string {
   const v = process.env[name]
