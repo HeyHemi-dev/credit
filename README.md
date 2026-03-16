@@ -19,15 +19,17 @@ Runs on [http://localhost:5173](http://localhost:5173).
 
 ## Environment
 
+Local development reads from `.env.local`. `drizzle.config.ts` also loads `.env.local`, so the database scripts use the same file.
+
 **From Vercel (recommended):** Install the [Vercel CLI](https://vercel.com/docs/cli), link the project (`vercel link` if needed), then pull env into `.env.local`:
 
 ```bash
 vercel env pull .env.local
 ```
 
-**Manual:** Create `.env.local` and fill in values.
+**Manual:** Create `.env.local` and fill in the required values below. If you deploy outside Vercel, set the same server-side variables in your hosting environment.
 
-**Required variables:**
+**Required application variables:**
 
 | Variable             | Purpose                                                                       |
 | -------------------- | ----------------------------------------------------------------------------- |
@@ -35,7 +37,22 @@ vercel env pull .env.local
 | `AUTH_SECRET`        | Better Auth secret for signing/encryption. |
 | `GOOGLE_CLIENT_ID`   | Google OAuth client ID for Better Auth social sign-in. |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in. |
-| `VITE_NEON_AUTH_PROXY_URL` | First-party auth proxy base for browser auth client (default: `/api/auth`). |
+
+If Vercel/Neon provisions additional database variables such as `CR_DATABASE_URL_UNPOOLED`, `CR_POSTGRES_URL`, or the other `CR_PG*` / `CR_POSTGRES_*` values, this repo does not reference them. The only database env var used by the application code is `CR_DATABASE_URL`.
+
+**Optional application variables:**
+
+| Variable                  | Purpose |
+| ------------------------- | ------- |
+| `BETTER_AUTH_URL`         | Explicit Better Auth origin. If unset, the server falls back to `https://${VERCEL_URL}` on Vercel or `http://localhost:5173` locally. |
+| `VITE_NEON_AUTH_PROXY_URL` | Browser auth proxy path override. Defaults to `/api/auth`; leave unset unless the auth route changes. |
+
+**Platform/runtime variables read by the app:**
+
+- `VERCEL_URL`: Vercel-provided fallback used to derive `BETTER_AUTH_URL`
+- `VERCEL_ENV`: used by the DB connection bootstrap to decide whether to load `.env.local` or `.env`
+- `NODE_ENV`: enables secure auth cookies in production
+- `import.meta.env.DEV`: Vite-provided dev flag used internally; you do not set this manually
 
 ## Auth Proxy
 
@@ -55,7 +72,7 @@ vercel env pull .env.local
 | `pnpm db:push`     | Push schema (dev)                                                                                                                                             |
 | `pnpm db:pull`     | Pull from DB                                                                                                                                                  |
 | `pnpm db:check`    | Check                                                                                                                                                         |
-| `pnpm db:probe`    | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL` and an existing Neon Auth user or `PROBE_USER_ID`. |
+| `pnpm db:probe`    | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL`. The current script also assumes the hardcoded `TEST_USER_ID` in that file exists in `neon_auth.user`. |
 
 ## Testing
 
