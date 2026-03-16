@@ -2,50 +2,41 @@ import 'dotenv/config'
 
 import { eq } from 'drizzle-orm'
 import { events, userInNeonAuth } from '@/db/schema'
+import { ERROR } from '@/lib/errors'
+import { db } from '@/db/connection'
 
 function requireEnv(name: string): string {
   const v = process.env[name]
   if (!v) {
-    throw new Error(`Missing env var: ${name}`)
+    throw ERROR.INVALID_STATE(`${name} is not set`)
   }
   return v
 }
 
 async function main() {
-  const write = process.argv.includes('--write')
+  const isWriteMode = process.argv.includes('--write')
 
   console.log('DB probe starting...')
-  console.log(`DB probe mode: ${write ? 'write' : 'read-only'}`)
-
-  requireEnv('CR_DATABASE_URL')
-  console.log('CR_DATABASE_URL set:', true)
+  console.log(`DB probe mode: ${isWriteMode ? 'write' : 'read-only'}`)
 
   const testUserId = requireEnv('TEST_USER_ID')
-  const { db } = await import('../src/db/connection')
+  console.log('TEST_USER_ID set:', true)
 
   const [user] = await db
     .select({ id: userInNeonAuth.id, email: userInNeonAuth.email })
     .from(userInNeonAuth)
     .where(eq(userInNeonAuth.id, testUserId))
     .limit(1)
+  if (!user.id)
+    throw ERROR.RESOURCE_NOT_FOUND(`TEST_USER_ID does not exist: ${testUserId}`)
+  console.log('read auth user ok:', true)
 
-  if (!user?.id) {
-    throw new Error(`TEST_USER_ID does not exist in neon_auth.user: ${testUserId}`)
-  }
-
-  console.log('auth table read ok:', true)
-  console.log('using TEST_USER_ID:', user.email ?? user.id)
-
-  if (write) {
-    const id = crypto.randomUUID()
+  if (isWriteMode) {
     const shareToken = crypto.randomUUID()
-
-    console.log('createdByUserId:', user.id)
 
     const [inserted] = await db
       .insert(events)
       .values({
-        id,
         createdByUserId: user.id,
         eventName: 'DB WRITE PROBE',
         weddingDate: '2026-01-01',
@@ -53,18 +44,16 @@ async function main() {
         shareToken,
       })
       .returning()
-
-    console.log('inserted event id:', inserted?.id ?? '(missing)')
+    console.log('inserted event id:', inserted.id ? true : false)
 
     const [selected] = await db
       .select({ id: events.id, shareToken: events.shareToken })
       .from(events)
-      .where(eq(events.id, id))
+      .where(eq(events.id, inserted.id))
       .limit(1)
+    console.log('read-back ok:', selected?.id === inserted.id)
 
-    console.log('read-back ok:', selected?.id === id)
-
-    await db.delete(events).where(eq(events.id, id))
+    await db.delete(events).where(eq(events.id, inserted.id))
     console.log('deleted ok:', true)
   }
 
