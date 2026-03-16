@@ -14,8 +14,13 @@ See [Tech stack](documentation/give-credit_tech-stack.md) for framework, databas
 - `vercel`: used to pull project env into `.env.local`
 - `neon`: required for Neon project, database, and auth workflows used by this repo
 
+After linking the Vercel project if needed, run:
+
 ```bash
 pnpm install
+vercel env pull
+pnpm db:migrate
+pnpm db:probe
 pnpm dev
 ```
 
@@ -30,7 +35,7 @@ The Vercel CLI and Neon CLI are both required for normal repo setup and environm
 **From Vercel (recommended):** Install the [Vercel CLI](https://vercel.com/docs/cli), link the project (`vercel link` if needed), then pull env into `.env.local`:
 
 ```bash
-vercel env pull .env.local
+vercel env pull
 ```
 
 **Manual:** Create `.env.local` and fill in the required values below. If you deploy outside Vercel, set the same server-side variables in your hosting environment.
@@ -44,25 +49,14 @@ vercel env pull .env.local
 | `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in.                    |
 
-## Auth Proxy
+## Database setup
 
-- Browser auth calls go to first-party `/api/auth/*`
-- TanStack serves `/api/auth/*` locally via Better Auth
-- Better Auth resolves its base URL dynamically per request from allowed hosts
+| Script            | Description                                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:migrate` | Run migrations                                                                                                                                                         |
+| `pnpm db:probe`   | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); If this fails on the auth user check, inspect the test-user assumption in that script. |
 
-## Database
-
-- **Schema:** `src/db/schema.ts`
-- **Migrations:** `drizzle/`
-
-| Script             | Description                                                                                                                                                                                                       |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:generate` | Generate migrations                                                                                                                                                                                               |
-| `pnpm db:migrate`  | Run migrations                                                                                                                                                                                                    |
-| `pnpm db:push`     | Push schema (dev)                                                                                                                                                                                                 |
-| `pnpm db:pull`     | Pull from DB                                                                                                                                                                                                      |
-| `pnpm db:check`    | Check                                                                                                                                                                                                             |
-| `pnpm db:probe`    | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL`. The current script also assumes the hardcoded `TEST_USER_ID` in that file exists in `neon_auth.user`. |
+Other Drizzle maintenance scripts are available in [package.json](package.json).
 
 ## Testing
 
@@ -72,26 +66,18 @@ vercel env pull .env.local
 pnpm test
 ```
 
-## Build and preview
-
-```bash
-pnpm build
-pnpm serve
-```
-
 ## Project layout
 
-| Path              | Description                                                                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/routes/`     | TanStack Router (file-based). `e.$eventId` = couple view (no auth); `events.$eventId` = event management (auth); `auth.$pathname`, `account.$pathname` = Neon Auth. |
-| `src/lib/server/` | Server functions (`createServerFn`).                                                                                                                                |
-| `src/hooks/`      | Data-fetching and query keys.                                                                                                                                       |
-| `src/db/`         | Drizzle schema, connection, queries.                                                                                                                                |
-| `documentation/`  | Product and tech docs.                                                                                                                                              |
+| Path             | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| `src/routes/`    | App routes, pages, and route handlers.            |
+| `src/lib/`       | Shared app logic, server utilities, and helpers.  |
+| `src/db/`        | Drizzle schema, database connection, and queries. |
+| `drizzle/`       | Drizzle migration files.                          |
+| `scripts/`       | Setup and maintenance scripts.                    |
+| `documentation/` | Longer-form product and technical docs.           |
 
-See [.cursorrules](.cursorrules) for conventions (hooks, server functions, validation, forms, etc.).
-
-## Documentation
+## Further reading
 
 - [Tech stack](documentation/give-credit_tech-stack.md) — framework, database, auth, implementation notes
 - [Product promise](documentation/give-credit_promise.md)
