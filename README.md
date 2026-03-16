@@ -40,15 +40,8 @@ vercel env pull .env.local
 
 If Vercel/Neon provisions additional database variables such as `CR_DATABASE_URL_UNPOOLED`, `CR_POSTGRES_URL`, or the other `CR_PG*` / `CR_POSTGRES_*` values, this repo does not reference them. The only database env var used by the application code is `CR_DATABASE_URL`.
 
-**Optional application variables:**
-
-| Variable                  | Purpose |
-| ------------------------- | ------- |
-| `BETTER_AUTH_URL`         | Explicit Better Auth origin. Recommended in production so auth redirects and callbacks use your canonical domain. If unset, the server falls back to `https://${VERCEL_URL}` on Vercel or `http://localhost:5173` locally. |
-
 **Platform/runtime variables read by the app:**
 
-- `VERCEL_URL`: Vercel-provided fallback used to derive `BETTER_AUTH_URL`
 - `VERCEL_ENV`: used by the DB connection bootstrap to decide whether to load `.env.local` or `.env`
 - `NODE_ENV`: enables secure auth cookies in production
 - `import.meta.env.DEV`: Vite-provided dev flag used internally; you do not set this manually
@@ -57,6 +50,7 @@ If Vercel/Neon provisions additional database variables such as `CR_DATABASE_URL
 
 - Browser auth calls go to first-party `/api/auth/*`
 - TanStack serves `/api/auth/*` locally via Better Auth
+- Better Auth resolves its base URL dynamically per request from allowed hosts
 - Session proof endpoint: `GET /api/session` (returns authenticated status from server-side cookie read)
 
 ## Database
