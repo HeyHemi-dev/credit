@@ -3,9 +3,9 @@
 | Area | In use | Planned |
 |------|--------|---------|
 | **Framework/UI** | TanStack Start (Vite), TanStack Router, TanStack Query, TanStack Form, TanStack Pacer, shadcn/ui, Tailwind | — |
-| **Database** | Neon (Postgres), Drizzle ORM | — |
+| **Database** | Neon Postgres, Drizzle ORM | — |
 | **Validation** | Zod | — |
-| **Authentication** | Neon Auth (Better Auth) + Google OAuth | — |
+| **Authentication** | Better Auth (self-hosted in app) + Google OAuth; auth/session tables stored in Neon Postgres | — |
 | **Hosting** | Vercel | — |
 | **Testing** | Vitest | — |
 | **Email** | — | Resend (transactional, not yet integrated) |
@@ -15,6 +15,9 @@
 
 ## Sessions
 Cookie-based DB-backed sessions (store/rotate/revoke in Postgres)
+
+## Auth Runtime and Storage
+Better Auth runs inside the app rather than as a managed auth service. Auth data still lives in Neon Postgres via the Better Auth Drizzle adapter and the `neon_auth` schema tables.
 
 ## Auth Enforcement
 TanStack Start middleware for route protection + server-fn checks for anything sensitive
