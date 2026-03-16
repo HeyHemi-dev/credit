@@ -3,7 +3,7 @@ import { LinkSquare02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SignedIn, SignedOut } from '@daveyplate/better-auth-ui'
 import { Brand, HeaderLayout } from '@/components/header'
-import { Main, Section, SectionContent } from '@/components/ui/section'
+import { Main, SectionContent } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/(public)/_publicLayout')({

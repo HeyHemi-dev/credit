@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
-const tanstackDevStylesFallback = {
+const tanstackDevStylesFallback: Plugin = {
   name: 'tanstack-dev-styles-fallback',
   apply: 'serve',
   configureServer(server: any) {

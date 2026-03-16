@@ -12,8 +12,8 @@ import {
   verificationInNeonAuth,
 } from '@/db/schema'
 import {
-  AUTH_API_BASE_PATH,
   AUTH_ALLOWED_HOSTS,
+  AUTH_API_BASE_PATH,
 } from '@/lib/auth-constants'
 import { ERROR } from '@/lib/errors'
 

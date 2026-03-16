@@ -1,8 +1,8 @@
 import 'dotenv/config'
 
-import { desc, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '../src/db/connection'
-import { events, userInNeonAuth } from '../src/db/schema'
+import { events } from '../src/db/schema'
 
 // Hemi's hardcoded user ID for testing.
 const TEST_USER_ID = 'ba941d5f-79ea-4130-b0aa-f5996e2c154b'
@@ -13,27 +13,6 @@ function requireEnv(name: string): string {
     throw new Error(`Missing env var: ${name}`)
   }
   return v
-}
-
-async function resolveUserId(): Promise<string> {
-  const envUserId = process.env.PROBE_USER_ID
-  if (envUserId) return envUserId
-
-  // Fall back to any existing Neon Auth user (most recently created).
-  const [u] = await db
-    .select({ id: userInNeonAuth.id, email: userInNeonAuth.email })
-    .from(userInNeonAuth)
-    .orderBy(desc(userInNeonAuth.createdAt))
-    .limit(1)
-
-  if (!u?.id) {
-    throw new Error(
-      'No Neon Auth users found. Set PROBE_USER_ID to an existing neon_auth.user.id and retry.',
-    )
-  }
-
-  console.log(`Using neon_auth.user: ${u.email}`)
-  return u.id
 }
 
 async function main() {
