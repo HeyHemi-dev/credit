@@ -8,7 +8,11 @@ See [Tech stack](documentation/give-credit_tech-stack.md) for framework, databas
 
 ## Getting started
 
-**Prerequisites:** Node 18+, pnpm.
+**Prerequisites:** Node 24+, pnpm, Git CLI, Vercel CLI, Neon CLI.
+
+- `git`: required for local worktree setup and temporary branch workflows
+- `vercel`: used to pull project env into `.env.local`
+- `neon`: required for Neon project, database, and auth workflows used by this repo
 
 ```bash
 pnpm install
@@ -20,6 +24,8 @@ Runs on [http://localhost:5173](http://localhost:5173).
 ## Environment
 
 Local development reads from `.env.local`. `drizzle.config.ts` also loads `.env.local`, so the database scripts use the same file.
+
+The Vercel CLI and Neon CLI are both required for normal repo setup and environment/database management.
 
 **From Vercel (recommended):** Install the [Vercel CLI](https://vercel.com/docs/cli), link the project (`vercel link` if needed), then pull env into `.env.local`:
 
