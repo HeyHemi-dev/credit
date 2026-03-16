@@ -18,8 +18,7 @@ async function readUser(userId: string) {
     .where(eq(userInNeonAuth.id, userId))
     .limit(1)
 
-  if (!user.id)
-    throw ERROR.RESOURCE_NOT_FOUND(`TEST_USER_ID does not exist: ${userId}`)
+  if (!user.id) throw ERROR.RESOURCE_NOT_FOUND(`user does not exist: ${userId}`)
 }
 
 async function main() {
