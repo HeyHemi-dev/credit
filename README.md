@@ -54,7 +54,8 @@ vercel env pull
 | Script            | Description                                                                                                                                                            |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm db:migrate` | Run migrations                                                                                                                                                         |
-| `pnpm db:probe`   | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); If this fails on the auth user check, inspect the test-user assumption in that script. |
+| `pnpm db:probe`   | Read-only DB probe ([scripts/db-probe.ts](scripts/db-probe.ts)); verifies connectivity and reads from `neon_auth.user`.                                              |
+| `pnpm db:probe -- --write` | Optional write probe; inserts and deletes a test event. Uses `PROBE_USER_ID` if set, otherwise the latest `neon_auth.user`.                            |
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
