@@ -44,8 +44,7 @@ If Vercel/Neon provisions additional database variables such as `CR_DATABASE_URL
 
 | Variable                  | Purpose |
 | ------------------------- | ------- |
-| `BETTER_AUTH_URL`         | Explicit Better Auth origin. If unset, the server falls back to `https://${VERCEL_URL}` on Vercel or `http://localhost:5173` locally. |
-| `VITE_NEON_AUTH_PROXY_URL` | Browser auth proxy path override. Defaults to `/api/auth`; leave unset unless the auth route changes. |
+| `BETTER_AUTH_URL`         | Explicit Better Auth origin. Recommended in production so auth redirects and callbacks use your canonical domain. If unset, the server falls back to `https://${VERCEL_URL}` on Vercel or `http://localhost:5173` locally. |
 
 **Platform/runtime variables read by the app:**
 

@@ -11,6 +11,12 @@ import {
   userInNeonAuth,
   verificationInNeonAuth,
 } from '@/db/schema'
+import {
+  AUTH_API_BASE_PATH,
+  LOCAL_DEV_ORIGIN,
+  LOCAL_HTTPS_ORIGIN,
+  VERCEL_PREVIEW_ORIGIN_PATTERN,
+} from '@/lib/auth-constants'
 import { ERROR } from '@/lib/errors'
 
 function requiredEnv(name: string) {
@@ -29,23 +35,27 @@ function resolveBetterAuthUrl() {
   const configured =
     process.env.BETTER_AUTH_URL ??
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
-    'http://localhost:5173'
+    LOCAL_DEV_ORIGIN
 
   const parsed = new URL(configured)
   return parsed.origin
 }
 
 const BETTER_AUTH_URL = resolveBetterAuthUrl()
+const TRUSTED_ORIGINS = Array.from(
+  new Set([
+    BETTER_AUTH_URL,
+    LOCAL_DEV_ORIGIN,
+    LOCAL_HTTPS_ORIGIN,
+    VERCEL_PREVIEW_ORIGIN_PATTERN,
+  ]),
+)
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
-  basePath: '/api/auth',
+  basePath: AUTH_API_BASE_PATH,
   secret: AUTH_SECRET,
-  trustedOrigins: [
-    'http://localhost:5173',
-    'https://localhost',
-    'https://*.vercel.app',
-  ],
+  trustedOrigins: TRUSTED_ORIGINS,
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
