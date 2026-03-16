@@ -31,40 +31,31 @@ vercel env pull .env.local
 
 **Required application variables:**
 
-| Variable             | Purpose                                                                       |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `CR_DATABASE_URL`    | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
-| `AUTH_SECRET`        | Better Auth secret for signing/encryption. |
-| `GOOGLE_CLIENT_ID`   | Google OAuth client ID for Better Auth social sign-in. |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in. |
-
-If Vercel/Neon provisions additional database variables such as `CR_DATABASE_URL_UNPOOLED`, `CR_POSTGRES_URL`, or the other `CR_PG*` / `CR_POSTGRES_*` values, this repo does not reference them. The only database env var used by the application code is `CR_DATABASE_URL`.
-
-**Platform/runtime variables read by the app:**
-
-- `VERCEL_ENV`: used by the DB connection bootstrap to decide whether to load `.env.local` or `.env`
-- `NODE_ENV`: enables secure auth cookies in production
-- `import.meta.env.DEV`: Vite-provided dev flag used internally; you do not set this manually
+| Variable               | Purpose                                                                       |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| `CR_DATABASE_URL`      | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
+| `AUTH_SECRET`          | Better Auth secret for signing/encryption.                                    |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in.                    |
 
 ## Auth Proxy
 
 - Browser auth calls go to first-party `/api/auth/*`
 - TanStack serves `/api/auth/*` locally via Better Auth
 - Better Auth resolves its base URL dynamically per request from allowed hosts
-- Session proof endpoint: `GET /api/session` (returns authenticated status from server-side cookie read)
 
 ## Database
 
 - **Schema:** `src/db/schema.ts`
 - **Migrations:** `drizzle/`
 
-| Script             | Description                                                                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:generate` | Generate migrations                                                                                                                                           |
-| `pnpm db:migrate`  | Run migrations                                                                                                                                                |
-| `pnpm db:push`     | Push schema (dev)                                                                                                                                             |
-| `pnpm db:pull`     | Pull from DB                                                                                                                                                  |
-| `pnpm db:check`    | Check                                                                                                                                                         |
+| Script             | Description                                                                                                                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:generate` | Generate migrations                                                                                                                                                                                               |
+| `pnpm db:migrate`  | Run migrations                                                                                                                                                                                                    |
+| `pnpm db:push`     | Push schema (dev)                                                                                                                                                                                                 |
+| `pnpm db:pull`     | Pull from DB                                                                                                                                                                                                      |
+| `pnpm db:check`    | Check                                                                                                                                                                                                             |
 | `pnpm db:probe`    | DB connectivity probe ([scripts/db-write-probe.ts](scripts/db-write-probe.ts)); requires `CR_DATABASE_URL`. The current script also assumes the hardcoded `TEST_USER_ID` in that file exists in `neon_auth.user`. |
 
 ## Testing
