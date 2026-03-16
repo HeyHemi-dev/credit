@@ -1,19 +1,15 @@
 import 'dotenv/config'
 
 import { eq } from 'drizzle-orm'
-import { events, userInNeonAuth } from '@/db/schema'
-import { SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
+import { userInNeonAuth } from '@/db/schema'
+import { REGION, SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { generateToken } from '@/lib/generate-token'
 import { db } from '@/db/connection'
+import { requireEnv } from '@/lib/require-env'
 
-function requireEnv(name: string): string {
-  const v = process.env[name]
-  if (!v) {
-    throw ERROR.INVALID_STATE(`${name} is not set`)
-  }
-  return v
-}
+import { createEvent, deleteEvent, getEventById } from '@/db/queries/events'
+import { formatDateToDrizzleDateString } from '@/lib/format-dates'
 
 async function readUser(userId: string) {
   const [user] = await db
@@ -26,39 +22,8 @@ async function readUser(userId: string) {
     throw ERROR.RESOURCE_NOT_FOUND(`TEST_USER_ID does not exist: ${userId}`)
 }
 
-async function createEvent(userId: string): Promise<string> {
-  const [event] = await db
-    .insert(events)
-    .values({
-      createdByUserId: userId,
-      eventName: 'DB WRITE PROBE',
-      weddingDate: '2026-01-01',
-      region: null,
-      shareToken: generateToken(SHARE_TOKEN_MIN_LENGTH),
-    })
-    .returning()
-
-  return event.id
-}
-
-async function readEvent(eventId: string): Promise<string> {
-  const [event] = await db
-    .select({ id: events.id, shareToken: events.shareToken })
-    .from(events)
-    .where(eq(events.id, eventId))
-    .limit(1)
-
-  return event.id
-}
-
-async function deleteEvent(eventId: string) {
-  await db.delete(events).where(eq(events.id, eventId))
-}
-
 async function main() {
   const isWriteMode = process.argv.includes('--write')
-
-  console.log('DB probe starting...')
   console.log(`DB probe mode: ${isWriteMode ? 'write' : 'read-only'}`)
 
   const testUserId = requireEnv('TEST_USER_ID')
@@ -68,21 +33,27 @@ async function main() {
   console.log('read user ok:', true)
 
   if (isWriteMode) {
-    const eventId = await createEvent(testUserId)
-    console.log('create event ok:', eventId ? true : false)
+    const event = await createEvent({
+      createdByUserId: testUserId,
+      eventName: 'DB WRITE PROBE',
+      weddingDate: formatDateToDrizzleDateString(new Date()),
+      region: REGION.AUCKLAND,
+      shareToken: generateToken(SHARE_TOKEN_MIN_LENGTH),
+    })
+    console.log('create event ok:', event.id ? true : false)
 
-    const readEventId = await readEvent(eventId)
-    console.log('read event ok:', readEventId === eventId)
+    const readEvent = await getEventById(event.id)
+    console.log('read event ok:', readEvent?.id === event.id)
 
-    await deleteEvent(eventId)
+    await deleteEvent(event.id, testUserId)
     console.log('delete event ok:', true)
   }
 
   console.log('DB probe SUCCESS')
 }
 
-main().catch((err) => {
+main().catch((error) => {
   console.error('DB probe FAILED')
-  console.error(err)
+  console.error(error)
   process.exitCode = 1
 })

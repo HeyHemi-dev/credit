@@ -4,7 +4,10 @@ import { eventSuppliers, events } from '@/db/schema'
 import { ERROR } from '@/lib/errors'
 
 export type EventRow = typeof events.$inferSelect
-export type NewEventRow = typeof events.$inferInsert
+export type NewEventRow = Omit<
+  typeof events.$inferInsert,
+  'id' | 'createdAt' | 'updatedAt'
+>
 
 export async function createEvent(input: NewEventRow): Promise<EventRow> {
   const [row] = await db.insert(events).values(input).returning()
