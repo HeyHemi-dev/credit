@@ -51,11 +51,10 @@ vercel env pull
 
 ## Database setup
 
-| Script            | Description                                                                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:migrate` | Run migrations                                                                                                                                                         |
-| `pnpm db:probe`   | Read-only DB probe ([scripts/db-probe.ts](scripts/db-probe.ts)); verifies connectivity and reads from `neon_auth.user`.                                              |
-| `pnpm db:probe -- --write` | Optional write probe; inserts and deletes a test event. Uses `PROBE_USER_ID` if set, otherwise the latest `neon_auth.user`.                            |
+| Script                    | Description                                                                                                                  |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:migrate`         | Run migrations                                                                                                               |
+| `pnpm db:probe [options]` | Verify DB connection ([scripts/db-probe.ts](scripts/db-probe.ts)); Optional `--write` arg; inserts and deletes a test event. |
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
