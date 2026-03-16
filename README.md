@@ -48,6 +48,7 @@ vercel env pull
 | `AUTH_SECRET`          | Better Auth secret for signing/encryption.                                    |
 | `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in.                    |
+| `TEST_USER_ID`         | User Id from DB for running tests against                                     |
 
 ## Database setup
 

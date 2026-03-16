@@ -37,19 +37,16 @@ async function readProbe() {
 }
 
 async function resolveUserId(): Promise<string> {
-  const envUserId = process.env.PROBE_USER_ID
-  if (envUserId) return envUserId
+  const userId = requireEnv('TEST_USER_ID')
 
   const [user] = await db
     .select({ id: userInNeonAuth.id, email: userInNeonAuth.email })
     .from(userInNeonAuth)
-    .orderBy(desc(userInNeonAuth.createdAt))
+    .where(eq(userInNeonAuth.id, userId))
     .limit(1)
 
   if (!user?.id) {
-    throw new Error(
-      'Write probe requires an existing neon_auth.user row. Create a user first or set PROBE_USER_ID.',
-    )
+    throw new Error(`TEST_USER_ID does not exist in neon_auth.user: ${userId}`)
   }
 
   console.log('Using neon_auth.user:', user.email ?? user.id)
