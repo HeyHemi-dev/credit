@@ -6,7 +6,7 @@ import { REGION, SHARE_TOKEN_MIN_LENGTH } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { generateToken } from '@/lib/generate-token'
 import { db } from '@/db/connection'
-import { requireEnv } from '@/lib/require-env'
+import { requireEnv } from '@/lib/env'
 
 import { createEvent, deleteEvent, getEventById } from '@/db/queries/events'
 import { formatDateToDrizzleDateString } from '@/lib/format-dates'

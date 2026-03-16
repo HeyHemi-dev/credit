@@ -11,23 +11,8 @@ import {
   userInNeonAuth,
   verificationInNeonAuth,
 } from '@/db/schema'
-import {
-  AUTH_ALLOWED_HOSTS,
-  AUTH_API_BASE_PATH,
-} from '@/lib/auth-constants'
-import { ERROR } from '@/lib/errors'
-
-function requiredEnv(name: string) {
-  const value = process.env[name]
-  if (!value) {
-    throw ERROR.INVALID_STATE(`${name} is not set`)
-  }
-  return value
-}
-
-const AUTH_SECRET = requiredEnv('AUTH_SECRET')
-const GOOGLE_CLIENT_ID = requiredEnv('GOOGLE_CLIENT_ID')
-const GOOGLE_CLIENT_SECRET = requiredEnv('GOOGLE_CLIENT_SECRET')
+import { AUTH_ALLOWED_HOSTS, AUTH_API_BASE_PATH } from '@/lib/auth-constants'
+import { AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '@/lib/env'
 
 export const auth = betterAuth({
   baseURL: {
