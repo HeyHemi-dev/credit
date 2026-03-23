@@ -1,25 +1,5 @@
 import { createAuthClient } from 'better-auth/react'
-
-const DEFAULT_AUTH_PROXY_PATH = '/api/auth'
-const DEV_SERVER_ORIGIN_FALLBACK = 'http://localhost:5173'
-
-function resolveAuthProxyPath() {
-  const configuredPath =
-    import.meta.env.VITE_NEON_AUTH_PROXY_URL ?? DEFAULT_AUTH_PROXY_PATH
-  const proxyPath = (() => {
-    if (/^https?:\/\//i.test(configuredPath)) {
-      const parsed = new URL(configuredPath)
-      return `${parsed.pathname}${parsed.search}`
-    }
-    return configuredPath
-  })()
-
-  if (!/^\/api\/auth(?=\/|$)/.test(proxyPath)) {
-    return DEFAULT_AUTH_PROXY_PATH
-  }
-
-  return proxyPath
-}
+import { AUTH_API_BASE_PATH, LOCAL_DEV_ORIGIN } from '@/lib/auth-constants'
 
 function resolveAuthClientBaseUrl() {
   if (typeof window !== 'undefined') {
@@ -28,13 +8,12 @@ function resolveAuthClientBaseUrl() {
 
   // `Route.ssr = false` means this client is only consumed in the browser.
   // Keep an absolute fallback for server-side module evaluation only.
-  return DEV_SERVER_ORIGIN_FALLBACK
+  return LOCAL_DEV_ORIGIN
 }
 
 const authClientBaseURL = resolveAuthClientBaseUrl()
-const authProxyPath = resolveAuthProxyPath()
 
 export const authClient = createAuthClient({
   baseURL: authClientBaseURL,
-  basePath: authProxyPath,
+  basePath: AUTH_API_BASE_PATH,
 })

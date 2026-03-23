@@ -124,7 +124,7 @@ Sources: `src/lib/logger.ts`, `src/lib/server/suppliers.ts`, plus `console.*` us
   - `dedupeSuppliersFn` logs `{ data, error }` on error, where `data` contains `email` and `name` (`src/lib/server/suppliers.ts`).
 - Other console logs exist:
   - `src/db/connection.ts` logs when connecting (“Attempting to connect…”)
-  - `scripts/db-write-probe.ts` logs test output
+  - `scripts/db-probe.ts` logs test output
   - `src/db/queries/auth.ts` contains `console.log({ any })` in currently unreachable code (see note below)
 
 ## Notes / code-level flags
@@ -140,4 +140,3 @@ Sources: `package.json`, `.env.example`, `documentation/give-credit_tech-stack.m
 - **Vercel**: referenced for environment management and hosting in `README.md`
 - **Planned (documented, not implemented)**:
   - Transactional email: “Resend” listed as planned in `documentation/give-credit_tech-stack.md`
-

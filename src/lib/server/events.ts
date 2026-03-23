@@ -14,7 +14,7 @@ import {
   getEventById,
   getEventsByUserId,
 } from '@/db/queries/events'
-import { generateToken } from '@/lib/utils'
+import { generateToken } from '@/lib/generate-token'
 import { ERROR } from '@/lib/errors'
 import { getEventSuppliersWithSupplier } from '@/db/queries/event-suppliers'
 import { requireValidatedSession } from '@/db/queries/auth'

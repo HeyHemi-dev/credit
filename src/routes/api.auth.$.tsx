@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/server/better-auth'
+import { AUTH_API_BASE_PATH } from '@/lib/auth-constants'
 import { logger } from '@/lib/logger'
 
 export const Route = createFileRoute('/api/auth/$')({
@@ -15,9 +16,9 @@ export const Route = createFileRoute('/api/auth/$')({
           const location = response.headers.get('location')
 
           const shouldLogInfo =
-            pathname.startsWith('/api/auth/sign-in') ||
-            pathname.startsWith('/api/auth/callback') ||
-            pathname.startsWith('/api/auth/sign-out') ||
+            pathname.startsWith(`${AUTH_API_BASE_PATH}/sign-in`) ||
+            pathname.startsWith(`${AUTH_API_BASE_PATH}/callback`) ||
+            pathname.startsWith(`${AUTH_API_BASE_PATH}/sign-out`) ||
             response.status >= 300
 
           if (shouldLogInfo) {

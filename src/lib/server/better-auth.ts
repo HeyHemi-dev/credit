@@ -11,41 +11,15 @@ import {
   userInNeonAuth,
   verificationInNeonAuth,
 } from '@/db/schema'
-import { ERROR } from '@/lib/errors'
-
-function requiredEnv(name: string) {
-  const value = process.env[name]
-  if (!value) {
-    throw ERROR.INVALID_STATE(`${name} is not set`)
-  }
-  return value
-}
-
-const AUTH_SECRET = requiredEnv('AUTH_SECRET')
-const GOOGLE_CLIENT_ID = requiredEnv('GOOGLE_CLIENT_ID')
-const GOOGLE_CLIENT_SECRET = requiredEnv('GOOGLE_CLIENT_SECRET')
-
-function resolveBetterAuthUrl() {
-  const configured =
-    process.env.BETTER_AUTH_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
-    'http://localhost:5173'
-
-  const parsed = new URL(configured)
-  return parsed.origin
-}
-
-const BETTER_AUTH_URL = resolveBetterAuthUrl()
+import { AUTH_ALLOWED_HOSTS, AUTH_API_BASE_PATH } from '@/lib/auth-constants'
+import { AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '@/lib/env'
 
 export const auth = betterAuth({
-  baseURL: BETTER_AUTH_URL,
-  basePath: '/api/auth',
+  baseURL: {
+    allowedHosts: [...AUTH_ALLOWED_HOSTS],
+  },
+  basePath: AUTH_API_BASE_PATH,
   secret: AUTH_SECRET,
-  trustedOrigins: [
-    'http://localhost:5173',
-    'https://localhost',
-    'https://*.vercel.app',
-  ],
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
