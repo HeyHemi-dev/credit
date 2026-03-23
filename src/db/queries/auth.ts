@@ -5,8 +5,9 @@ import { events } from '@/db/schema'
 import { logger } from '@/lib/logger'
 import { auth } from '@/lib/server/better-auth'
 import { tryCatch } from '@/lib/try-catch'
+import { ERROR } from '@/lib/errors'
 
-export async function isValidSession(sessionToken: string) {
+export async function getValidatedSession() {
   const { data, error } = await tryCatch(
     auth.api.getSession({
       headers: getRequestHeaders(),
@@ -15,25 +16,38 @@ export async function isValidSession(sessionToken: string) {
 
   if (error) {
     logger.error('auth.isValidSession.context.error', {
-      sessionToken,
       error: error instanceof Error ? error.message : String(error),
     })
   } else if (!data) {
     logger.info('auth.isValidSession.context.noSession', {
-      sessionToken,
       hasBetterAuthSession: false,
     })
   } else {
     logger.info('auth.isValidSession.context', {
-      sessionToken,
       hasBetterAuthSession: true,
       betterAuthSession: data.session.token,
       betterAuthUserId: data.user.id,
     })
   }
 
-  // Keep current auth behavior for this PR. Next step can enforce Better Auth session.
-  return sessionToken.length > 0
+  if (!data) return null
+  if (data.session.expiresAt <= new Date()) return null
+
+  return data
+}
+
+/**
+ * Returns a validated session and user, or throws an error if the session is not found.
+ */
+export async function requireValidatedSession() {
+  const result = await getValidatedSession()
+  if (!result) throw ERROR.NOT_AUTHENTICATED()
+  return result
+}
+
+export async function isValidSession() {
+  const result = await getValidatedSession()
+  return result !== null
 }
 
 export async function isValidShareToken(shareToken: string) {
