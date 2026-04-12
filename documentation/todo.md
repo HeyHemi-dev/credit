@@ -7,3 +7,4 @@
 - [ ] Allow archiving old events
 - [ ] Allow couples to mark event as complete
 - [ ] Create worktree setup script
+- [ ] Set up homepage SSR for SEO and social sharing
