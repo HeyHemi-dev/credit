@@ -56,10 +56,16 @@ function buildDiagnostics(): Plugin {
       for (const output of Object.values(bundle)) {
         if (output.type !== 'chunk') continue
 
-        chunkSizes.push({ fileName: output.fileName, bytes: output.code.length })
+        chunkSizes.push({
+          fileName: output.fileName,
+          bytes: output.code.length,
+        })
 
         for (const [id, mod] of Object.entries(output.modules)) {
-          moduleSizes.set(id, (moduleSizes.get(id) ?? 0) + (mod.renderedLength ?? 0))
+          moduleSizes.set(
+            id,
+            (moduleSizes.get(id) ?? 0) + (mod.renderedLength ?? 0),
+          )
         }
       }
 
@@ -92,11 +98,7 @@ function buildDiagnostics(): Plugin {
 }
 
 function externalizeServerDeps(): Plugin {
-  const externals = [
-    'better-auth',
-    'drizzle-orm',
-    '@neondatabase/serverless',
-  ]
+  const externals = ['better-auth', 'drizzle-orm', '@neondatabase/serverless']
 
   const isExternal = (id: string) =>
     externals.some((dep) => id === dep || id.startsWith(`${dep}/`))
@@ -120,26 +122,35 @@ function externalizeServerDeps(): Plugin {
   }
 }
 
-const config = defineConfig({
-  plugins: [
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
-    tailwindcss(),
-    tanstackStart({
-      // Disable SPA mode to allow builds to complete
-      // with tanstack start 1.132.0
-      // spa: {
-      //   enabled: true,
-      // },
-    }),
-    tanstackDevStylesFallback,
-    nitro(),
-    externalizeServerDeps(),
-    viteReact(),
-    ...(process.env.BUILD_DIAGNOSTICS === '1' ? [buildDiagnostics()] : []),
-  ],
+const config = defineConfig(({ mode }) => {
+  const isTest =
+    mode === 'test' ||
+    process.env.NODE_ENV === 'test' ||
+    process.env.VITEST === 'true'
+  const isBuildDiagnosticsEnabled = process.env.BUILD_DIAGNOSTICS === '1'
+
+  return {
+    plugins: [
+      // this is the plugin that enables path aliases
+      viteTsConfigPaths({
+        projects: ['./tsconfig.json'],
+      }),
+      tailwindcss(),
+      tanstackStart({
+        // Disable SPA mode to allow builds to complete
+        // with tanstack start 1.132.0
+        // spa: {
+        //   enabled: true,
+        // },
+      }),
+
+      viteReact(),
+      externalizeServerDeps(),
+      ...(!isTest ? [nitro()] : []),
+      ...(isBuildDiagnosticsEnabled ? [buildDiagnostics()] : []),
+      tanstackDevStylesFallback,
+    ],
+  }
 })
 
 export default config
