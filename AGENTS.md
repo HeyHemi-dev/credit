@@ -22,7 +22,7 @@
 
 # Test Standards
 
-- Prefer integration tests at key boundaries (HTTP/webhooks, DB, auth). Read-only, no C-U-D.
+- Prefer integration tests at key boundaries (HTTP/webhooks, DB, auth).
 - Use unit tests only for pure logic with real branching/risk (scoring, parsing, transforms).
 - Avoid brittle hardcoded values; use minimal fixtures/factories.
 - Before adding a test, tell the user the production bug/regression it would catch. If none, it is a low-value test, skip it.
