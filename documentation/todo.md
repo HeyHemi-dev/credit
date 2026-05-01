@@ -8,5 +8,6 @@
 - [ ] Allow couples to mark event as complete
 - [ ] Create worktree setup script
 - [ ] Set up homepage SSR for SEO and social sharing
+- [ ] Change homepage hero copy to: "Collect @tags from couples. Effortlessly." / "Send one link. Get wedding supplier details back. formatted and ready-to-paste into Instagram, Tiktok, email, etc. -- with thanks."
 - [ ] Re-enable SSR on `/(public)/` + root routes (currently `ssr: false`)
 - [ ] Make auth + devtools client-only / code-split so SSR works and `main` shrinks
