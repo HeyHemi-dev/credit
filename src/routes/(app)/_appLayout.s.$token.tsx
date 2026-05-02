@@ -1,5 +1,6 @@
 import React from 'react'
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -7,6 +8,8 @@ import {
   PlusSignSquareIcon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
+import type { ShareAuth } from '@/lib/types/validation-schema'
+import type { EventDetail } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
 import {
   Section,
@@ -17,71 +20,75 @@ import {
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCredits } from '@/hooks/use-credits'
+import { useCreditsByShareToken } from '@/hooks/use-credits'
 import {
   CreditListItem,
   CreditListItemSkeleton,
 } from '@/components/credit/credit-list'
 
-import { shareTokenSchema } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
-import { CreateCreditForm } from '@/components/credit/create-credit-form'
+import { CreateCreditByShareTokenForm } from '@/components/credit/create-credit-by-share-token-form'
 import { requireShareAuth, useAuth } from '@/hooks/use-auth'
-import {
-  CreditProvider,
-  useCreditContext,
-} from '@/contexts/credit-page-context'
+import { CreditProvider } from '@/contexts/credit-page-context'
 import { uuidToGradient } from '@/lib/id-to-gradient'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { CopyButton } from '@/components/copy-button'
+import { queryKeys } from '@/hooks/query-keys'
 
-const creditListRouteSearchSchema = z.object({
-  shareToken: shareTokenSchema,
+const shareRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
 })
 
-/**
- * @deprecated New share links should use /s/$token.
- * Keep this route for backward compatibility with existing shared URLs.
- */
-export const Route = createFileRoute('/(app)/_appLayout/e/$eventId')({
+export const Route = createFileRoute('/(app)/_appLayout/s/$token')({
   ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
-  validateSearch: creditListRouteSearchSchema,
-  loader: async ({ params }) => {
-    const gradient = await uuidToGradient(params.eventId)
-    return { gradient }
-  },
+  validateSearch: shareRouteSearchSchema,
 })
 
 function RouteComponent() {
-  const { eventId } = Route.useParams()
-  const { shareToken } = Route.useSearch()
-  const authToken = useAuth(shareToken)
+  const { token } = Route.useParams()
+  const authToken = useAuth(token)
   const shareAuth = requireShareAuth(authToken)
 
   return (
-    <>
-      <CreditProvider authToken={shareAuth} eventId={eventId}>
-        <IntroModal />
-        <React.Suspense fallback={<CreditPageSkeleton />}>
-          <CreditPage />
-        </React.Suspense>
-      </CreditProvider>
-    </>
+    <React.Suspense fallback={<CreditPageSkeleton />}>
+      <SharedCreditRouteContent shareToken={token} authToken={shareAuth} />
+    </React.Suspense>
   )
 }
 
-export function CreditPage() {
-  const { gradient } = Route.useLoaderData()
-  const { eventId, authToken } = useCreditContext()
-  const { getEventForCoupleQuery } = useCredits(eventId, authToken)
-  const event = getEventForCoupleQuery.data
+function SharedCreditRouteContent({
+  shareToken,
+  authToken,
+}: {
+  shareToken: string
+  authToken: ShareAuth
+}) {
+  const { getEventForCoupleByShareTokenQuery } = useCreditsByShareToken(
+    shareToken,
+    authToken,
+  )
+  const event = getEventForCoupleByShareTokenQuery.data
+
+  return (
+    <CreditProvider authToken={authToken} eventId={event.id}>
+      <IntroModal />
+      <CreditPage event={event} />
+    </CreditProvider>
+  )
+}
+
+export function CreditPage({ event }: { event: EventDetail }) {
+  const gradientQuery = useSuspenseQuery({
+    queryKey: queryKeys.eventGradient(event.id),
+    queryFn: () => uuidToGradient(event.id),
+  })
+  const gradient = gradientQuery.data
   const { isCopied: isCopiedInstagram, copy: copyInstagram } = useClipboard()
 
   const instagramText = React.useMemo(() => {
@@ -196,7 +203,7 @@ export function CreditPage() {
         }}
         setContainerRef={containerRef}
       >
-        <CreateCreditForm
+        <CreateCreditByShareTokenForm
           onSubmit={() => setIsOpen(false)}
           onCancel={() => setIsOpen(false)}
           containerRef={containerRef}

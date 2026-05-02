@@ -174,6 +174,10 @@ export const getCreditsSchema = z.object({
   eventId: eventIdSchema,
 })
 
+export const getCreditsByShareTokenSchema = z.object({
+  shareToken: shareTokenSchema,
+})
+
 export const createCreditFormSchema = z.object({
   service: serviceSchema,
   supplierId: z.uuid(),

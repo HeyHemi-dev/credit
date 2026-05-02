@@ -45,9 +45,8 @@ export function EventListItem({ event }: { event: EventListItem }) {
   const { isCopied, copy } = useClipboard()
   const router = useRouter()
   const location = router.buildLocation({
-    to: '/e/$eventId',
-    params: { eventId: event.id },
-    search: { shareToken: event.shareToken },
+    to: '/s/$token',
+    params: { token: event.shareToken },
   })
   const shareLink = location.url.toString()
 

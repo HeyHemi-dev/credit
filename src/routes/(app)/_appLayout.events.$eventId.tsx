@@ -97,12 +97,11 @@ function EventDetailPage() {
   const shareLink = React.useMemo(() => {
     return router
       .buildLocation({
-        to: '/e/$eventId',
-        params: { eventId: event.id },
-        search: { shareToken: event.shareToken },
+        to: '/s/$token',
+        params: { token: event.shareToken },
       })
       .url.toString()
-  }, [event.id, event.shareToken])
+  }, [event.shareToken])
 
   return (
     <Section className="grid-rows-[auto_1fr_auto] p-0">
