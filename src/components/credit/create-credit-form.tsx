@@ -78,7 +78,7 @@ export function CreateCreditForm({
             <FormField field={field} label="Who it was" isRequired={true}>
               <SupplierSearchCombobox
                 eventId={eventId}
-                returnSearch={
+                returnResult={
                   isShareAuth(authToken)
                     ? { returnTo: 'share', shareToken: authToken.token }
                     : { returnTo: 'event', eventId }

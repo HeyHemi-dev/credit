@@ -49,16 +49,16 @@ function CreateSupplierRoute() {
   const search = Route.useSearch()
   const navigate = useNavigate()
   const shareToken = 'shareToken' in search ? search.shareToken : undefined
-  const returnSearch = getReturnSearch(search)
+  const returnResult = getReturnResult(search)
   const authToken = useAuth(shareToken)
 
   function handleCreated(supplier: Supplier) {
-    if (!returnSearch) return
+    if (!returnResult) return
 
-    if (returnSearch.returnTo === 'event') {
+    if (returnResult.returnTo === 'event') {
       navigate({
         to: '/events/$eventId',
-        params: { eventId: returnSearch.eventId },
+        params: { eventId: returnResult.eventId },
         search: { panel: true, supplierId: supplier.id },
       })
       return
@@ -66,7 +66,7 @@ function CreateSupplierRoute() {
 
     navigate({
       to: '/s/$token',
-      params: { token: returnSearch.shareToken },
+      params: { token: returnResult.shareToken },
       search: { panel: true, supplierId: supplier.id },
     })
   }
@@ -84,7 +84,7 @@ function CreateSupplierRoute() {
         </div>
         <CreateSupplierForm
           authToken={authToken}
-          onCreated={returnSearch ? handleCreated : undefined}
+          onCreated={returnResult ? handleCreated : undefined}
         />
       </div>
 
@@ -93,7 +93,7 @@ function CreateSupplierRoute() {
   )
 }
 
-function getReturnSearch(
+function getReturnResult(
   search: CreateSupplierSearch,
 ): CreateSupplierReturnSearch | null {
   if (search.returnTo === 'event' || search.returnTo === 'share') return search

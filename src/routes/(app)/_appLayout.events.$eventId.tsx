@@ -78,13 +78,13 @@ function RouteComponent() {
 function EventDetailPage() {
   const router = useRouter()
   const { eventId, authToken } = useCreditContext()
-  const search = Route.useSearch()
+  const { supplierId } = Route.useSearch()
   const { getEventQuery } = useEvent(eventId, authToken)
   const event = getEventQuery.data
 
   const [isOpen, setIsOpen] = useDrawerState()
   const { supplierQuery } = useSupplierPrefill(
-    isOpen ? search.supplierId : undefined,
+    isOpen ? supplierId : undefined,
     authToken,
   )
   const containerRef = React.useRef<HTMLDivElement | null>(null)

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import type { Supplier } from '@/lib/types/front-end'
+import type { ShareToken } from '@/lib/types/validation-schema'
 import { useSupplierSearch } from '@/hooks/use-suppliers'
 import {
   Combobox,
@@ -14,9 +15,9 @@ import {
 
 type SupplierSearchComboboxProps = {
   eventId: string
-  returnSearch:
+  returnResult:
     | { returnTo: 'event'; eventId: string }
-    | { returnTo: 'share'; shareToken: string }
+    | { returnTo: 'share'; shareToken: ShareToken }
   initialSupplier?: Supplier | null
   handleChange: (supplierId: string) => void
   containerRef?: React.RefObject<HTMLDivElement | null>
@@ -24,7 +25,7 @@ type SupplierSearchComboboxProps = {
 
 export function SupplierSearchCombobox({
   eventId,
-  returnSearch,
+  returnResult,
   initialSupplier,
   handleChange,
   containerRef,
@@ -112,7 +113,7 @@ export function SupplierSearchCombobox({
               <span>Not found?</span>
               <Link
                 to="/create-supplier"
-                search={returnSearch}
+                search={returnResult}
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Create a new supplier

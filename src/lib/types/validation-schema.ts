@@ -20,6 +20,7 @@ export const shareTokenSchema = z
   .string()
   .trim()
   .min(SHARE_TOKEN_MIN_LENGTH, 'Invalid share token')
+export type ShareToken = z.infer<typeof shareTokenSchema>
 export const authTokenSchema = z.union([
   z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
   z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),

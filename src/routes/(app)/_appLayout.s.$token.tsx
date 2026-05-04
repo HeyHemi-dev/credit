@@ -84,7 +84,7 @@ function RouteComponent() {
 
 export function CreditPage() {
   const { gradient } = Route.useLoaderData()
-  const search = Route.useSearch()
+  const { supplierId } = Route.useSearch()
   const { eventId, authToken } = useCreditContext()
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
@@ -96,7 +96,7 @@ export function CreditPage() {
 
   const [isOpen, setIsOpen] = useDrawerState()
   const { supplierQuery } = useSupplierPrefill(
-    isOpen ? search.supplierId : undefined,
+    isOpen ? supplierId : undefined,
     authToken,
   )
   const containerRef = React.useRef<HTMLDivElement | null>(null)
