@@ -7,6 +7,7 @@ import {
   PlusSignSquareIcon,
   Search01Icon,
 } from '@hugeicons/core-free-icons'
+import type { ShareAuth } from '@/lib/types/validation-schema'
 import { RouteError } from '@/components/route-error'
 import {
   Section,
@@ -23,7 +24,6 @@ import {
   CreditListItemSkeleton,
 } from '@/components/credit/credit-list'
 
-import { shareTokenSchema } from '@/lib/types/validation-schema'
 import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
@@ -36,44 +36,47 @@ import { uuidToGradient } from '@/lib/id-to-gradient'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { CopyButton } from '@/components/copy-button'
+import { getEventForCoupleByShareTokenFn } from '@/lib/server/events'
+import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
 
-const creditListRouteSearchSchema = z.object({
-  shareToken: shareTokenSchema,
+const shareRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
 })
 
-/**
- * @deprecated New share links should use /s/$token.
- * Keep this route for backward compatibility with existing shared URLs.
- */
-export const Route = createFileRoute('/(app)/_appLayout/e/$eventId')({
+export const Route = createFileRoute('/(app)/_appLayout/s/$token')({
   ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />
   ),
-  validateSearch: creditListRouteSearchSchema,
+  validateSearch: shareRouteSearchSchema,
   loader: async ({ params }) => {
-    const gradient = await uuidToGradient(params.eventId)
-    return { gradient }
+    const authToken = {
+      status: AUTH_STATUS.AUTHENTICATED,
+      tokenType: AUTH_TOKEN_TYPE.SHARE_TOKEN,
+      token: params.token,
+    } satisfies ShareAuth
+    const event = await getEventForCoupleByShareTokenFn({
+      data: { shareToken: params.token, authToken },
+    })
+    const gradient = await uuidToGradient(event.id)
+    return { eventId: event.id, gradient }
   },
 })
 
 function RouteComponent() {
-  const { eventId } = Route.useParams()
-  const { shareToken } = Route.useSearch()
-  const authToken = useAuth(shareToken)
+  const { token } = Route.useParams()
+  const { eventId } = Route.useLoaderData()
+  const authToken = useAuth(token)
   const shareAuth = requireShareAuth(authToken)
 
   return (
-    <>
-      <CreditProvider authToken={shareAuth} eventId={eventId}>
-        <IntroModal />
-        <React.Suspense fallback={<CreditPageSkeleton />}>
-          <CreditPage />
-        </React.Suspense>
-      </CreditProvider>
-    </>
+    <CreditProvider authToken={shareAuth} eventId={eventId}>
+      <IntroModal />
+      <React.Suspense fallback={<CreditPageSkeleton />}>
+        <CreditPage />
+      </React.Suspense>
+    </CreditProvider>
   )
 }
 

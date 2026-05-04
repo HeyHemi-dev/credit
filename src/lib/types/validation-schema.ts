@@ -6,6 +6,7 @@ import {
   SERVICES,
   SHARE_TOKEN_MIN_LENGTH,
 } from '@/lib/constants'
+import { isIsoCalendarDateString } from '@/lib/date-strings'
 import { optionalField } from '@/lib/empty-strings'
 
 // ===============================
@@ -65,7 +66,7 @@ export const weddingDateSchema = z
   .string()
   .trim()
   // date is stored as drizzle date; accept YYYY-MM-DD at API boundary
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date')
+  .refine(isIsoCalendarDateString, 'Invalid date')
 export const supplierNameSchema = z
   .string()
   .trim()
@@ -171,6 +172,10 @@ export type CreateSupplier = z.infer<typeof createSupplierSchema>
 
 export const getCreditsSchema = z.object({
   eventId: eventIdSchema,
+})
+
+export const getCreditsByShareTokenSchema = z.object({
+  shareToken: shareTokenSchema,
 })
 
 export const createCreditFormSchema = z.object({

@@ -19,6 +19,7 @@ import { Route as publicPublicLayoutPrivacyRouteImport } from './routes/(public)
 import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
 import { Route as appAppLayoutEventsIndexRouteImport } from './routes/(app)/_appLayout.events.index'
 import { Route as publicPublicLayoutAuthPathnameRouteImport } from './routes/(public)/_publicLayout.auth.$pathname'
+import { Route as appAppLayoutSTokenRouteImport } from './routes/(app)/_appLayout.s.$token'
 import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_appLayout.events.$eventId'
 import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
 import { Route as appAppLayoutAccountPathnameRouteImport } from './routes/(app)/_appLayout.account.$pathname'
@@ -74,6 +75,11 @@ const publicPublicLayoutAuthPathnameRoute =
     path: '/auth/$pathname',
     getParentRoute: () => publicPublicLayoutRoute,
   } as any)
+const appAppLayoutSTokenRoute = appAppLayoutSTokenRouteImport.update({
+  id: '/s/$token',
+  path: '/s/$token',
+  getParentRoute: () => appAppLayoutRoute,
+} as any)
 const appAppLayoutEventsEventIdRoute =
   appAppLayoutEventsEventIdRouteImport.update({
     id: '/events/$eventId',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/s/$token': typeof appAppLayoutSTokenRoute
   '/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
   '/events': typeof appAppLayoutEventsIndexRoute
 }
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/s/$token': typeof appAppLayoutSTokenRoute
   '/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
   '/events': typeof appAppLayoutEventsIndexRoute
 }
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/(app)/_appLayout/events/$eventId': typeof appAppLayoutEventsEventIdRoute
+  '/(app)/_appLayout/s/$token': typeof appAppLayoutSTokenRoute
   '/(public)/_publicLayout/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
   '/(app)/_appLayout/events/': typeof appAppLayoutEventsIndexRoute
 }
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/account/$pathname'
     | '/e/$eventId'
     | '/events/$eventId'
+    | '/s/$token'
     | '/auth/$pathname'
     | '/events'
   fileRoutesByTo: FileRoutesByTo
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/account/$pathname'
     | '/e/$eventId'
     | '/events/$eventId'
+    | '/s/$token'
     | '/auth/$pathname'
     | '/events'
   id:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/(app)/_appLayout/account/$pathname'
     | '/(app)/_appLayout/e/$eventId'
     | '/(app)/_appLayout/events/$eventId'
+    | '/(app)/_appLayout/s/$token'
     | '/(public)/_publicLayout/auth/$pathname'
     | '/(app)/_appLayout/events/'
   fileRoutesById: FileRoutesById
@@ -257,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicPublicLayoutAuthPathnameRouteImport
       parentRoute: typeof publicPublicLayoutRoute
     }
+    '/(app)/_appLayout/s/$token': {
+      id: '/(app)/_appLayout/s/$token'
+      path: '/s/$token'
+      fullPath: '/s/$token'
+      preLoaderRoute: typeof appAppLayoutSTokenRouteImport
+      parentRoute: typeof appAppLayoutRoute
+    }
     '/(app)/_appLayout/events/$eventId': {
       id: '/(app)/_appLayout/events/$eventId'
       path: '/events/$eventId'
@@ -286,6 +305,7 @@ interface appAppLayoutRouteChildren {
   appAppLayoutAccountPathnameRoute: typeof appAppLayoutAccountPathnameRoute
   appAppLayoutEEventIdRoute: typeof appAppLayoutEEventIdRoute
   appAppLayoutEventsEventIdRoute: typeof appAppLayoutEventsEventIdRoute
+  appAppLayoutSTokenRoute: typeof appAppLayoutSTokenRoute
   appAppLayoutEventsIndexRoute: typeof appAppLayoutEventsIndexRoute
 }
 
@@ -294,6 +314,7 @@ const appAppLayoutRouteChildren: appAppLayoutRouteChildren = {
   appAppLayoutAccountPathnameRoute: appAppLayoutAccountPathnameRoute,
   appAppLayoutEEventIdRoute: appAppLayoutEEventIdRoute,
   appAppLayoutEventsEventIdRoute: appAppLayoutEventsEventIdRoute,
+  appAppLayoutSTokenRoute: appAppLayoutSTokenRoute,
   appAppLayoutEventsIndexRoute: appAppLayoutEventsIndexRoute,
 }
 

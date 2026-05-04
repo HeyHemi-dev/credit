@@ -2,13 +2,18 @@
   "name": "with-thanks",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite dev --port 5173",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
-    "lint": "eslint . --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
+    "worktree:setup": "tsx scripts/setup-worktree.ts",
     "db:probe": "tsx scripts/db-probe.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",

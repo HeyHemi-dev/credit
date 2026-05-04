@@ -1,14 +1,14 @@
-import { weddingDateSchema } from '@/lib/types/validation-schema'
+import { isIsoCalendarDateString } from '@/lib/date-strings'
 
 /**
  * Parses YYYY-MM-DD date string to Date object.
  */
 export function parseDrizzleDateStringToDate(date: string) {
-  const { data } = weddingDateSchema.safeParse(date)
-  if (!data) return undefined
+  const trimmedDate = date.trim()
+  if (!isIsoCalendarDateString(trimmedDate)) return undefined
 
   // Parse as local date to avoid timezone issues
-  const [year, month, day] = data.split('-').map(Number)
+  const [year, month, day] = trimmedDate.split('-').map(Number)
   return new Date(year, month - 1, day)
 }
 

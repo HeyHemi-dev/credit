@@ -50,6 +50,24 @@ vercel env pull
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in.                    |
 | `TEST_USER_ID`         | User Id from DB for running tests against                                     |
 
+## Worktree setup
+
+After creating a git worktree, run the setup helper from the main repo:
+
+```bash
+git worktree add ../credit-new-flow -b new-flow
+pnpm worktree:setup ../credit-new-flow
+```
+
+The helper copies `.env.local` into the worktree, creates a Neon branch from `NEON_DEV_BRANCH_ID`, and rewrites the worktree's `CR_DATABASE_URL` to use the new branch. It reads `CR_NEON_PROJECT_ID`, `NEON_DEV_BRANCH_ID`, and the role/database from the main repo's `.env.local`.
+
+Useful options:
+
+```bash
+pnpm worktree:setup ../credit-new-flow --branch-name worktree/new-flow
+pnpm worktree:setup ../credit-new-flow --dry-run
+```
+
 ## Database setup
 
 | Script                    | Description                                                                                                                  |

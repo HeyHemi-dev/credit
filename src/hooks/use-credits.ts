@@ -17,6 +17,9 @@ export function useCredits(eventId: string, authToken: AuthToken) {
   const getEventForCouple = useServerFn(getEventForCoupleFn)
   const createCredit = useServerFn(createCreditFn)
 
+  /**
+   * @deprecated
+   */
   const getEventForCoupleQuery = useSuspenseQuery({
     queryKey: queryKeys.event(eventId),
     queryFn: async () => {
