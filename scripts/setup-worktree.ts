@@ -11,19 +11,11 @@ import { basename, join, resolve } from 'node:path'
 import { parse } from 'dotenv'
 
 type Options = {
-  branchName?: string
-  dryRun: boolean
-  expiresAt?: string
-  forceCopy: boolean
-  sourcePath?: string
+  mode: 'cleanup' | 'setup'
   targetPath?: string
 }
 
-type GitWorktree = {
-  branch?: string
-  path: string
-}
-
+const sourceRepoPath = '/Users/hemi/Dev/credit'
 const envFileName = '.env.local'
 const requiredEnvKeys = [
   'CR_DATABASE_URL',
@@ -32,77 +24,49 @@ const requiredEnvKeys = [
 ] as const
 
 function usage() {
-  console.log(`Usage: pnpm worktree:setup [worktree-path] [options]
+  console.log(`Usage:
+  pnpm worktree:setup <worktree-path>
+  pnpm worktree:setup cleanup <worktree-path>
 
-Copies .env.local from the main worktree, creates a Neon branch from NEON_DEV_BRANCH_ID,
-and updates CR_DATABASE_URL in the target worktree.
+Copies .env.local from ${sourceRepoPath},
+creates a Neon branch from NEON_DEV_BRANCH_ID, and updates CR_DATABASE_URL.
 
 Arguments:
-  worktree-path              Existing git worktree to configure. Defaults to the current worktree.
+  worktree-path              Target Codex worktree path.
+  cleanup                    Delete the recorded Neon worktree branch.
 
 Options:
-  --source <path>            Source worktree that owns the canonical .env.local.
-                             Defaults to the git worktree on refs/heads/main.
-  --branch-name <name>       Neon branch name. Defaults to worktree/<git-branch-or-folder>.
-  --expires-at <timestamp>   Optional Neon branch expiration timestamp, in RFC 3339 format.
-  --force-copy               Re-copy .env.local even if the target already has one.
-  --dry-run                  Print what would happen without copying, creating, or updating.
   --help                     Show this help.
 
 Examples:
-  git worktree add ../credit-new-flow -b new-flow
-  pnpm worktree:setup ../credit-new-flow
-
-  cd ../credit-new-flow
-  pnpm worktree:setup --source ../credit --branch-name worktree/new-flow`)
+  pnpm worktree:setup "$CODEX_WORKTREE_PATH"
+  pnpm worktree:setup cleanup "$CODEX_WORKTREE_PATH"`)
 }
 
 function parseArgs(argv: Array<string>): Options {
   const options: Options = {
-    dryRun: false,
-    forceCopy: false,
+    mode: 'setup',
   }
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]
     if (!arg) continue
 
+    if (index === 0 && arg === 'cleanup') {
+      options.mode = 'cleanup'
+      continue
+    }
+
     if (arg === '--help' || arg === '-h') {
       usage()
       process.exit(0)
-    }
-
-    if (arg === '--dry-run') {
-      options.dryRun = true
-      continue
-    }
-
-    if (arg === '--force-copy') {
-      options.forceCopy = true
-      continue
-    }
-
-    if (arg === '--source' || arg === '--branch-name' || arg === '--expires-at') {
-      const value = argv[index + 1]
-      if (!value || value.startsWith('--')) {
-        fail(`${arg} requires a value.`)
-      }
-
-      if (arg === '--source') options.sourcePath = value
-      if (arg === '--branch-name') options.branchName = value
-      if (arg === '--expires-at') options.expiresAt = value
-      index += 1
-      continue
     }
 
     if (arg.startsWith('--')) {
       fail(`Unknown option: ${arg}`)
     }
 
-    if (options.targetPath) {
-      fail(`Unexpected extra argument: ${arg}`)
-    }
-
+    if (options.targetPath) fail(`Unexpected extra argument: ${arg}`)
     options.targetPath = arg
   }
 
@@ -152,46 +116,6 @@ function getGitTopLevel(cwd: string): string {
   return gitOutput(['rev-parse', '--show-toplevel'], cwd)
 }
 
-function getWorktrees(cwd: string): Array<GitWorktree> {
-  const output = gitOutput(['worktree', 'list', '--porcelain'], cwd)
-  const worktrees: Array<GitWorktree> = []
-  let current: GitWorktree | undefined
-
-  for (const line of output.split('\n')) {
-    if (!line.trim()) {
-      if (current) {
-        worktrees.push(current)
-        current = undefined
-      }
-      continue
-    }
-
-    const [key, ...valueParts] = line.split(' ')
-    const value = valueParts.join(' ')
-
-    if (key === 'worktree') {
-      if (current) worktrees.push(current)
-      current = { path: value }
-    }
-
-    if (key === 'branch' && current) {
-      current.branch = value
-    }
-  }
-
-  if (current) worktrees.push(current)
-
-  return worktrees
-}
-
-function findMainWorktree(cwd: string): string | undefined {
-  const mainWorktree = getWorktrees(cwd).find(
-    (worktree) => worktree.branch === 'refs/heads/main',
-  )
-
-  return mainWorktree?.path
-}
-
 function readEnv(path: string): Record<string, string> {
   return parse(readFileSync(path))
 }
@@ -227,18 +151,6 @@ function parseDatabaseUrl(databaseUrl: string) {
         : 'CR_DATABASE_URL is not a valid URL.',
     )
   }
-}
-
-function getCurrentGitBranch(cwd: string): string | undefined {
-  const result = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-    cwd,
-    encoding: 'utf8',
-  })
-
-  if (result.status !== 0) return undefined
-
-  const branch = result.stdout.trim()
-  return branch && branch !== 'HEAD' ? branch : undefined
 }
 
 function sanitizeNeonBranchName(name: string): string {
@@ -306,6 +218,11 @@ function updateEnvValue(contents: string, key: string, value: string): string {
   return `${contents}${separator}${assignment}\n`
 }
 
+function removeEnvValue(contents: string, key: string): string {
+  const pattern = new RegExp(`^(?:export\\s+)?${key}\\s*=.*(?:\\n|$)`, 'm')
+  return contents.replace(pattern, '')
+}
+
 function assertDirectory(path: string, label: string) {
   if (!existsSync(path)) fail(`${label} does not exist: ${path}`)
   if (!statSync(path).isDirectory()) fail(`${label} is not a directory: ${path}`)
@@ -317,24 +234,20 @@ function resolveDirectory(path: string, label: string): string {
   return realpathSync(resolvedPath)
 }
 
-function main() {
-  const options = parseArgs(process.argv.slice(2))
-  const cwdTopLevel = realpathSync(getGitTopLevel(process.cwd()))
-  const targetRoot = resolveDirectory(
-    options.targetPath ?? cwdTopLevel,
-    'Target worktree',
-  )
-  const sourceRoot = resolveDirectory(
-    options.sourcePath ?? findMainWorktree(cwdTopLevel) ?? cwdTopLevel,
-    'Source worktree',
-  )
+function resolveTargetRoot(options: Options): string {
+  if (!options.targetPath) fail('worktree-path is required.')
+
+  return resolveDirectory(options.targetPath, 'Target worktree')
+}
+
+function setupWorktree(options: Options) {
+  const targetRoot = resolveTargetRoot(options)
+  const sourceRoot = resolveDirectory(sourceRepoPath, 'Source repo')
   const sourceEnvPath = join(sourceRoot, envFileName)
   const targetEnvPath = join(targetRoot, envFileName)
 
   if (sourceRoot === targetRoot) {
-    fail(
-      'source and target worktree are the same. Run this from the main repo with a worktree path, or pass --source from inside a worktree.',
-    )
+    fail('source repo and target worktree are the same.')
   }
 
   if (!existsSync(sourceEnvPath)) {
@@ -353,13 +266,7 @@ function main() {
   const projectId = sourceEnv.CR_NEON_PROJECT_ID
   const parentBranchId = sourceEnv.NEON_DEV_BRANCH_ID
   const database = parseDatabaseUrl(databaseUrl)
-  const targetGitBranch = getCurrentGitBranch(targetRoot)
-  const defaultNeonBranchName = sanitizeNeonBranchName(
-    `worktree/${targetGitBranch ?? basename(targetRoot)}`,
-  )
-  const neonBranchName = sanitizeNeonBranchName(
-    options.branchName ?? defaultNeonBranchName,
-  )
+  const neonBranchName = sanitizeNeonBranchName(`worktree/${basename(targetRoot)}`)
 
   console.log(`Source env: ${sourceEnvPath}`)
   console.log(`Target env: ${targetEnvPath}`)
@@ -367,16 +274,11 @@ function main() {
   console.log(`New Neon branch: ${neonBranchName}`)
   console.log(`Role/database: ${database.roleName}/${database.databaseName}`)
 
-  if (options.dryRun) {
-    console.log('Dry run: no files changed and no Neon branch created.')
-    return
-  }
-
-  if (!existsSync(targetEnvPath) || options.forceCopy) {
+  if (!existsSync(targetEnvPath)) {
     copyFileSync(sourceEnvPath, targetEnvPath)
     console.log(`Copied ${envFileName} to target worktree.`)
   } else {
-    console.log(`Target ${envFileName} already exists; keeping it. Use --force-copy to refresh it.`)
+    console.log(`Target ${envFileName} already exists; keeping it.`)
   }
 
   const createOutput = commandOutput(
@@ -394,7 +296,6 @@ function main() {
       'json',
       '--color=false',
       '--analytics=false',
-      ...(options.expiresAt ? ['--expires-at', options.expiresAt] : []),
     ],
     sourceRoot,
   )
@@ -423,13 +324,81 @@ function main() {
   )
   const connectionString = extractConnectionString(connectionStringOutput)
   const targetEnvContents = readFileSync(targetEnvPath, 'utf8')
-  writeFileSync(
-    targetEnvPath,
-    updateEnvValue(targetEnvContents, 'CR_DATABASE_URL', connectionString),
+  const updatedTargetEnvContents = [
+    ['CR_DATABASE_URL', connectionString],
+    ['NEON_WORKTREE_BRANCH_ID', createdBranch.branchId],
+  ].reduce(
+    (contents, [key, value]) => updateEnvValue(contents, key, value),
+    targetEnvContents,
   )
+
+  writeFileSync(targetEnvPath, updatedTargetEnvContents)
 
   console.log(`Created Neon branch ${createdBranch.branchName} (${createdBranch.branchId}).`)
   console.log(`Updated CR_DATABASE_URL in ${targetEnvPath}.`)
+}
+
+function cleanupWorktree(options: Options) {
+  const targetRoot = resolveTargetRoot(options)
+  const targetEnvPath = join(targetRoot, envFileName)
+
+  if (!existsSync(targetEnvPath)) {
+    console.log(`No ${envFileName} found at ${targetEnvPath}; nothing to clean up.`)
+    return
+  }
+
+  const targetEnv = readEnv(targetEnvPath)
+  const projectId = targetEnv.CR_NEON_PROJECT_ID
+  const branchId = targetEnv.NEON_WORKTREE_BRANCH_ID
+  const parentBranchId = targetEnv.NEON_DEV_BRANCH_ID
+
+  if (!branchId) {
+    console.log(`No NEON_WORKTREE_BRANCH_ID found in ${targetEnvPath}; nothing to clean up.`)
+    return
+  }
+
+  if (!projectId) fail(`CR_NEON_PROJECT_ID is missing from ${targetEnvPath}.`)
+  if (branchId === parentBranchId) {
+    fail('Refusing to delete NEON_WORKTREE_BRANCH_ID because it matches NEON_DEV_BRANCH_ID.')
+  }
+
+  console.log(`Target env: ${targetEnvPath}`)
+  console.log(`Deleting Neon worktree branch: ${branchId}`)
+
+  commandOutput(
+    'neon',
+    [
+      'branches',
+      'delete',
+      branchId,
+      '--project-id',
+      projectId,
+      '--color=false',
+      '--analytics=false',
+    ],
+    targetRoot,
+  )
+
+  const targetEnvContents = readFileSync(targetEnvPath, 'utf8')
+  const cleanedTargetEnvContents = [
+    'NEON_WORKTREE_BRANCH_ID',
+  ].reduce((contents, key) => removeEnvValue(contents, key), targetEnvContents)
+
+  writeFileSync(targetEnvPath, cleanedTargetEnvContents)
+
+  console.log(`Deleted Neon branch ${branchId}.`)
+  console.log(`Removed Neon worktree metadata from ${targetEnvPath}.`)
+}
+
+function main() {
+  const options = parseArgs(process.argv.slice(2))
+
+  if (options.mode === 'cleanup') {
+    cleanupWorktree(options)
+    return
+  }
+
+  setupWorktree(options)
 }
 
 main()
