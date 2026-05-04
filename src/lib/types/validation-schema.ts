@@ -138,6 +138,11 @@ export const dedupeSuppliersSchema = z.object({
 })
 export type DedupeSuppliers = z.infer<typeof dedupeSuppliersSchema>
 
+export const getSupplierSchema = z.object({
+  supplierId: z.uuid(),
+})
+export type GetSupplier = z.infer<typeof getSupplierSchema>
+
 export const searchSuppliersSchema = z.object({
   query: z.string().trim().min(1, 'Search query is required'),
 })

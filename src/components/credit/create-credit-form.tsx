@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { CreateCreditForm } from '@/lib/types/validation-schema'
+import type { Supplier } from '@/lib/types/front-end'
 
 import type { Service } from '@/lib/constants'
 import { FieldGroup } from '@/components/ui/field'
@@ -31,10 +32,12 @@ export function CreateCreditForm({
   onSubmit,
   onCancel,
   containerRef,
+  initialSupplier,
 }: {
   onSubmit: () => void
   onCancel: () => void
   containerRef?: React.RefObject<HTMLDivElement | null>
+  initialSupplier?: Supplier | null
 }) {
   const { eventId, authToken } = useCreditContext()
   const { createCreditMutation } = useCredits(eventId, authToken)
@@ -54,6 +57,11 @@ export function CreateCreditForm({
     },
   })
 
+  React.useEffect(() => {
+    if (!initialSupplier) return
+    form.setFieldValue('supplierId', initialSupplier.id)
+  }, [form, initialSupplier])
+
   return (
     <form
       id="create-event-credit-form"
@@ -69,10 +77,13 @@ export function CreateCreditForm({
           children={(field) => (
             <FormField field={field} label="Who it was" isRequired={true}>
               <SupplierSearchCombobox
-                shareToken={
-                  isShareAuth(authToken) ? authToken.token : undefined
-                }
                 eventId={eventId}
+                returnSearch={
+                  isShareAuth(authToken)
+                    ? { returnTo: 'share', shareToken: authToken.token }
+                    : { returnTo: 'event', eventId }
+                }
+                initialSupplier={initialSupplier}
                 handleChange={(supplierId) => field.handleChange(supplierId)}
                 containerRef={containerRef}
               />

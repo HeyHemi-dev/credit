@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
@@ -7,10 +7,34 @@ import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
 import { AuthState } from '@/components/auth-state'
 import { useAuth } from '@/hooks/use-auth'
+import type { Supplier } from '@/lib/types/front-end'
+import {
+  eventIdSchema,
+  shareTokenSchema,
+} from '@/lib/types/validation-schema'
 
-const createSupplierSearchSchema = z.object({
-  shareToken: z.string().optional(),
-})
+const createSupplierReturnSearchSchema = z.discriminatedUnion('returnTo', [
+  z.object({
+    returnTo: z.literal('event'),
+    eventId: eventIdSchema,
+  }),
+  z.object({
+    returnTo: z.literal('share'),
+    shareToken: shareTokenSchema,
+  }),
+])
+
+const createSupplierSearchSchema = z.union([
+  createSupplierReturnSearchSchema,
+  z.object({
+    shareToken: shareTokenSchema.optional(),
+    returnTo: z.undefined().optional(),
+  }),
+])
+type CreateSupplierSearch = z.infer<typeof createSupplierSearchSchema>
+type CreateSupplierReturnSearch = z.infer<
+  typeof createSupplierReturnSearchSchema
+>
 
 export const Route = createFileRoute('/(app)/_appLayout/create-supplier')({
   ssr: false,
@@ -22,8 +46,30 @@ export const Route = createFileRoute('/(app)/_appLayout/create-supplier')({
 })
 
 function CreateSupplierRoute() {
-  const { shareToken } = Route.useSearch()
+  const search = Route.useSearch()
+  const navigate = useNavigate()
+  const shareToken = 'shareToken' in search ? search.shareToken : undefined
+  const returnSearch = getReturnSearch(search)
   const authToken = useAuth(shareToken)
+
+  function handleCreated(supplier: Supplier) {
+    if (!returnSearch) return
+
+    if (returnSearch.returnTo === 'event') {
+      navigate({
+        to: '/events/$eventId',
+        params: { eventId: returnSearch.eventId },
+        search: { panel: true, supplierId: supplier.id },
+      })
+      return
+    }
+
+    navigate({
+      to: '/s/$token',
+      params: { token: returnSearch.shareToken },
+      search: { panel: true, supplierId: supplier.id },
+    })
+  }
 
   return (
     <Section>
@@ -36,10 +82,20 @@ function CreateSupplierRoute() {
             This creates a shared supplier others can use.
           </p>
         </div>
-        <CreateSupplierForm authToken={authToken} />
+        <CreateSupplierForm
+          authToken={authToken}
+          onCreated={returnSearch ? handleCreated : undefined}
+        />
       </div>
 
       <AuthState authToken={authToken} />
     </Section>
   )
+}
+
+function getReturnSearch(
+  search: CreateSupplierSearch,
+): CreateSupplierReturnSearch | null {
+  if (search.returnTo === 'event' || search.returnTo === 'share') return search
+  return null
 }

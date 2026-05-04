@@ -5,11 +5,13 @@ import {
   authTokenSchema,
   createSupplierSchema,
   dedupeSuppliersSchema,
+  getSupplierSchema,
   searchSuppliersSchema,
 } from '@/lib/types/validation-schema'
 import {
   createSupplier,
   findSupplierDedupeCandidates,
+  getSupplierById,
   searchSuppliers,
 } from '@/db/queries/suppliers'
 import { isValidAuthToken } from '@/lib/server/auth'
@@ -48,6 +50,18 @@ export const dedupeSuppliersFn = createServerFn({ method: 'GET' })
       })
     if (!suppliers) return []
     return mapSuppliersToSearchResults(suppliers)
+  })
+
+export const getSupplierFn = createServerFn({ method: 'GET' })
+  .inputValidator(getSupplierSchema.extend({ authToken: authTokenSchema }))
+  .handler(async ({ data }): Promise<Supplier> => {
+    const isValid = await isValidAuthToken(data.authToken)
+    if (!isValid) throw ERROR.FORBIDDEN()
+
+    const supplier = await getSupplierById(data.supplierId)
+    if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
+
+    return mapSupplierToSearchResult(supplier)
   })
 
 /**

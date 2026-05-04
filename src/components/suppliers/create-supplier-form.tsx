@@ -33,7 +33,13 @@ const defaultValues: CreateSupplierForm = {
   region: '',
 }
 
-export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
+export function CreateSupplierForm({
+  authToken,
+  onCreated,
+}: {
+  authToken: AuthToken
+  onCreated?: (supplier: Supplier) => void
+}) {
   const handleBack = useBack()
 
   const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
@@ -53,12 +59,16 @@ export function CreateSupplierForm({ authToken }: { authToken: AuthToken }) {
     onSubmit: async ({ value }) => {
       if (authToken.status !== AUTH_STATUS.AUTHENTICATED) return
 
-      await createMutation.mutateAsync({
+      const supplier = await createMutation.mutateAsync({
         ...value,
         instagramHandle: emptyStringToNull(value.instagramHandle),
         tiktokHandle: emptyStringToNull(value.tiktokHandle),
         region: emptyStringToNull(value.region),
       })
+      if (onCreated) {
+        onCreated(supplier)
+        return
+      }
       handleBack()
     },
   })

@@ -35,9 +35,11 @@ import { Separator } from '@/components/ui/separator'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
 import { Button } from '@/components/ui/button'
+import { useSupplierPrefill } from '@/hooks/use-suppliers'
 
 const eventRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
+  supplierId: z.uuid().optional(),
 })
 
 export const Route = createFileRoute('/(app)/_appLayout/events/$eventId')({
@@ -76,10 +78,15 @@ function RouteComponent() {
 function EventDetailPage() {
   const router = useRouter()
   const { eventId, authToken } = useCreditContext()
+  const search = Route.useSearch()
   const { getEventQuery } = useEvent(eventId, authToken)
   const event = getEventQuery.data
 
   const [isOpen, setIsOpen] = useDrawerState()
+  const { supplierQuery } = useSupplierPrefill(
+    isOpen ? search.supplierId : undefined,
+    authToken,
+  )
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   const { isCopied: isCopiedInstagram, copy: copyInstagram } = useClipboard()
@@ -218,6 +225,7 @@ function EventDetailPage() {
           onSubmit={() => setIsOpen(false)}
           onCancel={() => setIsOpen(false)}
           containerRef={containerRef}
+          initialSupplier={supplierQuery.data}
         />
       </ActionDrawer>
     </Section>
@@ -239,6 +247,7 @@ export function useDrawerState() {
         search: (prev) => ({
           ...prev,
           panel: open ? true : undefined,
+          supplierId: undefined,
         }),
       })
     },

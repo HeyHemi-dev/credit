@@ -38,9 +38,11 @@ import { formatInstagramCredits } from '@/lib/formatters'
 import { CopyButton } from '@/components/copy-button'
 import { getEventForCoupleByShareTokenFn } from '@/lib/server/events'
 import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
+import { useSupplierPrefill } from '@/hooks/use-suppliers'
 
 const shareRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
+  supplierId: z.uuid().optional(),
 })
 
 export const Route = createFileRoute('/(app)/_appLayout/s/$token')({
@@ -82,6 +84,7 @@ function RouteComponent() {
 
 export function CreditPage() {
   const { gradient } = Route.useLoaderData()
+  const search = Route.useSearch()
   const { eventId, authToken } = useCreditContext()
   const { getEventForCoupleQuery } = useCredits(eventId, authToken)
   const event = getEventForCoupleQuery.data
@@ -92,6 +95,10 @@ export function CreditPage() {
   }, [event.credits])
 
   const [isOpen, setIsOpen] = useDrawerState()
+  const { supplierQuery } = useSupplierPrefill(
+    isOpen ? search.supplierId : undefined,
+    authToken,
+  )
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
   return (
@@ -203,6 +210,7 @@ export function CreditPage() {
           onSubmit={() => setIsOpen(false)}
           onCancel={() => setIsOpen(false)}
           containerRef={containerRef}
+          initialSupplier={supplierQuery.data}
         />
       </ActionDrawer>
     </>
@@ -224,6 +232,7 @@ export function useDrawerState() {
         search: (prev) => ({
           ...prev,
           panel: open ? true : undefined,
+          supplierId: undefined,
         }),
       })
     },
