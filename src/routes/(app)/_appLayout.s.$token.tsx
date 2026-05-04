@@ -1,6 +1,5 @@
 import React from 'react'
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import z from 'zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -9,7 +8,6 @@ import {
   Search01Icon,
 } from '@hugeicons/core-free-icons'
 import type { ShareAuth } from '@/lib/types/validation-schema'
-import type { EventDetail } from '@/lib/types/front-end'
 import { RouteError } from '@/components/route-error'
 import {
   Section,
@@ -20,7 +18,7 @@ import {
 
 import { IntroModal } from '@/components/credit/intro-modal'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCreditsByShareToken } from '@/hooks/use-credits'
+import { useCredits } from '@/hooks/use-credits'
 import {
   CreditListItem,
   CreditListItemSkeleton,
@@ -28,14 +26,18 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { ActionDrawer } from '@/components/action-drawer'
-import { CreateCreditByShareTokenForm } from '@/components/credit/create-credit-by-share-token-form'
+import { CreateCreditForm } from '@/components/credit/create-credit-form'
 import { requireShareAuth, useAuth } from '@/hooks/use-auth'
-import { CreditProvider } from '@/contexts/credit-page-context'
+import {
+  CreditProvider,
+  useCreditContext,
+} from '@/contexts/credit-page-context'
 import { uuidToGradient } from '@/lib/id-to-gradient'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { CopyButton } from '@/components/copy-button'
-import { queryKeys } from '@/hooks/query-keys'
+import { getEventForCoupleByShareTokenFn } from '@/lib/server/events'
+import { AUTH_STATUS, AUTH_TOKEN_TYPE } from '@/lib/constants'
 
 const shareRouteSearchSchema = z.object({
   panel: z.boolean().optional(),
@@ -48,47 +50,41 @@ export const Route = createFileRoute('/(app)/_appLayout/s/$token')({
     <RouteError error={error} reset={reset} />
   ),
   validateSearch: shareRouteSearchSchema,
+  loader: async ({ params }) => {
+    const authToken = {
+      status: AUTH_STATUS.AUTHENTICATED,
+      tokenType: AUTH_TOKEN_TYPE.SHARE_TOKEN,
+      token: params.token,
+    } satisfies ShareAuth
+    const event = await getEventForCoupleByShareTokenFn({
+      data: { shareToken: params.token, authToken },
+    })
+    const gradient = await uuidToGradient(event.id)
+    return { eventId: event.id, gradient }
+  },
 })
 
 function RouteComponent() {
   const { token } = Route.useParams()
+  const { eventId } = Route.useLoaderData()
   const authToken = useAuth(token)
   const shareAuth = requireShareAuth(authToken)
 
   return (
-    <React.Suspense fallback={<CreditPageSkeleton />}>
-      <SharedCreditRouteContent shareToken={token} authToken={shareAuth} />
-    </React.Suspense>
-  )
-}
-
-function SharedCreditRouteContent({
-  shareToken,
-  authToken,
-}: {
-  shareToken: string
-  authToken: ShareAuth
-}) {
-  const { getEventForCoupleByShareTokenQuery } = useCreditsByShareToken(
-    shareToken,
-    authToken,
-  )
-  const event = getEventForCoupleByShareTokenQuery.data
-
-  return (
-    <CreditProvider authToken={authToken} eventId={event.id}>
+    <CreditProvider authToken={shareAuth} eventId={eventId}>
       <IntroModal />
-      <CreditPage event={event} />
+      <React.Suspense fallback={<CreditPageSkeleton />}>
+        <CreditPage />
+      </React.Suspense>
     </CreditProvider>
   )
 }
 
-export function CreditPage({ event }: { event: EventDetail }) {
-  const gradientQuery = useSuspenseQuery({
-    queryKey: queryKeys.eventGradient(event.id),
-    queryFn: () => uuidToGradient(event.id),
-  })
-  const gradient = gradientQuery.data
+export function CreditPage() {
+  const { gradient } = Route.useLoaderData()
+  const { eventId, authToken } = useCreditContext()
+  const { getEventForCoupleQuery } = useCredits(eventId, authToken)
+  const event = getEventForCoupleQuery.data
   const { isCopied: isCopiedInstagram, copy: copyInstagram } = useClipboard()
 
   const instagramText = React.useMemo(() => {
@@ -203,7 +199,7 @@ export function CreditPage({ event }: { event: EventDetail }) {
         }}
         setContainerRef={containerRef}
       >
-        <CreateCreditByShareTokenForm
+        <CreateCreditForm
           onSubmit={() => setIsOpen(false)}
           onCancel={() => setIsOpen(false)}
           containerRef={containerRef}
