@@ -26,8 +26,29 @@ export function ActionDrawer({
   children,
   setContainerRef,
 }: ActionDrawerProps) {
+  function handleOpenChange(open: boolean) {
+    if (
+      !open &&
+      typeof document !== 'undefined' &&
+      document.activeElement instanceof HTMLElement
+    ) {
+      document.activeElement.blur()
+    }
+
+    state.setIsOpen(open)
+  }
+
   return (
-    <Drawer open={state.isOpen} onOpenChange={state.setIsOpen} modal={true}>
+    <Drawer
+      open={state.isOpen}
+      onOpenChange={handleOpenChange}
+      repositionInputs={false}
+      onAnimationEnd={(open) => {
+        if (!open && typeof document !== 'undefined') {
+          document.body.style.pointerEvents = 'auto'
+        }
+      }}
+    >
       <DrawerContent ref={setContainerRef}>
         <div className="flex h-full justify-center pb-8">
           <div className="grid h-full max-w-md grow grid-rows-[auto_1fr] overflow-y-auto">
