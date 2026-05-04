@@ -4,8 +4,13 @@ import { useServerFn } from '@tanstack/react-start'
 import type { AuthToken, CreateSupplier } from '@/lib/types/validation-schema'
 import { queryKeys } from '@/hooks/query-keys'
 
-import { createSupplierFn, searchSuppliersFn } from '@/lib/server/suppliers'
+import {
+  createSupplierFn,
+  getSupplierFn,
+  searchSuppliersFn,
+} from '@/lib/server/suppliers'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
+import { isSessionAuth, isShareAuth } from '@/hooks/use-auth'
 
 export function useSupplierSearch(eventId: string) {
   const searchSuppliers = useServerFn(searchSuppliersFn)
@@ -46,4 +51,23 @@ export function useCreateSupplier(authToken: AuthToken) {
   })
 
   return { createMutation }
+}
+
+export function useSupplierPrefill(
+  supplierId: string | undefined,
+  authToken: AuthToken,
+) {
+  const getSupplier = useServerFn(getSupplierFn)
+  const isAuthenticated = isShareAuth(authToken) || isSessionAuth(authToken)
+
+  const supplierQuery = useQuery({
+    queryKey: queryKeys.supplier(supplierId ?? ''),
+    queryFn: async () => {
+      if (!supplierId || !isAuthenticated) return null
+      return await getSupplier({ data: { supplierId, authToken } })
+    },
+    enabled: !!supplierId && isAuthenticated,
+  })
+
+  return { supplierQuery }
 }

@@ -20,6 +20,7 @@ export const shareTokenSchema = z
   .string()
   .trim()
   .min(SHARE_TOKEN_MIN_LENGTH, 'Invalid share token')
+export type ShareToken = z.infer<typeof shareTokenSchema>
 export const authTokenSchema = z.union([
   z.object({ status: z.literal(AUTH_STATUS.PENDING) }),
   z.object({ status: z.literal(AUTH_STATUS.UNAUTHENTICATED) }),
@@ -137,6 +138,11 @@ export const dedupeSuppliersSchema = z.object({
   email: emailSchema,
 })
 export type DedupeSuppliers = z.infer<typeof dedupeSuppliersSchema>
+
+export const getSupplierSchema = z.object({
+  supplierId: z.uuid(),
+})
+export type GetSupplier = z.infer<typeof getSupplierSchema>
 
 export const searchSuppliersSchema = z.object({
   query: z.string().trim().min(1, 'Search query is required'),

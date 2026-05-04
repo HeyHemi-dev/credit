@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import type { Supplier } from '@/lib/types/front-end'
+import type { ShareToken } from '@/lib/types/validation-schema'
 import { useSupplierSearch } from '@/hooks/use-suppliers'
 import {
   Combobox,
@@ -14,21 +15,33 @@ import {
 
 type SupplierSearchComboboxProps = {
   eventId: string
-  shareToken?: string
+  returnResult:
+    | { returnTo: 'event'; eventId: string }
+    | { returnTo: 'share'; shareToken: ShareToken }
+  initialSupplier?: Supplier | null
   handleChange: (supplierId: string) => void
   containerRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export function SupplierSearchCombobox({
   eventId,
-  shareToken,
+  returnResult,
+  initialSupplier,
   handleChange,
   containerRef,
 }: SupplierSearchComboboxProps) {
-  const [userInput, setUserInput] = React.useState('')
+  const [userInput, setUserInput] = React.useState(
+    initialSupplier?.name ?? '',
+  )
   const [selectedSupplier, setSelectedSupplier] =
-    React.useState<Supplier | null>(null)
+    React.useState<Supplier | null>(initialSupplier ?? null)
   const { searchQuery, setSearchTerm, isPending } = useSupplierSearch(eventId)
+
+  React.useEffect(() => {
+    if (!initialSupplier) return
+    setUserInput(initialSupplier.name)
+    setSelectedSupplier(initialSupplier)
+  }, [initialSupplier])
 
   // ensure selected supplier is always in the list of results, even after a new search is performed
   const searchResults = React.useMemo(() => {
@@ -100,7 +113,7 @@ export function SupplierSearchCombobox({
               <span>Not found?</span>
               <Link
                 to="/create-supplier"
-                search={{ shareToken }}
+                search={returnResult}
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Create a new supplier
