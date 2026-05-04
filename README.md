@@ -52,20 +52,40 @@ vercel env pull
 
 ## Worktree setup
 
-After creating a git worktree, run the setup helper from the main repo:
+After creating a git worktree, pass the new worktree path to the setup helper:
 
 ```bash
 git worktree add ../credit-new-flow -b new-flow
 pnpm worktree:setup ../credit-new-flow
 ```
 
-The helper copies `.env.local` into the worktree, creates a Neon branch from `NEON_DEV_BRANCH_ID`, and rewrites the worktree's `CR_DATABASE_URL` to use the new branch. It reads `CR_NEON_PROJECT_ID`, `NEON_DEV_BRANCH_ID`, and the role/database from the main repo's `.env.local`.
+The helper copies `.env.local` from `/Users/hemi/Dev/credit` into the worktree, creates a Neon branch named from the worktree folder, rewrites the worktree's `CR_DATABASE_URL` to use the new branch, and records `NEON_WORKTREE_BRANCH_ID` so cleanup can delete the branch later.
 
-Useful options:
+Codex worktree environments can use the built-in `CODEX_WORKTREE_PATH` variable:
 
 ```bash
-pnpm worktree:setup ../credit-new-flow --branch-name worktree/new-flow
-pnpm worktree:setup ../credit-new-flow --dry-run
+pnpm worktree:setup "$CODEX_WORKTREE_PATH"
+```
+
+Cleanup deletes only the Neon branch recorded in the worktree `.env.local`:
+
+```bash
+pnpm worktree:cleanup "$CODEX_WORKTREE_PATH"
+```
+
+Suggested Codex setup script:
+
+```bash
+cd "$CODEX_WORKTREE_PATH"
+pnpm install
+pnpm worktree:setup "$CODEX_WORKTREE_PATH"
+```
+
+Suggested Codex cleanup script:
+
+```bash
+cd "$CODEX_WORKTREE_PATH"
+pnpm worktree:cleanup "$CODEX_WORKTREE_PATH"
 ```
 
 ## Database setup
