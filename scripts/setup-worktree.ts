@@ -7,7 +7,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs'
-import { basename, join, resolve } from 'node:path'
+import { join, resolve, sep } from 'node:path'
 import { parse } from 'dotenv'
 import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
@@ -184,8 +184,17 @@ const sslMode = databaseUrl.searchParams.get('sslmode') || 'require'
 if (!roleName) fail('CR_DATABASE_URL does not include a role/user name.')
 if (!databaseName) fail('CR_DATABASE_URL does not include a database name.')
 
+const targetPathParts = targetRoot.split(sep)
+const worktreesSegmentIndex = targetPathParts.findIndex(
+  (part, index) => part === 'worktrees' && targetPathParts[index - 1] === '.codex',
+)
+const worktreeName = targetPathParts[worktreesSegmentIndex + 1]
+if (worktreesSegmentIndex === -1 || !worktreeName) {
+  fail('target path must be inside .codex/worktrees/<name>.')
+}
+
 const neonBranchName =
-  `worktree/${basename(targetRoot)}`
+  `worktree/${worktreeName}`
     .trim()
     .replace(/\\/g, '/')
     .replace(/[^A-Za-z0-9._/-]+/g, '-')

@@ -52,20 +52,13 @@ vercel env pull
 
 ## Worktree setup
 
-After creating a git worktree, pass the new worktree path to the setup helper:
-
-```bash
-git worktree add ../credit-new-flow -b new-flow
-pnpm worktree:setup ../credit-new-flow
-```
-
-The helper copies `.env.local` from `/Users/hemi/Dev/credit` into the worktree, creates a Neon branch named from the worktree folder, rewrites the worktree's `CR_DATABASE_URL` to use the new branch, and records `NEON_WORKTREE_BRANCH_ID` so cleanup can delete the branch later.
-
 Codex worktree environments can use the built-in `CODEX_WORKTREE_PATH` variable:
 
 ```bash
 pnpm worktree:setup "$CODEX_WORKTREE_PATH"
 ```
+
+The helper copies `.env.local` from `/Users/hemi/Dev/credit` into the worktree, creates a Neon branch named from the `.codex/worktrees/<name>` path segment, rewrites the worktree's `CR_DATABASE_URL` to use the new branch, and records `NEON_WORKTREE_BRANCH_ID` so cleanup can delete the branch later.
 
 Cleanup deletes only the Neon branch recorded in the worktree `.env.local`:
 
