@@ -42,9 +42,36 @@ export async function uuidToGradient(uuid: string): Promise<Gradient> {
 
 async function sha256Bytes(input: string) {
   const key = input.normalize('NFKC').trim()
+
+  if (!globalThis.crypto?.subtle) return fallbackHashBytes(key)
+
   const data = new TextEncoder().encode(key)
-  const buf = await crypto.subtle.digest('SHA-256', data)
+  const buf = await globalThis.crypto.subtle.digest('SHA-256', data)
   return new Uint8Array(buf)
+}
+
+/**
+ * LAN device testing can run over plain HTTP, where iOS does not expose
+ * `crypto.subtle`. The gradient is decorative, so a deterministic non-crypto
+ * hash is enough as a local fallback.
+ */
+function fallbackHashBytes(input: string) {
+  const bytes = new Uint8Array(32)
+  let hash = 0x811c9dc5
+
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+    bytes[i % bytes.length] ^= hash >>> ((i % 4) * 8)
+  }
+
+  for (let i = input.length; i < bytes.length * 2; i++) {
+    hash ^= i + 0x9e3779b9
+    hash = Math.imul(hash, 0x01000193)
+    bytes[i % bytes.length] ^= hash >>> ((i % 4) * 8)
+  }
+
+  return bytes
 }
 
 function map16(bytes: Uint8Array, i: number, min: number, max: number) {
