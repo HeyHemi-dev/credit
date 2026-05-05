@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import type { Supplier } from '@/lib/types/front-end'
 
 import { RouteError } from '@/components/route-error'
 import { Section } from '@/components/ui/section'
@@ -7,7 +8,6 @@ import { BackButton } from '@/components/back-button'
 import { CreateSupplierForm } from '@/components/suppliers/create-supplier-form'
 import { AuthState } from '@/components/auth-state'
 import { useAuth } from '@/hooks/use-auth'
-import type { Supplier } from '@/lib/types/front-end'
 import {
   eventIdSchema,
   shareTokenSchema,
