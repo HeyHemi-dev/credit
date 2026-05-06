@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { relative } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -21,6 +23,80 @@ const tanstackDevStylesFallback: Plugin = {
       res.end('')
     })
   },
+}
+
+/**
+ * TanStack Start/Nitro can request Vite boolean asset queries as `?raw=` or
+ * `?url=` on LAN dev origins. Vite expects `?raw` / `?url`; without this shim
+ * those files are parsed as JS and local iOS testing fails before the app boots.
+ */
+const viteBooleanQueryFallback: Plugin = {
+  name: 'vite-boolean-query-fallback',
+  enforce: 'pre',
+  configResolved(config) {
+    root = config.root
+  },
+  resolveId(source, importer, options) {
+    const normalizedSource = normalizeBooleanQuery(source)
+
+    if (normalizedSource === source) return null
+
+    return this.resolve(normalizedSource, importer, {
+      ...options,
+      skipSelf: true,
+    })
+  },
+  load(id) {
+    const normalizedId = normalizeBooleanQuery(id)
+
+    if (normalizedId === id) return null
+
+    const [filePath, query = ''] = normalizedId.split('?')
+    const params = query.split('&')
+    const isRawImport = params.includes('raw')
+    const isUrlImport = params.includes('url')
+
+    if (isRawImport) {
+      const source = readFileSync(filePath, 'utf8')
+      return {
+        code: `export default ${JSON.stringify(source)}`,
+        map: null,
+      }
+    }
+
+    if (isUrlImport) {
+      const url = filePath.startsWith(root)
+        ? `/${relative(root, filePath)}`
+        : filePath
+
+      return {
+        code: `export default ${JSON.stringify(url)}`,
+        map: null,
+      }
+    }
+
+    return null
+  },
+}
+
+let root = process.cwd()
+
+function normalizeBooleanQuery(id: string) {
+  const [path, query] = id.split('?')
+  if (!query) return id
+
+  const normalizedQuery = query
+    .split('&')
+    .map((param) => {
+      if (param === 'raw=') return 'raw'
+      if (param === 'url=') return 'url'
+      if (param === 'inline=') return 'inline'
+      return param
+    })
+    .join('&')
+
+  if (normalizedQuery === query) return id
+  return `${path}?${normalizedQuery}`
 }
 
 function formatMb(bytes: number) {
@@ -131,6 +207,7 @@ const config = defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      viteBooleanQueryFallback,
       // this is the plugin that enables path aliases
       viteTsConfigPaths({
         projects: ['./tsconfig.json'],
