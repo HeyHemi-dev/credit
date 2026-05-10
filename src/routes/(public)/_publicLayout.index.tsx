@@ -89,12 +89,11 @@ function Hero() {
           Made for wedding professionals
         </p>
         <h1 className="text-5xl leading-tight font-light sm:text-6xl">
-          Tag everyone. Effortlessly.
+          Collect @tags from couples. Effortlessly.
         </h1>
         <p className="text-xl font-light">
-          Send one link. Get wedding supplier{' '}
-          <span className="text-muted-foreground/60">@</span>tags back.
-          formatted and ready-to-paste into Instagram{' '}
+          Send one link. Get wedding supplier details back. formatted and
+          ready-to-paste into Instagram, Tiktok, email, etc.{' '}
           <span className="italic">—&#8288;with thanks.</span>
         </p>
       </TextBlock>
