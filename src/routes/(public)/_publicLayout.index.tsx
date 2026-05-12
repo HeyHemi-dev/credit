@@ -14,7 +14,6 @@ import { useClipboard } from '@/hooks/use-clipboard'
 import { Textarea } from '@/components/ui/textarea'
 
 export const Route = createFileRoute('/(public)/_publicLayout/')({
-  ssr: false,
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />

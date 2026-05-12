@@ -6,8 +6,8 @@ function resolveAuthClientBaseUrl() {
     return window.location.origin
   }
 
-  // `Route.ssr = false` means this client is only consumed in the browser.
-  // Keep an absolute fallback for server-side module evaluation only.
+  // Keep an absolute fallback for server-side module evaluation. Auth UI
+  // consumers are mounted through client-only boundaries.
   return LOCAL_DEV_ORIGIN
 }
 

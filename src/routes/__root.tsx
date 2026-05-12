@@ -1,21 +1,14 @@
 /// <reference types="vite/client" />
 
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import { AuthQueryProvider } from '@daveyplate/better-auth-tanstack'
-import { AuthUIProviderTanstack } from '@daveyplate/better-auth-ui/tanstack'
-import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
-import { authClient } from '@/auth'
 
 import appCss from '@/styles.css?url'
 
 import { RouteError } from '@/components/route-error'
-import { isDev } from '@/lib/utils'
 import { RouteNotFound } from '@/components/route-not-found'
+import { DevTools } from '@/components/devtools'
 
 export const Route = createRootRoute({
-  ssr: false,
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -24,7 +17,6 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      { rel: 'stylesheet', href: betterAuthCss },
     ],
   }),
   errorComponent: ({ error, reset }) => (
@@ -42,36 +34,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
 
       <body className="min-h-screen bg-muted">
-        <AuthQueryProvider>
-          <AuthUIProviderTanstack
-            authClient={authClient}
-            social={{ providers: ['google'] }}
-            credentials={false}
-            organization={false}
-            teams={false}
-          >
-            {children}
-            <DevTools />
-            <Scripts />
-          </AuthUIProviderTanstack>
-        </AuthQueryProvider>
+        {children}
+        <DevTools />
+        <Scripts />
       </body>
     </html>
-  )
-}
-
-function DevTools() {
-  if (!isDev) return null
-
-  return (
-    <TanStackDevtools
-      config={{ position: 'bottom-right' }}
-      plugins={[
-        {
-          name: 'Tanstack Router',
-          render: <TanStackRouterDevtoolsPanel />,
-        },
-      ]}
-    />
   )
 }

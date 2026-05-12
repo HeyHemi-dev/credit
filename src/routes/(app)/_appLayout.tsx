@@ -1,56 +1,15 @@
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
-import { SignedIn, SignedOut, UserButton } from '@daveyplate/better-auth-ui'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { Main } from '@/components/ui/section'
-import { Brand, HeaderLayout } from '@/components/header'
+import { AppHeaderAuth } from '@/components/auth/app-header-auth'
 
 export const Route = createFileRoute('/(app)/_appLayout')({
+  ssr: false,
   component: RouteComponent,
 })
 
 function RouteComponent() {
   return (
-    <Main
-      header={
-        <HeaderLayout
-          left={
-            <>
-              <SignedIn>
-                <Link to="/events">
-                  <Brand id="brand" />
-                </Link>
-              </SignedIn>
-              <SignedOut>
-                <Brand id="brand" />
-              </SignedOut>
-            </>
-          }
-          right={
-            <SignedIn>
-              <UserButton
-                variant={'ghost'}
-                size={'icon'}
-                classNames={{
-                  trigger: {
-                    avatar: {
-                      fallback:
-                        'bg-primary/60 text-primary-foreground w-full h-full',
-                    },
-                  },
-                  content: {
-                    user: {
-                      avatar: {
-                        fallback:
-                          'bg-primary/60 text-primary-foreground w-full h-full',
-                      },
-                    },
-                  },
-                }}
-              />
-            </SignedIn>
-          }
-        />
-      }
-    >
+    <Main header={<AppHeaderAuth />}>
       <Outlet />
     </Main>
   )
