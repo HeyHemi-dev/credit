@@ -10,7 +10,7 @@ import { EventList, EventListSkeleton } from '@/components/events/event-list'
 import { Button } from '@/components/ui/button'
 
 import { AuthState } from '@/components/auth-state'
-import { RedirectToSignIn } from '@/components/auth/redirect-to-sign-in'
+import { RedirectToSignIn } from '@/components/auth/auth-wrappers'
 import { AUTH_STATUS } from '@/lib/constants'
 
 const eventsRouteSearchSchema = z.object({

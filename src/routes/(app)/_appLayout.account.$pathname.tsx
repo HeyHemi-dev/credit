@@ -3,7 +3,7 @@ import { Section } from '@/components/ui/section'
 
 import { Tabs, TabsList } from '@/components/ui/tabs'
 import { BackButton } from '@/components/back-button'
-import { AccountView } from '@/components/auth/account-view'
+import { AccountView } from '@/components/auth/auth-wrappers'
 
 export const Route = createFileRoute('/(app)/_appLayout/account/$pathname')({
   component: Account,

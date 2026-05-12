@@ -1,7 +1,7 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { Brand, HeaderLayout } from '@/components/header'
 import { Main, SectionContent } from '@/components/ui/section'
-import { PublicHeaderAuthActions } from '@/components/auth/public-header-auth-actions'
+import { PublicHeaderAuthActions } from '@/components/auth/auth-wrappers'
 
 export const Route = createFileRoute('/(public)/_publicLayout')({
   component: RouteComponent,

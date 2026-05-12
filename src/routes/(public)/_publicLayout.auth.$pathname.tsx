@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
-import { AuthView } from '@/components/auth/auth-view'
+import { AuthView } from '@/components/auth/auth-wrappers'
 
 export const Route = createFileRoute('/(public)/_publicLayout/auth/$pathname')({
   component: Auth,

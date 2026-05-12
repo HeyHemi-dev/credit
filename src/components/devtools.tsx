@@ -1,5 +1,5 @@
+import { ClientOnly } from '@tanstack/react-router'
 import React from 'react'
-import { ClientOnly } from '@/components/auth/client-only'
 import { isDev } from '@/lib/utils'
 
 const DevToolsClient = React.lazy(() =>
