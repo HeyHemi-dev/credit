@@ -89,7 +89,8 @@ function Hero() {
           Made for wedding professionals
         </p>
         <h1 className="text-5xl leading-tight font-light sm:text-6xl">
-          Collect @tags from couples. Effortlessly.
+          Collect <span className="text-muted-foreground/60">@</span>tags from
+          couples. Effortlessly.
         </h1>
         <p className="text-xl font-light">
           Send one link. Get wedding supplier details back. formatted and
