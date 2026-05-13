@@ -2,8 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { micromark } from 'micromark'
 import { Section } from '@/components/ui/section'
 import termsOfServiceMd from '@/static/with-thanks_terms-of-user.md?raw'
+import { pageTitle } from '@/lib/seo'
 
 export const Route = createFileRoute('/(public)/_publicLayout/terms')({
+  head: () => ({
+    meta: [
+      { title: pageTitle('Terms of Service') },
+    ],
+  }),
   component: RouteComponent,
   loader: () => {
     return {

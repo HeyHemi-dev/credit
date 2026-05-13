@@ -7,13 +7,14 @@ import appCss from '@/styles.css?url'
 import { RouteError } from '@/components/route-error'
 import { RouteNotFound } from '@/components/route-not-found'
 import { DevTools } from '@/components/devtools'
+import { SITE_NAME } from '@/lib/seo'
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'With Thanks' },
+      { title: SITE_NAME },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },

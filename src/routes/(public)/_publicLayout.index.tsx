@@ -12,8 +12,46 @@ import { ActionButton } from '@/components/copy-button'
 import { formatInstagramCredits } from '@/lib/formatters'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  HOME_DESCRIPTION,
+  HOME_SHARE_IMAGE_ALT,
+  HOME_SHARE_IMAGE_HEIGHT,
+  HOME_SHARE_IMAGE_PATH,
+  HOME_SHARE_IMAGE_WIDTH,
+  HOME_TITLE,
+  SITE_NAME,
+  absoluteUrl,
+} from '@/lib/seo'
 
 export const Route = createFileRoute('/(public)/_publicLayout/')({
+  head: () => {
+    const canonicalUrl = absoluteUrl('/')
+    const shareImageUrl = absoluteUrl(HOME_SHARE_IMAGE_PATH)
+
+    return {
+      meta: [
+        { title: HOME_TITLE },
+        { name: 'description', content: HOME_DESCRIPTION },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: SITE_NAME },
+        { property: 'og:title', content: HOME_TITLE },
+        { property: 'og:description', content: HOME_DESCRIPTION },
+        { property: 'og:url', content: canonicalUrl },
+        { property: 'og:image', content: shareImageUrl },
+        { property: 'og:image:width', content: HOME_SHARE_IMAGE_WIDTH },
+        { property: 'og:image:height', content: HOME_SHARE_IMAGE_HEIGHT },
+        { property: 'og:image:alt', content: HOME_SHARE_IMAGE_ALT },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: HOME_TITLE },
+        { name: 'twitter:description', content: HOME_DESCRIPTION },
+        { name: 'twitter:image', content: shareImageUrl },
+        { name: 'twitter:image:alt', content: HOME_SHARE_IMAGE_ALT },
+      ],
+      links: [
+        { rel: 'canonical', href: canonicalUrl },
+      ],
+    }
+  },
   component: RouteComponent,
   errorComponent: ({ error, reset }) => (
     <RouteError error={error} reset={reset} />

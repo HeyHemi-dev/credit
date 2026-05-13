@@ -2,8 +2,22 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Section } from '@/components/ui/section'
 import { Button } from '@/components/ui/button'
 import { AuthView } from '@/components/auth/auth-wrappers'
+import { pageTitle } from '@/lib/seo'
 
 export const Route = createFileRoute('/(public)/_publicLayout/auth/$pathname')({
+  head: ({ params }) => {
+    const title = params.pathname
+      .split('-')
+      .filter(Boolean)
+      .map((word) => `${word[0]?.toUpperCase() ?? ''}${word.slice(1)}`)
+      .join(' ')
+
+    return {
+      meta: [
+        { title: pageTitle(title) },
+      ],
+    }
+  },
   component: Auth,
 })
 
