@@ -2,8 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { micromark } from 'micromark'
 import privacyPolicyMd from '@/static/with-thanks_privacy-policy.md?raw'
 import { Section } from '@/components/ui/section'
+import { pageTitle } from '@/lib/seo'
 
 export const Route = createFileRoute('/(public)/_publicLayout/privacy')({
+  head: () => ({
+    meta: [
+      { title: pageTitle('Privacy Policy') },
+    ],
+  }),
   component: RouteComponent,
   loader: () => {
     return {
