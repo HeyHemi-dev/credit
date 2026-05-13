@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router'
 import React from 'react'
-import { RedirectToSignIn } from '@daveyplate/better-auth-ui'
 import z from 'zod'
 import { ActionDrawer } from '@/components/action-drawer'
 import { CreateEventForm } from '@/components/events/create-event-form'
@@ -11,6 +10,7 @@ import { EventList, EventListSkeleton } from '@/components/events/event-list'
 import { Button } from '@/components/ui/button'
 
 import { AuthState } from '@/components/auth-state'
+import { RedirectToSignIn } from '@/components/auth/auth-wrappers'
 import { AUTH_STATUS } from '@/lib/constants'
 
 const eventsRouteSearchSchema = z.object({

@@ -4,7 +4,6 @@ import {
   useRouter,
   useSearch,
 } from '@tanstack/react-router'
-import { RedirectToSignIn } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import z from 'zod'
 import { RouteError } from '@/components/route-error'
@@ -36,6 +35,7 @@ import { ActionDrawer } from '@/components/action-drawer'
 import { CreateCreditForm } from '@/components/credit/create-credit-form'
 import { Button } from '@/components/ui/button'
 import { useSupplierPrefill } from '@/hooks/use-suppliers'
+import { RedirectToSignIn } from '@/components/auth/auth-wrappers'
 
 const eventRouteSearchSchema = z.object({
   panel: z.boolean().optional(),

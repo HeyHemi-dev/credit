@@ -1,9 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { AccountView } from '@daveyplate/better-auth-ui'
 import { Section } from '@/components/ui/section'
 
 import { Tabs, TabsList } from '@/components/ui/tabs'
 import { BackButton } from '@/components/back-button'
+import { AccountView } from '@/components/auth/auth-wrappers'
 
 export const Route = createFileRoute('/(app)/_appLayout/account/$pathname')({
   component: Account,
@@ -14,14 +14,7 @@ function Account() {
   return (
     <Section>
       <AccountNav />
-      <AccountView
-        pathname={pathname}
-        classNames={{
-          base: 'grid gap-4 content-start !w-auto',
-          sidebar: { base: 'flex flex-row justify-center !w-auto' },
-        }}
-        hideNav={true}
-      />
+      <AccountView pathname={pathname} />
     </Section>
   )
 }
