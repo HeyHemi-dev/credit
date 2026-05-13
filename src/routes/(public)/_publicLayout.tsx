@@ -2,6 +2,7 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { Brand, HeaderLayout } from '@/components/header'
 import { Main, SectionContent } from '@/components/ui/section'
 import { PublicHeaderAuthActions } from '@/components/auth/auth-wrappers'
+import { HOME_DESCRIPTION } from '@/lib/seo'
 
 export const Route = createFileRoute('/(public)/_publicLayout')({
   component: RouteComponent,
@@ -36,8 +37,7 @@ function Footer() {
           <Brand className="" />
         </h2>
         <p className="text-sm text-pretty opacity-50">
-          Effortlessly collect supplier details from couples, formatted and
-          ready-to-paste into Instagram.
+          {HOME_DESCRIPTION}
         </p>
       </div>
       <div className="grid content-start gap-4">
