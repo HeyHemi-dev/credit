@@ -28,6 +28,7 @@
 - [ ] Allow archiving old events
 - [ ] Allow couples to mark event as complete
 - [ ] Dedupe events on create (event name/date/region; consider a match when 2 of 3 are similar)
+- [ ] Look into why dedupe create supplier shows unrelated Gmail addresses
 - [ ] Redirect users into the app automatically after login (likely to `/events`)
 - [ ] Add checkbox-style tag selection for copying: client-side only, allow copying a formatted subset of tags
 - [ ] Handle auth in middleware: add `src/start.ts` request middleware to attach Better Auth session/user to server context; refactor serverFns to rely on context (don’t pass session tokens from client) and enforce auth on supplier search/dedupe + other protected serverFns
