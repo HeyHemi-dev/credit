@@ -20,10 +20,15 @@ This document covers:
 - Public supplier URLs use `:slug-:publicId`.
 - `publicId` is a stable **6-character** public identifier.
 - Ratings use **thumbs up / thumbs down** with an **optional comment**.
+- Any logged-in user can leave a rating/review.
+- Rating comments go live immediately.
+- Review summary should use a smarter trust score than a straight average.
+- Recent negatives should weigh heavily, more than recent positives.
+- Negative impact should fade faster with age than positive trust.
+- Public UI should emphasize score + badges rather than expose raw scoring logic.
 
 ## Open decisions
 
-- rating permissions, moderation, and display rules
 - what is free vs paid
 
 ## 1. Supplier model
@@ -180,21 +185,59 @@ If scale ever grows beyond that, the app can support longer public ID lengths la
 
 ## 5. Rating model
 
-Partially decided.
-
-Notes to decide:
+Decision recorded at a high level.
 
 ### Rating format
 
 - rating input is `thumbs up` or `thumbs down`
 - written comment is optional
 
+### Who can rate
+
+- any logged-in supplier/user can leave a rating/review
+
+### Publishing behavior
+
+- comments are public immediately
+- ratings are public immediately
+
+### Trust score behavior
+
+- do **not** use a straight average as the main trust summary
+- use a smarter trust score that accounts for volume and recency
+- recent negatives should matter a lot
+- a new negative should outweigh several new positives
+- multiple recent negatives should trigger a strong visible downgrade
+- positive trust should build more slowly and persist longer
+- negative impact should fade faster over time than positive trust
+
+### Review visibility
+
+- old negative reviews should remain publicly visible even after their ranking impact fades
+- reviews should display timestamps, ideally in relative form
+
+### Public summary direction
+
+- public UI should emphasize the score rather than the algorithm
+- show a number plus badge-style trust cues
+- low-review suppliers can remain unrated until they reach a threshold
+- badges can be used for things like:
+  - new entrant / early reviews
+  - highly trusted
+  - many reviews
+
+### Out of MVP
+
+- reporting flows
+- supplier flagging flows
+- admin moderation/review tooling
+- pre-approval before reviews go live
+
 ### Still to decide
 
-- who can rate
-- whether every rating is public immediately
-- whether comments are public by default or moderated first
-- how rating summary is calculated and displayed
+- whether there are any limits such as one rating per user or rating-edit behavior
+- exact threshold rules for `not yet rated` / `early reviews`
+- exact badge wording and criteria
 
 ## 6. Free vs paid
 
