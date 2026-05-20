@@ -16,6 +16,7 @@ import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
+import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
 
 type PathnameProps = {
   pathname: string
@@ -30,6 +31,7 @@ function AuthUiShell({ children }: { children: React.ReactNode }) {
         social={{ providers: ['google'] }}
         credentials={false}
         organization={false}
+        redirectTo={AUTH_REDIRECT_PATH}
         teams={false}
       >
         {children}
@@ -57,7 +59,7 @@ export function PublicHeaderAuthActionsClient() {
   return (
     <AuthUiShell>
       <SignedIn>
-        <Link to="/events">
+        <Link to={AUTH_REDIRECT_PATH}>
           <span className="flex items-center gap-2 text-sm">
             Open App
             <HugeiconsIcon icon={LinkSquare02Icon} size="16" />
@@ -78,7 +80,7 @@ export function AppHeaderAuthClient() {
         left={
           <>
             <SignedIn>
-              <Link to="/events">
+              <Link to={AUTH_REDIRECT_PATH}>
                 <Brand id="brand" />
               </Link>
             </SignedIn>
