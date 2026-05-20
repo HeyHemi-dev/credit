@@ -13,14 +13,11 @@ export function fail(message: string, prefix: string): never {
   process.exit(1)
 }
 
-export function requireEnv(key: string, failPrefix = 'script failed'): string {
-  const envResult = z.string().min(1).safeParse(process.env[key])
-  if (!envResult.success) fail(`${key} is not set.`, failPrefix)
-
-  return envResult.data
-}
-
-function requireEnvFrom(env: EnvValues, key: string, failPrefix = 'script failed'): string {
+export function requireEnv(
+  key: string,
+  failPrefix = 'script failed',
+  env: EnvValues = process.env,
+): string {
   const envResult = z.string().min(1).safeParse(env[key])
   if (!envResult.success) fail(`${key} is not set.`, failPrefix)
 
@@ -30,10 +27,11 @@ function requireEnvFrom(env: EnvValues, key: string, failPrefix = 'script failed
 export function listProtectedBranchIds(
   // Worktree cleanup checks a target .env.local, while normal scripts use process.env.
   env: EnvValues = process.env,
+  failPrefix = 'script failed',
 ): Array<string> {
   const protectedBranchIds = [
-    requireEnvFrom(env, 'NEON_DEV_BRANCH_ID'),
-    requireEnvFrom(env, 'NEON_PROD_BRANCH_ID'),
+    requireEnv('NEON_DEV_BRANCH_ID', failPrefix, env),
+    requireEnv('NEON_PROD_BRANCH_ID', failPrefix, env),
   ]
 
   return protectedBranchIds
