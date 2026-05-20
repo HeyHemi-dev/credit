@@ -8,7 +8,7 @@
 | **Authentication** | Better Auth (self-hosted in app) + Google OAuth; auth/session tables stored in Neon Postgres | — |
 | **Hosting** | Vercel | — |
 | **Testing** | Vitest | — |
-| **Email** | — | Resend (transactional, not yet integrated) |
+| **Email** | Resend (transactional) | Lifecycle/marketing automation TBD |
 | **CI/CD** | — | GitHub Actions (e.g. migrations on `main`, not yet configured) |
 
 # Implementation Notes
