@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process'
 import {
   copyFileSync,
   existsSync,
@@ -11,9 +10,11 @@ import { join, resolve, sep } from 'node:path'
 import { parse } from 'dotenv'
 import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
+import { commandOutput, fail as failWithPrefix } from './helpers'
 
 const sourceRepoPath = '/Users/hemi/Dev/credit'
 const envFileName = '.env.local'
+const failPrefix = 'worktree setup failed'
 const requiredEnvKeys = [
   'CR_DATABASE_URL',
   'CR_NEON_PROJECT_ID',
@@ -21,34 +22,7 @@ const requiredEnvKeys = [
 ] as const
 
 function fail(message: string): never {
-  console.error(`worktree setup failed: ${message}`)
-  process.exit(1)
-}
-
-function commandOutput(command: string, args: Array<string>, cwd: string): string {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-  })
-
-  if (result.error) {
-    if ('code' in result.error && result.error.code === 'ENOENT') {
-      fail(`${command} was not found on PATH.`)
-    }
-
-    fail(`${command} failed.`)
-  }
-
-  if (result.status !== 0) {
-    const details = (result.stderr || result.stdout).trim()
-    fail(
-      details
-        ? `${command} ${args.join(' ')} exited with ${result.status}:\n${details}`
-        : `${command} ${args.join(' ')} exited with ${result.status}.`,
-    )
-  }
-
-  return result.stdout.trim()
+  failWithPrefix(message, failPrefix)
 }
 
 const args = process.argv.slice(2)
@@ -137,7 +111,7 @@ if (mode === 'cleanup') {
       '--color=false',
       '--analytics=false',
     ],
-    targetRoot,
+    { cwd: targetRoot, failPrefix },
   )
 
   const targetEnvContents = readFileSync(targetEnvPath, 'utf8')
@@ -161,7 +135,10 @@ if (sourceRoot === targetRoot) fail('source repo and target worktree are the sam
 if (!existsSync(sourceEnvPath)) fail(`source ${envFileName} does not exist: ${sourceEnvPath}`)
 
 const targetGitTopLevel = realpathSync(
-  commandOutput('git', ['rev-parse', '--show-toplevel'], targetRoot),
+  commandOutput('git', ['rev-parse', '--show-toplevel'], {
+    cwd: targetRoot,
+    failPrefix,
+  }),
 )
 if (targetGitTopLevel !== targetRoot) {
   fail(`target path is inside a git worktree, but not at its root: ${targetRoot}`)
@@ -232,7 +209,7 @@ const createOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  sourceRoot,
+  { cwd: sourceRoot, failPrefix },
 )
 
 const neonCreateSchema = z.object({
@@ -266,7 +243,7 @@ const connectionStringOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  sourceRoot,
+  { cwd: sourceRoot, failPrefix },
 )
 const connectionString = connectionStringOutput
   .split(/\s+/)
