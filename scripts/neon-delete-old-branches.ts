@@ -10,8 +10,6 @@ import {
 
 config({ path: '.env.local' })
 
-const failPrefix = 'Neon branch delete failed'
-
 const protectedBranchNames = new Set(['main', 'prod', 'production'])
 
 const branchSchema = z.object({
@@ -35,17 +33,17 @@ function readBranches(projectId: string) {
       '--color=false',
       '--analytics=false',
     ],
-    { failPrefix },
+    {},
   )
 
   const jsonResult = tryCatchSync(() => JSON.parse(output))
   if (jsonResult.error) {
-    fail('Neon did not return valid JSON while listing branches.', failPrefix)
+    fail('Neon did not return valid JSON while listing branches.')
   }
 
   const branchesResult = branchesSchema.safeParse(jsonResult.data)
   if (!branchesResult.success) {
-    fail('Neon branch list output was not the expected shape.', failPrefix)
+    fail('Neon branch list output was not the expected shape.')
   }
 
   return branchesResult.data
@@ -59,11 +57,11 @@ function main() {
     process.exit(1)
   }
 
-  const projectId = requireEnv('CR_NEON_PROJECT_ID', failPrefix)
+  const projectId = requireEnv('CR_NEON_PROJECT_ID')
 
   for (const branchId of branchIdsToDelete) {
     if (isProtectedBranchId(branchId)) {
-      fail(`Refusing to delete protected branch id: ${branchId}`, failPrefix)
+      fail(`Refusing to delete protected branch id: ${branchId}`)
     }
   }
 
@@ -71,15 +69,15 @@ function main() {
 
   for (const branchId of branchIdsToDelete) {
     const branch = branches.find((item) => item.id === branchId)
-    if (!branch) fail(`Branch not found: ${branchId}`, failPrefix)
+    if (!branch) fail(`Branch not found: ${branchId}`)
     if (branch.default) {
-      fail(`Refusing to delete default branch: ${branch.name} (${branch.id})`, failPrefix)
+      fail(`Refusing to delete default branch: ${branch.name} (${branch.id})`)
     }
     if (protectedBranchNames.has(branch.name.toLowerCase())) {
-      fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`, failPrefix)
+      fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`)
     }
     if (isProtectedBranchId(branch.id)) {
-      fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`, failPrefix)
+      fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`)
     }
 
     commandOutput(
@@ -93,7 +91,7 @@ function main() {
         '--color=false',
         '--analytics=false',
       ],
-      { failPrefix },
+      {},
     )
     console.log(`Deleted Neon branch ${branch.name} (${branch.id}).`)
   }

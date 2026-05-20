@@ -12,22 +12,17 @@ import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
 import {
   commandOutput,
-  fail as failWithPrefix,
+  fail,
   isProtectedBranchId,
 } from './helpers'
 
 const sourceRepoPath = '/Users/hemi/Dev/credit'
 const envFileName = '.env.local'
-const failPrefix = 'worktree setup failed'
 const requiredEnvKeys = [
   'CR_DATABASE_URL',
   'CR_NEON_PROJECT_ID',
   'NEON_DEV_BRANCH_ID',
 ] as const
-
-function fail(message: string): never {
-  failWithPrefix(message, failPrefix)
-}
 
 const args = process.argv.slice(2)
 let mode: 'cleanup' | 'setup' = 'setup'
@@ -116,7 +111,7 @@ if (mode === 'cleanup') {
       '--color=false',
       '--analytics=false',
     ],
-    { cwd: targetRoot, failPrefix },
+    { cwd: targetRoot },
   )
 
   const targetEnvContents = readFileSync(targetEnvPath, 'utf8')
@@ -142,7 +137,6 @@ if (!existsSync(sourceEnvPath)) fail(`source ${envFileName} does not exist: ${so
 const targetGitTopLevel = realpathSync(
   commandOutput('git', ['rev-parse', '--show-toplevel'], {
     cwd: targetRoot,
-    failPrefix,
   }),
 )
 if (targetGitTopLevel !== targetRoot) {
@@ -214,7 +208,7 @@ const createOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  { cwd: sourceRoot, failPrefix },
+  { cwd: sourceRoot },
 )
 
 const neonCreateSchema = z.object({
@@ -248,7 +242,7 @@ const connectionStringOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  { cwd: sourceRoot, failPrefix },
+  { cwd: sourceRoot },
 )
 const connectionString = connectionStringOutput
   .split(/\s+/)

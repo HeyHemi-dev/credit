@@ -3,23 +3,21 @@ import { z } from 'zod'
 
 type CommandOptions = {
   cwd?: string
-  failPrefix: string
 }
 
 type EnvValues = Record<string, string | undefined>
 
-export function fail(message: string, prefix: string): never {
-  console.error(`${prefix}: ${message}`)
+export function fail(message: string): never {
+  console.error(message)
   process.exit(1)
 }
 
 export function requireEnv(
   key: string,
-  failPrefix = 'script failed',
   env: EnvValues = process.env,
 ): string {
   const envResult = z.string().min(1).safeParse(env[key])
-  if (!envResult.success) fail(`${key} is not set.`, failPrefix)
+  if (!envResult.success) fail(`${key} is not set.`)
 
   return envResult.data
 }
@@ -27,11 +25,10 @@ export function requireEnv(
 export function listProtectedBranchIds(
   // Worktree cleanup checks a target .env.local, while normal scripts use process.env.
   env: EnvValues = process.env,
-  failPrefix = 'script failed',
 ): Array<string> {
   const protectedBranchIds = [
-    requireEnv('NEON_DEV_BRANCH_ID', failPrefix, env),
-    requireEnv('NEON_PROD_BRANCH_ID', failPrefix, env),
+    requireEnv('NEON_DEV_BRANCH_ID', env),
+    requireEnv('NEON_PROD_BRANCH_ID', env),
   ]
 
   return protectedBranchIds
@@ -58,10 +55,10 @@ export function commandOutput(
 
   if (result.error) {
     if ('code' in result.error && result.error.code === 'ENOENT') {
-      fail(`${command} was not found on PATH.`, options.failPrefix)
+      fail(`${command} was not found on PATH.`)
     }
 
-    fail(`${command} failed.`, options.failPrefix)
+    fail(`${command} failed.`)
   }
 
   if (result.status !== 0) {
@@ -70,7 +67,6 @@ export function commandOutput(
       details
         ? `${command} ${args.join(' ')} exited with ${result.status}:\n${details}`
         : `${command} ${args.join(' ')} exited with ${result.status}.`,
-      options.failPrefix,
     )
   }
 

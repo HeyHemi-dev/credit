@@ -5,8 +5,6 @@ import { commandOutput, fail, requireEnv } from './helpers'
 
 config({ path: '.env.local' })
 
-const failPrefix = 'Neon active branches failed'
-
 const branchSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -27,7 +25,7 @@ Environment:
     process.exit(0)
   }
 
-  const projectId = requireEnv('CR_NEON_PROJECT_ID', failPrefix)
+  const projectId = requireEnv('CR_NEON_PROJECT_ID')
   const output = commandOutput(
     'neon',
     [
@@ -40,17 +38,17 @@ Environment:
       '--color=false',
       '--analytics=false',
     ],
-    { failPrefix },
+    {},
   )
 
   const jsonResult = tryCatchSync(() => JSON.parse(output))
   if (jsonResult.error) {
-    fail('Neon did not return valid JSON while listing branches.', failPrefix)
+    fail('Neon did not return valid JSON while listing branches.')
   }
 
   const branchesResult = branchesSchema.safeParse(jsonResult.data)
   if (!branchesResult.success) {
-    fail('Neon branch list output was not the expected shape.', failPrefix)
+    fail('Neon branch list output was not the expected shape.')
   }
 
   const activeBranches = branchesResult.data.filter(
