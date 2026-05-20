@@ -5,7 +5,7 @@
 - [ ] Define directory/profile MVP (public profile fields, URL/slug strategy, rating model, what's free vs paid)
 - [ ] Decide model: 1 user -> 1 supplier, or 1 user -> many suppliers
   - one to many requires UI for switching between suppliers
-- [ ] Set up email service for transactional emails (Resend? Loops?)
+- [x] Set up email service for transactional emails (Resend? Loops?)
 - [ ] Supplier dedupe/merge workflow (avoid duplicate profiles splitting ratings) - manual; contact support, admin interface?
 - [ ] Allow suppliers to claim profiles (end-to-end)
 - [ ] Add supplier claim flow: search/select supplier to claim
@@ -29,9 +29,10 @@
 - [ ] Allow couples to mark event as complete
 - [ ] Dedupe events on create (event name/date/region; consider a match when 2 of 3 are similar)
 - [ ] Look into why dedupe create supplier shows unrelated Gmail addresses
-- [ ] Redirect users into the app automatically after login (likely to `/events`)
+- [x] Redirect users into the app automatically after login (likely to `/events`)
 - [ ] Add checkbox-style tag selection for copying: client-side only, allow copying a formatted subset of tags
 - [ ] Handle auth in middleware: add `src/start.ts` request middleware to attach Better Auth session/user to server context; refactor serverFns to rely on context (don’t pass session tokens from client) and enforce auth on supplier search/dedupe + other protected serverFns
 - [ ] Update worktree workflow script output to show active branches count (e.g. "x/10 DB branches used.")
 - [ ] Update auth settings pages to use Better Auth components
 - [ ] Use route loaders for performance (preload data) and to set/update the document title
+- [ ] Investigate Vite/Rollup large chunk build warning and identify bundle-splitting opportunities
