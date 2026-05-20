@@ -19,7 +19,6 @@ export async function sendTransactionalEmail(
   if (error) {
     logger.error('email.send.request_failed', {
       errorName: error.name,
-      recipientDomain: getRecipientDomain(input.to),
     })
     throw ERROR.NETWORK_ERROR('Email delivery failed')
   }
@@ -28,15 +27,9 @@ export async function sendTransactionalEmail(
     logger.error('email.send.provider_rejected', {
       errorName: response.error.name,
       statusCode: response.error.statusCode,
-      recipientDomain: getRecipientDomain(input.to),
     })
     throw ERROR.NETWORK_ERROR('Email delivery failed')
   }
 
   return response.data
-}
-
-function getRecipientDomain(to: string | Array<string>): string | undefined {
-  const recipient = Array.isArray(to) ? to[0] : to
-  return recipient?.split('@')[1]
 }
