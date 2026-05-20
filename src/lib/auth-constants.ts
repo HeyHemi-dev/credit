@@ -1,4 +1,5 @@
 export const AUTH_API_BASE_PATH = '/api/auth'
+export const AUTH_REDIRECT_PATH = '/events'
 export const LOCAL_DEV_ORIGIN = 'http://localhost:5173'
 const AUTH_PRODUCTION_ALLOWED_HOSTS = ['withthanks.nz', '*.vercel.app'] as const
 
