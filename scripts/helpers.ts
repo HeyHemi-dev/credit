@@ -28,6 +28,7 @@ function requireEnvFrom(env: EnvValues, key: string, failPrefix = 'script failed
 }
 
 export function listProtectedBranchIds(
+  // Worktree cleanup checks a target .env.local, while normal scripts use process.env.
   env: EnvValues = process.env,
 ): Array<string> {
   const protectedBranchIds = [
