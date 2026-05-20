@@ -12,14 +12,19 @@ This document covers:
 - what is free vs paid
 - account ownership model for suppliers
 
-## Summary decisions
+## Current decisions
 
 - A **supplier** remains a **business/brand record**, not a person.
 - MVP uses **1 user -> 1 supplier**.
-- Public profile URLs use a **supplier-owned slug** with an ID fallback for collisions and future slug changes.
-- Directory/profile MVP is **free**.
-- Ratings are **simple, event-linked, and tightly scoped** in v1.
-- Paid features stay **out of MVP**. We define the likely upgrade path now, but do not build pricing or payments yet.
+- Public profile fields are defined at a high level.
+- Public supplier URLs use `:slug-:publicId`.
+- `publicId` is a stable **6-character** public identifier.
+- Ratings use **thumbs up / thumbs down** with an **optional comment**.
+
+## Open decisions
+
+- rating permissions, moderation, and display rules
+- what is free vs paid
 
 ## 1. Supplier model
 
@@ -64,206 +69,150 @@ But that is future architecture, not MVP scope.
 
 ## 2. Public profile MVP
 
-### Goal
-
-Make supplier records useful and trustworthy as public web pages without requiring a large profile-editing system on day one.
+Decision recorded.
 
 ### Public fields in MVP
 
 These fields can appear on a public supplier profile:
 
 - business name
-- region
-- instagram handle, if present
-- tiktok handle, if present
-- services offered
-- average rating, if the supplier has enough ratings to show one
-- rating count
-- short profile status:
-  - `Unclaimed profile`
-  - `Claimed profile`
+- rating summary
+- claimed/verified status shown as a badge or tick
+- `based in` region using the existing supplier `region` field
+- `serves` regions as a new multi-value field
+- services offered as a multi-value field
+- short bio
+- public contact details:
+  - instagram handle
+  - tiktok handle
+  - phone
+  - website
+- reviews/ratings
 
-### Public fields not in MVP
+### Field rules
 
-Do not show these publicly in MVP:
+- `email` remains **required but private**
+- `bio` is optional and should stay short, around tweet length
+- public contact details are optional
+- `based in` region should follow the current supplier field optionality
+- `serves` regions and `services offered` should follow the same optional/required approach the product already uses for region and services unless we explicitly change that later
 
-- email address
-- contribution notes from events
-- event names, couple names, or wedding dates
-- any raw event-level data that could identify a couple
-- long-form bio
-- website URL
-- phone number
-- gallery images
-- pricing
-- badges, featured placements, or ads
+### Notes
 
-### Rationale
-
-The current database already captures enough structured business identity to make a usable first profile. Keeping MVP narrow reduces privacy risk and avoids creating a half-finished profile editor.
+- `serves` regions is a new field and likely needs an array/set-style representation
+- `services offered` is a profile-level multi-value field, separate from event-specific service tagging
+- the exact meaning of `claimed` vs `verified` may still need a tighter definition later even if the UI uses one trust badge
 
 ## 3. Directory MVP
 
-### Goal
+Decision pending.
 
-Make suppliers discoverable in a lightweight, SEO-friendly way.
+Notes to decide:
 
-### Directory capabilities in MVP
-
-- browse supplier profiles
-- search by business name
-- filter by service
-- filter by region
-- sort by a simple default ranking
-
-### Default ranking
-
-Use a practical default ranking, not a marketplace-style relevance system:
-
-1. claimed profiles first
-2. profiles with complete social data next
-3. higher rated profiles next
-4. alphabetical fallback
-
-This is enough for MVP and avoids inventing a paid-placement ranking model too early.
+- browse/search/filter scope
+- default sort and ranking logic
+- whether claimed profiles are treated differently from unclaimed ones
 
 ## 4. URL and slug strategy
 
-### Decision
+Decision recorded.
 
-Each supplier gets one canonical public URL:
+Notes to decide:
+### Canonical URL shape
 
-`/suppliers/:slug`
+Public supplier profile URLs use:
 
-### Slug source
-
-- Start from normalized business name.
-- Slug is stored on the supplier record, not generated on every request.
-- Slug should be editable later by the claimed owner, but not required for MVP.
-
-### Collision handling
-
-When the preferred slug is already taken, append a short stable suffix.
+- `/suppliers/:slug-:publicId`
 
 Example:
 
-- `studio-milou`
-- `studio-milou-nz`
-- `studio-milou-3f2k`
+- `/suppliers/studio-milou-3f2k9x`
 
-### Canonical fallback
+### Public ID
 
-Also support an internal ID-based fallback pattern for resolution safety:
+- `publicId` is a stable public identifier
+- it is **6 characters**
+- it is not a secret token
+- it exists to keep URLs stable even if the supplier name changes
 
-`/suppliers/:slug-:idFragment`
+### Slug behavior
 
-The product should expose the clean slug URL publicly, but implementation should preserve a stable way to resolve profiles even if:
+- the slug is derived from the supplier name
+- suppliers can change their business name later
+- when the business name changes, the slug should change too
+- the `publicId` remains the stable identity part of the URL
 
-- names change
-- slugs change later
-- duplicate business names exist
+### Redirect behavior
 
-### Guardrails
+These non-canonical forms should resolve to the right supplier and redirect to the current canonical URL:
 
-- Slugs are unique across suppliers.
-- Slugs should be reserved once assigned.
-- Redirect old slugs to the current slug once editable slugs exist.
+- `/suppliers/:publicId`
+- `/suppliers/:oldSlug-:publicId`
+
+Examples:
+
+- `/suppliers/3f2k9x` redirects to `/suppliers/studio-milou-3f2k9x`
+- `/suppliers/milou-3f2k9x` redirects to `/suppliers/studio-milou-3f2k9x`
+
+### Canonical and SEO behavior
+
+- only the current canonical URL should be rendered as the canonical page URL
+- stale slug URLs and ID-only URLs should redirect to the canonical URL
+- sitemap should contain only canonical supplier profile URLs
+
+### Why this approach
+
+This supports the three main goals:
+
+- SEO
+- human-friendly/readable URLs
+- stable links even if the supplier name changes
+
+### Future scaling note
+
+`6` characters is the chosen MVP length and is expected to be sufficient for the current NZ-focused scope.
+
+If scale ever grows beyond that, the app can support longer public ID lengths later by:
+
+- keeping existing 6-character IDs valid
+- allowing the route parser to support multiple valid lengths
+- generating longer IDs for future suppliers if needed
 
 ## 5. Rating model
 
-### Goal
+Partially decided.
 
-Add enough social proof to improve trust and discovery without opening a wide moderation surface immediately.
+Notes to decide:
 
-### MVP rating input
+### Rating format
 
-Ratings should come only from authenticated photographers tied to real event usage.
+- rating input is `thumbs up` or `thumbs down`
+- written comment is optional
 
-Recommended MVP rule:
+### Still to decide
 
-- a supplier can be rated only by the photographer who created an event that includes that supplier
-- one rating per supplier per event
-
-### MVP rating format
-
-- 1 to 5 star rating
-- optional short private moderation note for internal review later
-- no public written review text in MVP
-
-### Public display rules
-
-- show average star rating
-- show total rating count
-- hide the average until a minimum threshold is reached
-
-Recommended threshold:
-
-- do not show a public average until there are at least **3** ratings
-
-Before that, show:
-
-- `Not enough ratings yet`
-
-### Why this model
-
-- It is low-friction for photographers.
-- It is harder to abuse than open public reviews.
-- It avoids launching review text moderation at the same time as profile claiming and directory pages.
-- It ties ratings to real use of the supplier inside the product.
-
-### Out of MVP
-
-- public written reviews
-- ratings from couples
-- supplier replies
-- report/review workflows beyond basic internal removal
-- complex Bayesian or weighted ranking models
+- who can rate
+- whether every rating is public immediately
+- whether comments are public by default or moderated first
+- how rating summary is calculated and displayed
 
 ## 6. Free vs paid
 
-### Decision
+Decision pending.
 
-Directory/profile MVP is **free**.
+Notes to decide:
 
-### What is free in MVP
-
-- public supplier profile
-- appearance in directory search and browse
-- profile claim
-- editing the basic profile fields that become claim-managed later
-- ratings collection and rating display
-
-### What is not in MVP
-
-- paid tiers
-- subscriptions
-- boosted placement
-- lead capture
-- analytics dashboards
-- custom domain/profile links
-- premium gallery or richer profile modules
-
-### Why
-
-- The current product is explicitly free today in public-facing copy and terms.
-- Charging before the profile layer is useful would add friction in the wrong place.
-- A free profile helps seed supply, improve data quality, and validate whether suppliers care enough to claim and maintain listings.
-
-### Likely paid path later
-
-If the directory proves valuable, paid features should sit on top of a strong free base. The most plausible future paid bundle is:
-
-- richer profile content
-- portfolio/gallery modules
-- website link and contact CTA controls
-- analytics
-- featured placement or sponsorship labels
-
-Those are intentionally future decisions, not MVP commitments.
+- what the free claimed profile includes
+- whether unclaimed profiles appear for free
+- whether paid starts at richer profile features, lead tools, visibility boosts, or something else
 
 ## 7. Implications for later implementation
 
-When implementation starts, the likely additions are:
+Known implication from the `1 user -> 1 supplier` decision:
+
+- supplier ownership can stay simple in MVP because the app does not need supplier-switching UI or a membership model
+
+Possible later additions, depending on the remaining decisions:
 
 - supplier `slug`
 - supplier public/claim status
