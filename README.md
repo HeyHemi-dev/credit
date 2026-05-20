@@ -46,9 +46,16 @@ vercel env pull
 | ---------------------- | ----------------------------------------------------------------------------- |
 | `CR_DATABASE_URL`      | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
 | `AUTH_SECRET`          | Better Auth secret for signing/encryption.                                    |
+| `EMAIL_FROM`           | Transactional email sender address, e.g. `noreply@mail.withthanks.nz`.        |
 | `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Better Auth social sign-in.                    |
+| `RESEND_API_KEY`       | Resend API key for transactional email delivery.                              |
 | `TEST_USER_ID`         | User Id from DB for running tests against                                     |
+
+Transactional email uses Resend. Before sending real mail, verify the sending
+subdomain in Resend, including DKIM, SPF, and MX records. For the current
+no-reply setup, `EMAIL_FROM` should be an email address only; the app adds the
+`With Thanks` sender name in code.
 
 ## Worktree setup
 
@@ -87,6 +94,17 @@ pnpm worktree:cleanup "$CODEX_WORKTREE_PATH"
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm db:migrate`         | Run migrations                                                                                                               |
 | `pnpm db:probe [options]` | Verify DB connection ([scripts/db-probe.ts](scripts/db-probe.ts)); Optional `--write` arg; inserts and deletes a test event. |
+
+## Email integration test
+
+To verify the real Resend send path without sending to a human inbox, run the
+integration test suite. The normal test script skips integration tests; this
+script sets the shared integration mode, sends to Resend's `delivered@resend.dev`
+test recipient, and asserts that Resend accepts the message:
+
+```bash
+pnpm test:integration
+```
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
