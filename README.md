@@ -46,7 +46,8 @@ vercel env pull
 | ---------------------- | ----------------------------------------------------------------------------- |
 | `CR_DATABASE_URL`      | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
 | `CR_NEON_PROJECT_ID`   | Neon project id for branch setup and branch maintenance scripts.              |
-| `NEON_DEV_BRANCH_ID`   | Protected Neon development branch id; used as worktree parent branch.         |
+| `NEON_DEV_BRANCH_ID`   | Protected Neon development branch id for branch maintenance scripts.          |
+| `NEON_PROD_BRANCH_ID`  | Protected Neon production branch id for branch maintenance scripts.           |
 | `AUTH_SECRET`          | Better Auth secret for signing/encryption.                                    |
 | `EMAIL_FROM`           | Transactional email sender address, e.g. `noreply@mail.withthanks.nz`.        |
 | `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
@@ -80,7 +81,7 @@ pnpm worktree:cleanup "$WORKTREE_PATH"
 | `pnpm db:migrate`                                    | Run migrations                                                                                                               |
 | `pnpm db:probe [options]`                            | Verify DB connection ([scripts/db-probe.ts](scripts/db-probe.ts)); Optional `--write` arg; inserts and deletes a test event. |
 | `pnpm db:list-branches`                              | List active Neon branches with branch name and id.                                                                           |
-| `pnpm db:delete-branches <branch-id> [branch-id...]` | Delete explicit Neon branch ids; refuses default, prod, and `NEON_DEV_BRANCH_ID`.                                            |
+| `pnpm db:delete-branches <branch-id> [branch-id...]` | Delete explicit Neon branch ids; refuses default branches, protected branch names, `NEON_DEV_BRANCH_ID`, and `NEON_PROD_BRANCH_ID`. |
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 

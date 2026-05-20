@@ -1,7 +1,12 @@
 import { config } from 'dotenv'
 import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
-import { commandOutput, fail, requireEnv } from './helpers'
+import {
+  commandOutput,
+  fail,
+  isProtectedBranchId,
+  requireEnv,
+} from './helpers'
 
 config({ path: '.env.local' })
 
@@ -55,11 +60,9 @@ function main() {
   }
 
   const projectId = requireEnv('CR_NEON_PROJECT_ID', failPrefix)
-  const devBranchId = requireEnv('NEON_DEV_BRANCH_ID', failPrefix)
-  const protectedBranchIds = new Set([devBranchId])
 
   for (const branchId of branchIdsToDelete) {
-    if (protectedBranchIds.has(branchId)) {
+    if (isProtectedBranchId(branchId)) {
       fail(`Refusing to delete protected branch id: ${branchId}`, failPrefix)
     }
   }
@@ -75,7 +78,7 @@ function main() {
     if (protectedBranchNames.has(branch.name.toLowerCase())) {
       fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`, failPrefix)
     }
-    if (protectedBranchIds.has(branch.id)) {
+    if (isProtectedBranchId(branch.id)) {
       fail(`Refusing to delete protected branch: ${branch.name} (${branch.id})`, failPrefix)
     }
 

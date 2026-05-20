@@ -10,7 +10,11 @@ import { join, resolve, sep } from 'node:path'
 import { parse } from 'dotenv'
 import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
-import { commandOutput, fail as failWithPrefix } from './helpers'
+import {
+  commandOutput,
+  fail as failWithPrefix,
+  isProtectedBranchId,
+} from './helpers'
 
 const sourceRepoPath = '/Users/hemi/Dev/credit'
 const envFileName = '.env.local'
@@ -85,7 +89,6 @@ if (mode === 'cleanup') {
   const targetEnv = parse(readFileSync(targetEnvPath))
   const projectId = targetEnv.CR_NEON_PROJECT_ID
   const branchId = targetEnv.NEON_WORKTREE_BRANCH_ID
-  const parentBranchId = targetEnv.NEON_DEV_BRANCH_ID
 
   if (!branchId) {
     console.log(`No NEON_WORKTREE_BRANCH_ID found in ${targetEnvPath}; nothing to clean up.`)
@@ -93,8 +96,10 @@ if (mode === 'cleanup') {
   }
 
   if (!projectId) fail(`CR_NEON_PROJECT_ID is missing from ${targetEnvPath}.`)
-  if (branchId === parentBranchId) {
-    fail('Refusing to delete NEON_WORKTREE_BRANCH_ID because it matches NEON_DEV_BRANCH_ID.')
+
+  if (isProtectedBranchId(branchId, targetEnv)) {
+    console.log(`Skipping protected Neon branch cleanup: ${branchId}`)
+    process.exit(0)
   }
 
   console.log(`Target env: ${targetEnvPath}`)

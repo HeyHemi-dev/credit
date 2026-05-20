@@ -6,16 +6,45 @@ type CommandOptions = {
   failPrefix: string
 }
 
+type EnvValues = Record<string, string | undefined>
+
 export function fail(message: string, prefix: string): never {
   console.error(`${prefix}: ${message}`)
   process.exit(1)
 }
 
-export function requireEnv(key: string, failPrefix: string): string {
+export function requireEnv(key: string, failPrefix = 'script failed'): string {
   const envResult = z.string().min(1).safeParse(process.env[key])
   if (!envResult.success) fail(`${key} is not set.`, failPrefix)
 
   return envResult.data
+}
+
+function requireEnvFrom(env: EnvValues, key: string, failPrefix = 'script failed'): string {
+  const envResult = z.string().min(1).safeParse(env[key])
+  if (!envResult.success) fail(`${key} is not set.`, failPrefix)
+
+  return envResult.data
+}
+
+export function listProtectedBranchIds(
+  env: EnvValues = process.env,
+): Array<string> {
+  const protectedBranchIds = [
+    requireEnvFrom(env, 'NEON_DEV_BRANCH_ID'),
+    requireEnvFrom(env, 'NEON_PROD_BRANCH_ID'),
+  ]
+
+  return protectedBranchIds
+}
+
+export function isProtectedBranchId(
+  branchId: string,
+  env: EnvValues = process.env,
+): boolean {
+  const protectedBranchIds = listProtectedBranchIds(env)
+
+  return protectedBranchIds.includes(branchId)
 }
 
 export function commandOutput(
