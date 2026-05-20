@@ -2,9 +2,10 @@
 
 ## Directory / Profiles
 
-- [ ] Define directory/profile MVP (public profile fields, URL/slug strategy, rating model, what's free vs paid)
-- [ ] Decide model: 1 user -> 1 supplier, or 1 user -> many suppliers
+- [x] Define directory/profile MVP (public profile fields, URL/slug strategy, rating model, what's free vs paid)
+- [x] Decide model: 1 user -> 1 supplier, or 1 user -> many suppliers
   - one to many requires UI for switching between suppliers
+  - decision recorded in `documentation/with-thanks_directory-profile-mvp.md`
 - [x] Set up email service for transactional emails (Resend? Loops?)
 - [ ] Supplier dedupe/merge workflow (avoid duplicate profiles splitting ratings) - manual; contact support, admin interface?
 - [ ] Allow suppliers to claim profiles (end-to-end)

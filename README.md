@@ -117,4 +117,5 @@ pnpm test:integration
 - [Product promise](documentation/give-credit_promise.md)
 - [Design brief](documentation/give-credit_design-brief.md) — UX and constraints
 - [V1 specs](documentation/give-credit_v1-specs.md) — user flows and specs
+- [Directory/profile MVP](documentation/with-thanks_directory-profile-mvp.md) — public profile, directory, ownership, and rating decisions
 - [Lean canvas](documentation/give-credit_lean-canvas.md)
