@@ -5,7 +5,7 @@ import {
 } from '@/lib/server/email'
 import { isIntegrationTestMode } from '@/testing/integration'
 
-describe('Resend transactional email integration', () => {
+describe('sendTransactionalEmail', () => {
   it.skipIf(!isIntegrationTestMode)(
     'sends to Resend test recipient and receives an email id',
     async () => {
