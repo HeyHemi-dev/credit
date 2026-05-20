@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process'
 import {
   copyFileSync,
   existsSync,
@@ -11,6 +10,11 @@ import { join, resolve, sep } from 'node:path'
 import { parse } from 'dotenv'
 import { z } from 'zod'
 import { tryCatchSync } from '../src/lib/try-catch'
+import {
+  commandOutput,
+  fail,
+  isProtectedBranchId,
+} from './helpers'
 
 const sourceRepoPath = '/Users/hemi/Dev/credit'
 const envFileName = '.env.local'
@@ -19,37 +23,6 @@ const requiredEnvKeys = [
   'CR_NEON_PROJECT_ID',
   'NEON_DEV_BRANCH_ID',
 ] as const
-
-function fail(message: string): never {
-  console.error(`worktree setup failed: ${message}`)
-  process.exit(1)
-}
-
-function commandOutput(command: string, args: Array<string>, cwd: string): string {
-  const result = spawnSync(command, args, {
-    cwd,
-    encoding: 'utf8',
-  })
-
-  if (result.error) {
-    if ('code' in result.error && result.error.code === 'ENOENT') {
-      fail(`${command} was not found on PATH.`)
-    }
-
-    fail(`${command} failed.`)
-  }
-
-  if (result.status !== 0) {
-    const details = (result.stderr || result.stdout).trim()
-    fail(
-      details
-        ? `${command} ${args.join(' ')} exited with ${result.status}:\n${details}`
-        : `${command} ${args.join(' ')} exited with ${result.status}.`,
-    )
-  }
-
-  return result.stdout.trim()
-}
 
 const args = process.argv.slice(2)
 let mode: 'cleanup' | 'setup' = 'setup'
@@ -111,7 +84,6 @@ if (mode === 'cleanup') {
   const targetEnv = parse(readFileSync(targetEnvPath))
   const projectId = targetEnv.CR_NEON_PROJECT_ID
   const branchId = targetEnv.NEON_WORKTREE_BRANCH_ID
-  const parentBranchId = targetEnv.NEON_DEV_BRANCH_ID
 
   if (!branchId) {
     console.log(`No NEON_WORKTREE_BRANCH_ID found in ${targetEnvPath}; nothing to clean up.`)
@@ -119,8 +91,10 @@ if (mode === 'cleanup') {
   }
 
   if (!projectId) fail(`CR_NEON_PROJECT_ID is missing from ${targetEnvPath}.`)
-  if (branchId === parentBranchId) {
-    fail('Refusing to delete NEON_WORKTREE_BRANCH_ID because it matches NEON_DEV_BRANCH_ID.')
+
+  if (isProtectedBranchId(branchId, targetEnv)) {
+    console.log(`Skipping protected Neon branch cleanup: ${branchId}`)
+    process.exit(0)
   }
 
   console.log(`Target env: ${targetEnvPath}`)
@@ -137,7 +111,7 @@ if (mode === 'cleanup') {
       '--color=false',
       '--analytics=false',
     ],
-    targetRoot,
+    { cwd: targetRoot },
   )
 
   const targetEnvContents = readFileSync(targetEnvPath, 'utf8')
@@ -161,7 +135,9 @@ if (sourceRoot === targetRoot) fail('source repo and target worktree are the sam
 if (!existsSync(sourceEnvPath)) fail(`source ${envFileName} does not exist: ${sourceEnvPath}`)
 
 const targetGitTopLevel = realpathSync(
-  commandOutput('git', ['rev-parse', '--show-toplevel'], targetRoot),
+  commandOutput('git', ['rev-parse', '--show-toplevel'], {
+    cwd: targetRoot,
+  }),
 )
 if (targetGitTopLevel !== targetRoot) {
   fail(`target path is inside a git worktree, but not at its root: ${targetRoot}`)
@@ -232,7 +208,7 @@ const createOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  sourceRoot,
+  { cwd: sourceRoot },
 )
 
 const neonCreateSchema = z.object({
@@ -266,7 +242,7 @@ const connectionStringOutput = commandOutput(
     '--color=false',
     '--analytics=false',
   ],
-  sourceRoot,
+  { cwd: sourceRoot },
 )
 const connectionString = connectionStringOutput
   .split(/\s+/)

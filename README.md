@@ -45,6 +45,9 @@ vercel env pull
 | Variable               | Purpose                                                                       |
 | ---------------------- | ----------------------------------------------------------------------------- |
 | `CR_DATABASE_URL`      | Neon Postgres (pooled) connection string. Used at runtime and by Drizzle CLI. |
+| `CR_NEON_PROJECT_ID`   | Neon project id for branch setup and branch maintenance scripts.              |
+| `NEON_DEV_BRANCH_ID`   | Protected Neon development branch id for branch maintenance scripts.          |
+| `NEON_PROD_BRANCH_ID`  | Protected Neon production branch id for branch maintenance scripts.           |
 | `AUTH_SECRET`          | Better Auth secret for signing/encryption.                                    |
 | `EMAIL_FROM`           | Transactional email sender address, e.g. `noreply@mail.withthanks.nz`.        |
 | `GOOGLE_CLIENT_ID`     | Google OAuth client ID for Better Auth social sign-in.                        |
@@ -59,52 +62,26 @@ no-reply setup, `EMAIL_FROM` should be an email address only; the app adds the
 
 ## Worktree setup
 
-Codex worktree environments can use the built-in `CODEX_WORKTREE_PATH` variable:
+Codex worktree automated setup uses [.codex/environments/environment.toml](.codex/environments/environment.toml). For manual setup, pass the `WORKTREE_PATH` variable:
 
 ```bash
-pnpm worktree:setup "$CODEX_WORKTREE_PATH"
+pnpm worktree:setup "$WORKTREE_PATH"
 ```
 
-The helper copies `.env.local` from `/Users/hemi/Dev/credit` into the worktree, creates a Neon branch named from the `.codex/worktrees/<name>` path segment, rewrites the worktree's `CR_DATABASE_URL` to use the new branch, and records `NEON_WORKTREE_BRANCH_ID` so cleanup can delete the branch later.
-
-Cleanup deletes only the Neon branch recorded in the worktree `.env.local`:
+For manual cleanup:
 
 ```bash
-pnpm worktree:cleanup "$CODEX_WORKTREE_PATH"
-```
-
-Suggested Codex setup script:
-
-```bash
-cd "$CODEX_WORKTREE_PATH"
-pnpm install
-pnpm worktree:setup "$CODEX_WORKTREE_PATH"
-```
-
-Suggested Codex cleanup script:
-
-```bash
-cd "$CODEX_WORKTREE_PATH"
-pnpm worktree:cleanup "$CODEX_WORKTREE_PATH"
+pnpm worktree:cleanup "$WORKTREE_PATH"
 ```
 
 ## Database setup
 
-| Script                    | Description                                                                                                                  |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:migrate`         | Run migrations                                                                                                               |
-| `pnpm db:probe [options]` | Verify DB connection ([scripts/db-probe.ts](scripts/db-probe.ts)); Optional `--write` arg; inserts and deletes a test event. |
-
-## Email integration test
-
-To verify the real Resend send path without sending to a human inbox, run the
-integration test suite. The normal test script skips integration tests; this
-script sets the shared integration mode, sends to Resend's `delivered@resend.dev`
-test recipient, and asserts that Resend accepts the message:
-
-```bash
-pnpm test:integration
-```
+| Script                                               | Description                                                                                                                  |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:migrate`                                    | Run migrations                                                                                                               |
+| `pnpm db:probe [options]`                            | Verify DB connection ([scripts/db-probe.ts](scripts/db-probe.ts)); Optional `--write` arg; inserts and deletes a test event. |
+| `pnpm db:list-branches`                              | List active Neon branches with branch name and id.                                                                           |
+| `pnpm db:delete-branches <branch-id> [branch-id...]` | Delete explicit Neon branch ids; refuses default branches, protected branch names, `NEON_DEV_BRANCH_ID`, and `NEON_PROD_BRANCH_ID`. |
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
@@ -114,6 +91,13 @@ Other Drizzle maintenance scripts are available in [package.json](package.json).
 
 ```bash
 pnpm test
+```
+
+The normal test script skips integration tests. To run all integration tests,
+use:
+
+```bash
+pnpm test:integration
 ```
 
 ## Project layout

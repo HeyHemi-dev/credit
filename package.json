@@ -18,6 +18,8 @@
     "worktree:setup": "tsx scripts/setup-worktree.ts",
     "worktree:cleanup": "tsx scripts/setup-worktree.ts cleanup",
     "db:probe": "tsx scripts/db-probe.ts",
+    "db:list-branches": "tsx scripts/neon-list-active-branches.ts",
+    "db:delete-branches": "tsx scripts/neon-delete-old-branches.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
     "db:push": "drizzle-kit push --config drizzle.config.ts",
