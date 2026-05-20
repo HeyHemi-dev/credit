@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { sendTransactionalEmail } from '@/lib/server/email'
+import {
+  TRANSACTIONAL_EMAIL_FROM,
+  sendTransactionalEmail,
+} from '@/lib/server/email'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe('Resend transactional email integration', () => {
@@ -8,6 +11,7 @@ describe('Resend transactional email integration', () => {
     async () => {
       // Arrange
       const email = {
+        from: TRANSACTIONAL_EMAIL_FROM,
         html: [
           '<p>This is a transactional email integration test from With Thanks.</p>',
           '<p>If Resend accepts this message, the send path is configured correctly.</p>',
