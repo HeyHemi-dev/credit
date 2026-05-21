@@ -16,7 +16,6 @@ This document covers:
 
 - A **supplier** remains a **business/brand record**, not a person.
 - MVP uses **1 user -> 1 supplier**.
-- Public profile fields are defined at a high level.
 - Public supplier URLs use `:slug-:publicId`.
 - `publicId` is a stable **6-character** public identifier.
 - Ratings use **thumbs up / thumbs down** with an **optional comment**.
@@ -26,10 +25,14 @@ This document covers:
 - Recent negatives should weigh heavily, more than recent positives.
 - Negative impact should fade faster with age than positive trust.
 - Public UI should emphasize score + badges rather than expose raw scoring logic.
+- Every supplier can exist in the shared data layer and be tagged, added to events, and reviewed.
+- Claimed suppliers get a public profile on the free tier and can edit it.
+- Long-term direction: paid suppliers are the ones shown in the directory.
+- MVP exception: unpaid suppliers will still be shown in the directory for now.
 
 ## Open decisions
 
-- what is free vs paid
+- exact future paid feature set beyond directory inclusion
 
 ## 1. Supplier model
 
@@ -74,8 +77,6 @@ But that is future architecture, not MVP scope.
 
 ## 2. Public profile MVP
 
-Decision recorded.
-
 ### Public fields in MVP
 
 These fields can appear on a public supplier profile:
@@ -87,11 +88,10 @@ These fields can appear on a public supplier profile:
 - `serves` regions as a new multi-value field
 - services offered as a multi-value field
 - short bio
-- public contact details:
-  - instagram handle
-  - tiktok handle
-  - phone
-  - website
+- instagram handle
+- tiktok handle
+- phone
+- website
 - reviews/ratings
 
 ### Field rules
@@ -102,7 +102,7 @@ These fields can appear on a public supplier profile:
 - `based in` region should follow the current supplier field optionality
 - `serves` regions and `services offered` should follow the same optional/required approach the product already uses for region and services unless we explicitly change that later
 
-### Notes
+### Open detail
 
 - `serves` regions is a new field and likely needs an array/set-style representation
 - `services offered` is a profile-level multi-value field, separate from event-specific service tagging
@@ -110,9 +110,9 @@ These fields can appear on a public supplier profile:
 
 ## 3. Directory MVP
 
-Decision pending.
+Directory behavior is only partially decided.
 
-Notes to decide:
+### Still to decide
 
 - browse/search/filter scope
 - default sort and ranking logic
@@ -120,9 +120,6 @@ Notes to decide:
 
 ## 4. URL and slug strategy
 
-Decision recorded.
-
-Notes to decide:
 ### Canonical URL shape
 
 Public supplier profile URLs use:
@@ -221,10 +218,7 @@ Decision recorded at a high level.
 - public UI should emphasize the score rather than the algorithm
 - show a number plus badge-style trust cues
 - low-review suppliers can remain unrated until they reach a threshold
-- badges can be used for things like:
-  - new entrant / early reviews
-  - highly trusted
-  - many reviews
+- badges can be used for things like `new entrant` / `early reviews`, `highly trusted`, and `many reviews`
 
 ### Out of MVP
 
@@ -241,13 +235,43 @@ Decision recorded at a high level.
 
 ## 6. Free vs paid
 
-Decision pending.
+Decision recorded at a high level.
 
-Notes to decide:
+### Shared supplier layer
 
-- what the free claimed profile includes
-- whether unclaimed profiles appear for free
-- whether paid starts at richer profile features, lead tools, visibility boosts, or something else
+- every supplier can exist in the system data layer
+- suppliers can be tagged, added to events, and reviewed regardless of claim/payment state
+
+### Free claimed profile
+
+- claimed suppliers get a public profile even on the free tier
+- claimed supplier profiles can be edited by their owner
+- in the free state, the public profile is available if someone knows the URL
+
+### Directory gate
+
+Long-term intended direction:
+
+- paid suppliers are included in the public directory
+
+MVP / current rollout exception:
+
+- unpaid suppliers will still appear in the directory for now
+
+This means the directory should be designed with the expectation that payment can later become the inclusion gate without rethinking the whole model.
+
+### Implication
+
+The product distinction is shaping up as:
+
+- supplier exists in platform data: base layer
+- supplier is claimed: public profile enabled and owner-editable
+- supplier is paid: directory inclusion gate in the intended future model
+
+### Still to decide
+
+- what additional paid features exist beyond directory inclusion
+- whether any profile features are paid-only later
 
 ## 7. Implications for later implementation
 
