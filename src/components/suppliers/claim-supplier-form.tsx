@@ -37,7 +37,7 @@ export function ClaimSupplierSettingsCard() {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg md:text-xl leading-none font-semibold">
-          Claim your business
+          Claim Your Business
         </CardTitle>
         <CardDescription className="text-xs md:text-sm">
           Search for your business to start a claim. We will email you a
