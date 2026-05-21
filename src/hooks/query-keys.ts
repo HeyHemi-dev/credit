@@ -8,6 +8,9 @@ const queryKeys = {
   supplier: (supplierId: string) => ['supplier', supplierId] as const,
   supplierSearch: (eventId: string, query: string) =>
     ['supplierSearch', eventId, query] as const,
+  supplierClaim: () => ['supplierClaim'] as const,
+  supplierClaimSearch: (query: string) =>
+    ['supplierClaimSearch', query] as const,
   supplierDedupe: (email: string, name: string) =>
     ['supplierDedupe', email, name] as const,
 }

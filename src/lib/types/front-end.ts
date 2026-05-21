@@ -30,3 +30,14 @@ export type Supplier = {
   instagramHandle: string | null
   tiktokHandle: string | null
 }
+
+export type SupplierClaimStatus = 'pending' | 'approved' | 'rejected' | 'claimed'
+
+export type SupplierClaim = {
+  supplier: Supplier
+  status: SupplierClaimStatus
+}
+
+export type SupplierClaimSearchResult = Supplier & {
+  claimStatus: 'available' | 'pending' | 'claimed' | 'claimedByYou'
+}
