@@ -28,6 +28,7 @@
 ## Other
 
 - [ ] Allow user to generate API token
+- [ ] Align settings card styles across Better Auth and custom cards (button roundness, spacing, title style, helper text, etc.)
 - [ ] Allow archiving old events
 - [ ] Allow couples to mark event as complete
 - [ ] Dedupe events on create (event name/date/region; consider a match when 2 of 3 are similar)
