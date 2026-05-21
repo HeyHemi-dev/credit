@@ -6,6 +6,7 @@ import type {
   Supplier,
   SupplierClaimSearchResult,
 } from '@/lib/types/front-end'
+import { authClient } from '@/auth'
 import { claimSupplierSchema } from '@/lib/types/validation-schema'
 import { useClaimSupplier, useMySupplierClaim, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
@@ -36,11 +37,11 @@ export function ClaimSupplierSettingsCard() {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg md:text-xl leading-none font-semibold">
-          Claim supplier profile
+          Claim your business
         </CardTitle>
         <CardDescription className="text-xs md:text-sm">
           Search for your business to start a claim. We will email you a
-          one-time code to verify the claim.
+          one-time code to verify your ownership.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
@@ -79,8 +80,15 @@ function ClaimSupplierForm({
   isPendingClaim: boolean
 }) {
   const { claimMutation } = useClaimSupplier()
+  const { data: sessionData } = authClient.useSession()
   const [selectedSupplier, setSelectedSupplier] =
     React.useState<SupplierClaimSearchResult | Supplier | null>(initialSupplier)
+  const selectedSupplierEmail = selectedSupplier?.email?.toLowerCase() ?? null
+  const sessionEmail = sessionData?.user.email?.toLowerCase() ?? null
+  const isInstantClaimAvailable =
+    !!selectedSupplierEmail &&
+    !!sessionEmail &&
+    selectedSupplierEmail === sessionEmail
 
   const form = useForm({
     defaultValues,
@@ -113,7 +121,7 @@ function ClaimSupplierForm({
           children={(field) => (
             <FormField
               field={field}
-              label="Supplier"
+              label="Your business"
               isRequired
             >
               <ClaimSupplierCombobox
@@ -128,24 +136,35 @@ function ClaimSupplierForm({
         />
       </FieldGroup>
 
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          form="claim-supplier-form"
-          disabled={
-            claimMutation.isPending ||
-            form.state.isSubmitting ||
-            !selectedSupplier ||
-            ('claimStatus' in selectedSupplier &&
-              selectedSupplier.claimStatus !== 'available')
-          }
-        >
-          {claimMutation.isPending
-            ? 'Saving…'
-            : isPendingClaim
-              ? 'Update supplier claim'
-              : 'Email verification code'}
-        </Button>
+      <div className="grid gap-2">
+        <div className="flex justify-end gap-2">
+          <Button
+            type="submit"
+            form="claim-supplier-form"
+            disabled={
+              claimMutation.isPending ||
+              form.state.isSubmitting ||
+              !selectedSupplier ||
+              ('claimStatus' in selectedSupplier &&
+                selectedSupplier.claimStatus !== 'available')
+            }
+          >
+            {claimMutation.isPending
+              ? 'Saving…'
+              : !selectedSupplier
+                ? 'Send email'
+                : isInstantClaimAvailable
+                  ? 'Claim supplier'
+                  : 'Send email'}
+          </Button>
+        </div>
+        <p className="text-right text-xs text-muted-foreground/60">
+          {selectedSupplier
+            ? isInstantClaimAvailable
+              ? 'Account email match. Instant claim available.'
+              : `A verification code will be sent to ${selectedSupplier.email}.`
+            : ''}
+        </p>
       </div>
 
       {claimMutation.isSuccess && (
