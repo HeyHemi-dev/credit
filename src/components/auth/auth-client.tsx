@@ -18,6 +18,7 @@ import { authClient } from '@/auth'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ClaimSupplierSettingsCard } from '@/components/suppliers/claim-supplier-form'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
 
 type PathnameProps = {
@@ -69,8 +70,10 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
         <SessionsCard />
         <Card>
           <CardHeader>
-            <CardTitle>Delete Account</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg md:text-xl leading-none font-semibold">
+              Delete Account
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               To delete your account and associated data, please contact us.
             </CardDescription>
           </CardHeader>
@@ -90,6 +93,7 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
   return (
     <div className="grid w-full content-start gap-4 md:gap-6">
       <UpdateNameCard />
+      <ClaimSupplierSettingsCard />
     </div>
   )
 }

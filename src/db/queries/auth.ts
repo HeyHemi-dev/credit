@@ -18,16 +18,6 @@ export async function getValidatedSession() {
     logger.error('auth.isValidSession.context.error', {
       error: error instanceof Error ? error.message : String(error),
     })
-  } else if (!data) {
-    logger.info('auth.isValidSession.context.noSession', {
-      hasBetterAuthSession: false,
-    })
-  } else {
-    logger.info('auth.isValidSession.context', {
-      hasBetterAuthSession: true,
-      betterAuthSession: data.session.token,
-      betterAuthUserId: data.user.id,
-    })
   }
 
   if (!data) return null
