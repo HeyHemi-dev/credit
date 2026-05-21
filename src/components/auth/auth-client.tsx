@@ -15,7 +15,6 @@ import { AuthUIProviderTanstack } from '@daveyplate/better-auth-ui/tanstack'
 import React from 'react'
 import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
-import { AccountProvidersCard } from '@/components/auth/account-providers-card'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
@@ -66,7 +65,6 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
   if (pathname === ACCOUNT_PATHNAME.SECURITY) {
     return (
       <div className="grid w-full content-start gap-4 md:gap-6">
-        <AccountProvidersCard />
         <SessionsCard />
       </div>
     )
