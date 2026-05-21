@@ -35,9 +35,12 @@ export function ClaimSupplierSettingsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Claim supplier profile</CardTitle>
-        <CardDescription>
-          Search for your business and submit a claim request from settings.
+        <CardTitle className="text-lg md:text-xl leading-none font-semibold">
+          Claim supplier profile
+        </CardTitle>
+        <CardDescription className="text-xs md:text-sm">
+          Search for your business to start a claim. We will email you a
+          one-time code to verify the claim.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
@@ -52,7 +55,7 @@ export function ClaimSupplierSettingsCard() {
         {claimQuery.data?.status === 'pending' && (
           <ClaimStateMessage
             title="Your supplier claim is pending."
-            description="You can update the selected supplier below before verification is added."
+            description="If the email does not auto-match, the next step is verifying with a one-time code sent to this supplier email."
             supplier={claimQuery.data.supplier}
           />
         )}
@@ -111,7 +114,6 @@ function ClaimSupplierForm({
             <FormField
               field={field}
               label="Supplier"
-              description="Search for the supplier record that matches your business."
               isRequired
             >
               <ClaimSupplierCombobox
@@ -141,14 +143,15 @@ function ClaimSupplierForm({
           {claimMutation.isPending
             ? 'Saving…'
             : isPendingClaim
-              ? 'Update claim request'
-              : 'Claim supplier'}
+              ? 'Update supplier claim'
+              : 'Email verification code'}
         </Button>
       </div>
 
       {claimMutation.isSuccess && (
         <p className="text-sm text-muted-foreground">
-          Claim request saved for {claimMutation.data.supplier.name}.
+          Claim saved for {claimMutation.data.supplier.name}. Verification
+          comes next.
         </p>
       )}
 
@@ -191,8 +194,10 @@ function ClaimSupplierCombobox({
   const statusMessage = React.useMemo(() => {
     if (isPending) return 'Searching...'
     if (searchQuery.isError) return 'Something went wrong. Please try again.'
-    if (userInput === '') return 'Start typing to search for your supplier profile.'
-    if (!searchQuery.isFetching && searchResults.length === 0) return 'No suppliers found yet.'
+    if (userInput === '')
+      return 'Start typing to find your supplier profile.'
+    if (!searchQuery.isFetching && searchResults.length === 0)
+      return 'No suppliers found yet.'
   }, [isPending, searchQuery.isError, searchQuery.isFetching, searchResults.length, userInput])
 
   return (
@@ -219,7 +224,7 @@ function ClaimSupplierCombobox({
       }}
     >
       <ComboboxInput
-        placeholder="Search suppliers..."
+        placeholder="Search by business name..."
         showClear={!!userInput}
         value={userInput}
       />
@@ -299,6 +304,6 @@ function FormErrorMessage({ message }: { message: string }) {
 function getClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
   if (status === 'pending') return 'Claim pending'
   if (status === 'claimed') return 'Already claimed'
-  if (status === 'claimedByYou') return 'Already yours'
+  if (status === 'claimedByYou') return 'Already linked to you'
   return ''
 }
