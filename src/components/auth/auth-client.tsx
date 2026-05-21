@@ -17,6 +17,7 @@ import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
 
 type PathnameProps = {
@@ -66,6 +67,22 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
     return (
       <div className="grid w-full content-start gap-4 md:gap-6">
         <SessionsCard />
+        <Card>
+          <CardHeader>
+            <CardTitle>Delete Account</CardTitle>
+            <CardDescription>
+              To delete your account and associated data, please contact us.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <a
+              href="mailto:hello.hemi.phillips@gmail.com"
+              className="text-primary text-sm underline-offset-4 hover:underline"
+            >
+              hello.hemi.phillips@gmail.com
+            </a>
+          </CardContent>
+        </Card>
       </div>
     )
   }
