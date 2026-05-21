@@ -23,7 +23,43 @@ const requiredEnvKeys = [
   'CR_NEON_PROJECT_ID',
   'NEON_DEV_BRANCH_ID',
 ] as const
+const dbBranchLimit = 10
 
+const neonBranchesSchema = z.array(
+  z.object({
+    id: z.string(),
+  }),
+)
+
+function getActiveDbBranchCount(projectId: string, cwd: string): number {
+  const branchesOutput = commandOutput(
+    'neon',
+    [
+      'branches',
+      'list',
+      '--project-id',
+      projectId,
+      '--output',
+      'json',
+      '--color=false',
+      '--analytics=false',
+    ],
+    { cwd },
+  )
+
+  const branchesJsonResult = tryCatchSync(() => JSON.parse(branchesOutput))
+  if (branchesJsonResult.error) fail('Neon did not return valid JSON while listing branches.')
+
+  const branchesResult = neonBranchesSchema.safeParse(branchesJsonResult.data)
+  if (!branchesResult.success) fail('Neon branch list output was not a valid branch array.')
+
+  return branchesResult.data.length
+}
+
+function printDbBranchUsage(projectId: string, cwd: string): void {
+  const activeDbBranchCount = getActiveDbBranchCount(projectId, cwd)
+  console.log(`${activeDbBranchCount}/${dbBranchLimit} DB branches used.`)
+}
 const args = process.argv.slice(2)
 let mode: 'cleanup' | 'setup' = 'setup'
 let targetPath: string | undefined
@@ -124,6 +160,7 @@ if (mode === 'cleanup') {
   )
 
   console.log(`Deleted Neon branch ${branchId}.`)
+  printDbBranchUsage(projectId, targetRoot)
   console.log(`Removed Neon worktree metadata from ${targetEnvPath}.`)
   process.exit(0)
 }
@@ -268,4 +305,5 @@ for (const [key, value] of [
 writeFileSync(targetEnvPath, targetEnvContents)
 
 console.log(`Created Neon branch ${createdBranch.id}.`)
+printDbBranchUsage(sourceEnv.CR_NEON_PROJECT_ID, sourceRoot)
 console.log(`Updated CR_DATABASE_URL in ${targetEnvPath}.`)
