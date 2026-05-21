@@ -70,8 +70,10 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
         <SessionsCard />
         <Card>
           <CardHeader>
-            <CardTitle>Delete Account</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg md:text-xl leading-none font-semibold">
+              Delete Account
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               To delete your account and associated data, please contact us.
             </CardDescription>
           </CardHeader>
