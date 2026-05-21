@@ -16,7 +16,7 @@ This document covers:
 
 - A **supplier** remains a **business/brand record**, not a person.
 - MVP uses **1 user -> 1 supplier**.
-- Public supplier URLs use `:slug-:publicId`.
+- Public supplier URLs use `/wedding-suppliers/:slug-:publicId`.
 - `publicId` is a stable **6-character** public identifier.
 - Ratings use **thumbs up / thumbs down** with an **optional comment**.
 - Any logged-in user can leave a rating/review.
@@ -110,13 +110,47 @@ These fields can appear on a public supplier profile:
 
 ## 3. Directory MVP
 
-Directory behavior is only partially decided.
+Directory behavior is partially decided.
+
+### Inclusion rule for now
+
+- all claimed suppliers appear in the directory
+- this includes both free and paid claimed suppliers
+
+### Longer-term direction
+
+- directory inclusion is expected to become the paid gate later
+- the current all-claimed inclusion rule is a rollout decision, not necessarily the permanent monetization model
+
+### MVP directory capabilities
+
+- browse all claimed suppliers
+- filter by `serves` regions
+- filter by `services offered`
+- allow user-selectable sorting by rating or name
+
+### Directory listing content
+
+Each directory card/list item should show:
+
+- business name
+- services offered
+- `based in`
+- `serves`
+- rating summary and badge
+
+### Default sort
+
+- default sort is `rating`
+
+### Out of scope for MVP directory
+
+- search by business name
+- filter by `based in`
 
 ### Still to decide
 
-- browse/search/filter scope
-- default sort and ranking logic
-- whether claimed profiles are treated differently from unclaimed ones
+- default ranking details behind the rating sort
 
 ## 4. URL and slug strategy
 
@@ -124,11 +158,15 @@ Directory behavior is only partially decided.
 
 Public supplier profile URLs use:
 
-- `/suppliers/:slug-:publicId`
+- `/wedding-suppliers/:slug-:publicId`
 
 Example:
 
-- `/suppliers/studio-milou-3f2k9x`
+- `/wedding-suppliers/studio-milou-3f2k9x`
+
+The public directory should live at:
+
+- `/wedding-suppliers`
 
 ### Public ID
 
@@ -148,13 +186,13 @@ Example:
 
 These non-canonical forms should resolve to the right supplier and redirect to the current canonical URL:
 
-- `/suppliers/:publicId`
-- `/suppliers/:oldSlug-:publicId`
+- `/wedding-suppliers/:publicId`
+- `/wedding-suppliers/:oldSlug-:publicId`
 
 Examples:
 
-- `/suppliers/3f2k9x` redirects to `/suppliers/studio-milou-3f2k9x`
-- `/suppliers/milou-3f2k9x` redirects to `/suppliers/studio-milou-3f2k9x`
+- `/wedding-suppliers/3f2k9x` redirects to `/wedding-suppliers/studio-milou-3f2k9x`
+- `/wedding-suppliers/milou-3f2k9x` redirects to `/wedding-suppliers/studio-milou-3f2k9x`
 
 ### Canonical and SEO behavior
 
