@@ -13,7 +13,6 @@ export const Route = createFileRoute('/api/auth/$')({
         try {
           const response = await auth.handler(request)
           const durationMs = Date.now() - startedAt
-          const location = response.headers.get('location')
 
           const shouldLogInfo =
             pathname.startsWith(`${AUTH_API_BASE_PATH}/sign-in`) ||

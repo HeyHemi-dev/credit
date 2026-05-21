@@ -62,10 +62,7 @@ export function ClaimSupplierSettingsCard() {
         )}
 
         {claimQuery.data?.status !== 'claimed' && (
-          <ClaimSupplierForm
-            initialSupplier={claimQuery.data?.supplier ?? null}
-            isPendingClaim={claimQuery.data?.status === 'pending'}
-          />
+          <ClaimSupplierForm initialSupplier={claimQuery.data?.supplier ?? null} />
         )}
       </CardContent>
     </Card>
@@ -74,10 +71,8 @@ export function ClaimSupplierSettingsCard() {
 
 function ClaimSupplierForm({
   initialSupplier,
-  isPendingClaim,
 }: {
   initialSupplier: Supplier | null
-  isPendingClaim: boolean
 }) {
   const { claimMutation } = useClaimSupplier()
   const { data: sessionData } = authClient.useSession()
