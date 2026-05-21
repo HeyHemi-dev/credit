@@ -22,13 +22,7 @@ export const Route = createFileRoute('/api/auth/$')({
             response.status >= 300
 
           if (shouldLogInfo) {
-            logger.info('auth.route', {
-              method: request.method,
-              path: pathname,
-              status: response.status,
-              location: location ?? undefined,
-              durationMs,
-            })
+            logger.info(`auth.route ${request.method} ${pathname} ${response.status}`)
           }
 
           if (!response.ok) {
