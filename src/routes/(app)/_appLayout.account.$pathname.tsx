@@ -19,7 +19,7 @@ function Account() {
   )
 }
 
-type AccountView = {
+type AccountTab = {
   label: string
   pathname: string
   isEnabled: boolean
@@ -46,7 +46,7 @@ const ACCOUNT_VIEW = {
     pathname: 'organizations',
     isEnabled: false,
   },
-} as const satisfies Record<string, AccountView>
+} as const satisfies Record<string, AccountTab>
 const ENABLED_ACCOUNT_VIEWS = Object.values(ACCOUNT_VIEW).filter(
   (view) => view.isEnabled,
 )

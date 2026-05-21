@@ -2,11 +2,12 @@ import { Link } from '@tanstack/react-router'
 import { LinkSquare02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  AccountView as BetterAuthAccountView,
   RedirectToSignIn as BetterAuthRedirectToSignIn,
   AuthView as BetterAuthView,
+  SessionsCard,
   SignedIn,
   SignedOut,
+  UpdateNameCard,
   UserButton,
 } from '@daveyplate/better-auth-ui'
 import { AuthQueryProvider } from '@daveyplate/better-auth-tanstack'
@@ -16,11 +17,17 @@ import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
 
 type PathnameProps = {
   pathname: string
 }
+
+const ACCOUNT_PATHNAME = {
+  SETTINGS: 'settings',
+  SECURITY: 'security',
+} as const
 
 function AuthUiShell({ children }: { children: React.ReactNode }) {
   return (
@@ -53,6 +60,38 @@ function BetterAuthStylesheet() {
   }, [])
 
   return null
+}
+
+function AccountSettingsContent({ pathname }: PathnameProps) {
+  if (pathname === ACCOUNT_PATHNAME.SECURITY) {
+    return (
+      <div className="grid w-full content-start gap-4 md:gap-6">
+        <SessionsCard />
+        <Card>
+          <CardHeader>
+            <CardTitle>Delete Account</CardTitle>
+            <CardDescription>
+              To delete your account and associated data, please contact us.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <a
+              href="mailto:hello.hemi.phillips@gmail.com"
+              className="text-primary text-sm underline-offset-4 hover:underline"
+            >
+              hello.hemi.phillips@gmail.com
+            </a>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid w-full content-start gap-4 md:gap-6">
+      <UpdateNameCard />
+    </div>
+  )
 }
 
 export function PublicHeaderAuthActionsClient() {
@@ -153,14 +192,7 @@ export function AuthViewClient({ pathname }: PathnameProps) {
 export function AccountViewClient({ pathname }: PathnameProps) {
   return (
     <AuthUiShell>
-      <BetterAuthAccountView
-        pathname={pathname}
-        classNames={{
-          base: 'grid gap-4 content-start !w-auto',
-          sidebar: { base: 'flex flex-row justify-center !w-auto' },
-        }}
-        hideNav={true}
-      />
+      <AccountSettingsContent pathname={pathname} />
     </AuthUiShell>
   )
 }
