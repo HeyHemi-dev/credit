@@ -118,23 +118,23 @@ export async function createOrUpdateSupplierClaim(
       : await saveSupplierClaim(existingClaimForUser.claim, supplierId)
 
   if (userEmail.trim().toLowerCase() !== supplier.email.trim().toLowerCase()) {
-    // TODO: replace ternery
+    let verificationLastSentAt: string | null = null
+
+    if (
+      existingClaimForUser?.claim.supplierId === supplierId &&
+      existingClaimForUser.claim.status === 'pending'
+    ) {
+      verificationLastSentAt =
+        existingClaimForUser.verification?.lastSentAt.toISOString() ?? null
+    }
+
     return {
       supplier: mapSupplierToClient(supplier),
       status: 'pending',
-      verification:
-        existingClaimForUser?.claim.supplierId === supplierId &&
-        existingClaimForUser.claim.status === 'pending'
-          ? {
-              email: supplier.email,
-              lastSentAt:
-                existingClaimForUser.verification?.lastSentAt.toISOString() ??
-                null,
-            }
-          : {
-              email: supplier.email,
-              lastSentAt: null,
-            },
+      verification: {
+        email: supplier.email,
+        lastSentAt: verificationLastSentAt,
+      },
     }
   }
 
