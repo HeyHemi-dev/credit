@@ -3,10 +3,12 @@ import { createServerFn } from '@tanstack/react-start'
 import {
   approveSupplierClaim,
   claimSupplierForUser,
+  getSupplierClaimByUserId,
 } from '@/db/queries/supplier-claims'
 import {
   consumeSupplierClaimVerification,
-  createOrRefreshSupplierClaimVerification,
+  createSupplierClaimVerification,
+  refreshSupplierClaimVerification,
   verifySupplierClaimCode,
 } from '@/db/queries/supplier-claim-verifications'
 import { requireValidatedSession } from '@/db/queries/auth'
@@ -23,6 +25,7 @@ import {
 } from '@/lib/types/validation-schema'
 
 const SUPPLIER_CLAIM_CODE_EXPIRY_MS = 10 * 60 * 1000
+const SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS = 30_000
 
 export const sendSupplierClaimVerificationCodeFn = createServerFn({
   method: 'POST',
@@ -90,6 +93,49 @@ export async function sendSupplierClaimVerificationCode(
   })
 
   return verification
+}
+
+export async function createOrRefreshSupplierClaimVerification(
+  userId: string,
+  codeHash: string,
+  expiresAt: Date,
+) {
+  const claim = await getSupplierClaimByUserId(userId)
+  if (!claim || claim.claim.status !== 'pending') {
+    throw ERROR.INVALID_STATE('Start a supplier claim before requesting a code')
+  }
+
+  if (
+    claim.supplier.claimedByUserId &&
+    claim.supplier.claimedByUserId !== userId
+  ) {
+    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
+  }
+
+  const now = new Date()
+  if (
+    claim.verification &&
+    now.getTime() - claim.verification.lastSentAt.getTime() <
+      SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS
+  ) {
+    throw ERROR.INVALID_STATE(
+      'Please wait 30 seconds before requesting a new code',
+    )
+  }
+
+  if (!claim.verification) {
+    return await createSupplierClaimVerification(
+      claim.claim.id,
+      codeHash,
+      expiresAt,
+    )
+  }
+
+  return await refreshSupplierClaimVerification(
+    claim.verification.id,
+    codeHash,
+    expiresAt,
+  )
 }
 
 function hashSupplierClaimVerificationCode(userId: string, code: string) {

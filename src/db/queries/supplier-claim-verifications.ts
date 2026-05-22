@@ -1,12 +1,11 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
+import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
 import { supplierClaimVerifications } from '@/db/schema'
 import { ERROR } from '@/lib/errors'
 import { tryCatch } from '@/lib/try-catch'
-import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
 
 const SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS = 5
-const SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS = 30_000
 
 export type SupplierClaimVerificationRow =
   typeof supplierClaimVerifications.$inferSelect
@@ -48,59 +47,43 @@ export async function consumeSupplierClaimVerification(verificationId: string) {
   return rows[0]
 }
 
-// TODO: move up a layer to serverfns, so business logic is separated from db queries. similar to `createOrUpdateSupplierClaim`
-export async function createOrRefreshSupplierClaimVerification(
-  userId: string,
+export async function createSupplierClaimVerification(
+  supplierClaimId: string,
   codeHash: string,
   expiresAt: Date,
 ) {
-  const claim = await getPendingSupplierClaimByUserId(userId)
-  if (!claim)
-    throw ERROR.INVALID_STATE('Start a supplier claim before requesting a code')
-  if (
-    claim.supplier.claimedByUserId &&
-    claim.supplier.claimedByUserId !== userId
-  ) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
-  }
-
   const now = new Date()
-  if (
-    claim.verification &&
-    now.getTime() - claim.verification.lastSentAt.getTime() <
-      SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS
-  ) {
-    throw ERROR.INVALID_STATE(
-      'Please wait 30 seconds before requesting a new code',
-    )
+  const { data: rows, error } = await tryCatch(
+    db
+      .insert(supplierClaimVerifications)
+      .values({
+        supplierClaimId,
+        codeHash,
+        expiresAt,
+        consumedAt: null,
+        attemptCount: 0,
+        lastSentAt: now,
+      })
+      .returning(),
+  )
+
+  if (error) {
+    throw ERROR.DATABASE_ERROR('Failed to save supplier claim verification')
   }
 
-  if (!claim.verification) {
-    const { data: rows, error } = await tryCatch(
-      db
-        .insert(supplierClaimVerifications)
-        .values({
-          supplierClaimId: claim.claim.id,
-          codeHash,
-          expiresAt,
-          consumedAt: null,
-          attemptCount: 0,
-          lastSentAt: now,
-        })
-        .returning(),
-    )
-
-    if (error) {
-      throw ERROR.DATABASE_ERROR('Failed to save supplier claim verification')
-    }
-
-    if (rows.length === 0) {
-      throw ERROR.DATABASE_ERROR('Failed to save supplier claim verification')
-    }
-
-    return rows[0]
+  if (rows.length === 0) {
+    throw ERROR.DATABASE_ERROR('Failed to save supplier claim verification')
   }
 
+  return rows[0]
+}
+
+export async function refreshSupplierClaimVerification(
+  verificationId: string,
+  codeHash: string,
+  expiresAt: Date,
+) {
+  const now = new Date()
   const { data: rows, error } = await tryCatch(
     db
       .update(supplierClaimVerifications)
@@ -112,7 +95,7 @@ export async function createOrRefreshSupplierClaimVerification(
         lastSentAt: now,
         updatedAt: now,
       })
-      .where(eq(supplierClaimVerifications.id, claim.verification.id))
+      .where(eq(supplierClaimVerifications.id, verificationId))
       .returning(),
   )
 
