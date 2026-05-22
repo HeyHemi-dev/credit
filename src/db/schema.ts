@@ -159,7 +159,6 @@ export const eventSupplierColumns = getTableColumns(eventSuppliers)
 // Neon Auth schema - for reference only
 // ===================================================
 
-// TODO: replace neon auth references with better auth.
 export const neonAuth = pgSchema('neon_auth')
 
 export const userInNeonAuth = neonAuth.table(
