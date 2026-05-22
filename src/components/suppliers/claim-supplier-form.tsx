@@ -409,7 +409,7 @@ function ClaimSupplierCombobox({
                 )}
                 {supplier.claimStatus !== 'available' && (
                   <span className="text-muted-foreground">
-                    {getClaimStatusLabel(supplier.claimStatus)}
+                    {toClaimStatusLabel(supplier.claimStatus)}
                   </span>
                 )}
               </p>
@@ -461,7 +461,7 @@ function FormErrorMessage({ message }: { message: string }) {
 }
 
 // TODO: make this inline
-function getClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
+function toClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
   if (status === 'pending') return 'Claim pending'
   if (status === 'claimed') return 'Already claimed'
   if (status === 'claimedByYou') return 'Already linked to you'
