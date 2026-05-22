@@ -1,35 +1,13 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
-import { Alert02Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import type {
-  Supplier,
-  SupplierClaim,
-  SupplierClaimSearchResult,
-} from '@/lib/types/front-end'
+import type { Supplier, SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { authClient } from '@/auth'
-import {
-  claimSupplierSchema,
-  verifySupplierClaimCodeSchema,
-} from '@/lib/types/validation-schema'
-import {
-  useClaimSupplier,
-  useMySupplierClaim,
-  useSendSupplierClaimVerificationCode,
-  useSupplierClaimSearch,
-  useVerifySupplierClaimCode,
-} from '@/hooks/use-supplier-claims'
+import { claimSupplierSchema } from '@/lib/types/validation-schema'
+import { useClaimSupplier, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
+import { FormErrorMessage } from '@/components/suppliers/supplier-claim-shared'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 import {
   Combobox,
   ComboboxContent,
@@ -43,65 +21,11 @@ type ClaimSupplierFormValues = {
   supplierId: string
 }
 
-type VerifyClaimCodeFormValues = {
-  code: string
-}
-
 const defaultValues: ClaimSupplierFormValues = {
   supplierId: '',
 }
 
-const verifyCodeDefaultValues: VerifyClaimCodeFormValues = {
-  code: '',
-}
-
-// TODO: move card to separate file
-// TODO: make a settings card component for consistent styling of cards. props: title, description, children
-export function ClaimSupplierSettingsCard() {
-  const { claimQuery } = useMySupplierClaim()
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg leading-none font-semibold md:text-xl">
-          Claim Your Business
-        </CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Search for your business to start a claim. We will email you a
-          one-time code to verify your ownership.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6">
-        {claimQuery.data?.status === 'claimed' && (
-          <ClaimStateMessage
-            title="This supplier profile is already yours."
-            description="You’re connected to the supplier profile below."
-            supplier={claimQuery.data.supplier}
-          />
-        )}
-
-        {claimQuery.data?.status === 'pending' && (
-          <>
-            <ClaimStateMessage
-              title="Your supplier claim is pending."
-              description="Finish verification with the 6-character code sent to this supplier email."
-              supplier={claimQuery.data.supplier}
-            />
-            <PendingClaimVerificationSection claim={claimQuery.data} />
-          </>
-        )}
-
-        {claimQuery.data?.status !== 'claimed' && (
-          <ClaimSupplierForm
-            initialSupplier={claimQuery.data?.supplier ?? null}
-          />
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function ClaimSupplierForm({
+export function ClaimSupplierForm({
   initialSupplier,
 }: {
   initialSupplier: Supplier | null
@@ -206,121 +130,6 @@ function ClaimSupplierForm({
   )
 }
 
-// TODO: Move to separate file
-function PendingClaimVerificationSection({ claim }: { claim: SupplierClaim }) {
-  const { sendCodeMutation } = useSendSupplierClaimVerificationCode()
-  const { verifyCodeMutation } = useVerifySupplierClaimCode()
-
-  const form = useForm({
-    defaultValues: verifyCodeDefaultValues,
-    validators: {
-      onSubmit: verifySupplierClaimCodeSchema,
-    },
-    onSubmit: async ({ value }) => {
-      await verifyCodeMutation.mutateAsync(value.code)
-    },
-  })
-
-  return (
-    <div className="grid gap-4 rounded-2xl border border-border/60 bg-background p-4">
-      <div className="grid gap-1">
-        <p className="font-medium">Verify by email</p>
-        <p className="text-sm text-muted-foreground">
-          {claim.verification?.lastSentAt
-            ? `We sent a code to ${claim.supplier.email}. Enter it below to finish your claim.`
-            : `We’ll send a 6-character code to ${claim.supplier.email}.`}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => sendCodeMutation.mutate()}
-          disabled={sendCodeMutation.isPending}
-        >
-          {sendCodeMutation.isPending
-            ? 'Sending…'
-            : claim.verification?.lastSentAt
-              ? 'Resend code'
-              : 'Send code'}
-        </Button>
-        {/* TODO: derive X mins from SUPPLIER_CLAIM_CODE_EXPIRY_MS, so server and UI stay in sync */}
-        {/* TODO: make this a count down */}
-        {/* Create a relative time formatting fn (if it doesn't exist) for formating MS in s, m, h, d, months */}
-        <p className="text-xs text-muted-foreground">
-          Codes expire after 10 minutes.
-        </p>
-      </div>
-
-      {sendCodeMutation.isSuccess && (
-        <p className="text-sm text-muted-foreground">
-          We sent a fresh code to {claim.supplier.email}.
-        </p>
-      )}
-
-      <form
-        id="verify-supplier-claim-form"
-        onSubmit={(event) => {
-          event.preventDefault()
-          form.handleSubmit()
-        }}
-        className="grid gap-4"
-      >
-        <FieldGroup className="grid gap-4">
-          <form.Field
-            name="code"
-            children={(field) => (
-              <FormField
-                field={field}
-                label="Verification code"
-                description="Enter the 6-character code from your email."
-                isRequired
-              >
-                <Input
-                  id={field.name}
-                  inputMode="text"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  placeholder="a1b2c3"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) =>
-                    field.handleChange(
-                      event.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '')
-                        .slice(0, 6),
-                    )
-                  }
-                />
-              </FormField>
-            )}
-          />
-        </FieldGroup>
-
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            form="verify-supplier-claim-form"
-            disabled={verifyCodeMutation.isPending || form.state.isSubmitting}
-          >
-            {verifyCodeMutation.isPending ? 'Verifying…' : 'Verify claim'}
-          </Button>
-        </div>
-      </form>
-
-      {sendCodeMutation.error?.message && (
-        <FormErrorMessage message={sendCodeMutation.error.message} />
-      )}
-
-      {verifyCodeMutation.error?.message && (
-        <FormErrorMessage message={verifyCodeMutation.error.message} />
-      )}
-    </div>
-  )
-}
-
 function ClaimSupplierCombobox({
   initialSupplier,
   onSelect,
@@ -421,42 +230,6 @@ function ClaimSupplierCombobox({
         </ComboboxStatus>
       </ComboboxContent>
     </Combobox>
-  )
-}
-
-function ClaimStateMessage({
-  title,
-  description,
-  supplier,
-}: {
-  title: string
-  description: string
-  supplier: Supplier
-}) {
-  return (
-    <div className="grid gap-2 rounded-2xl border border-border/60 bg-muted/30 p-4">
-      <div className="grid gap-0.5">
-        <p className="font-medium">{title}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="grid gap-0.5 text-sm">
-        <p className="font-medium">{supplier.name}</p>
-        <p className="text-muted-foreground">{supplier.email}</p>
-        {supplier.region && (
-          <p className="text-muted-foreground">Based in {supplier.region}</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// TODO: consider if this should be generic and used in other forms (if so, move to generic place)
-function FormErrorMessage({ message }: { message: string }) {
-  return (
-    <div className="grid grid-cols-[auto_1fr] gap-2 rounded-2xl bg-destructive/5 p-4 text-destructive ring-1 ring-destructive/10">
-      <HugeiconsIcon icon={Alert02Icon} className="size-4" />
-      <span>{message}</span>
-    </div>
   )
 }
 

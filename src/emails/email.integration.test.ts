@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   TRANSACTIONAL_EMAIL_FROM,
   sendTransactionalEmail,
-} from '@/lib/server/email'
+} from '@/emails/email'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe('sendTransactionalEmail', () => {

@@ -7,13 +7,16 @@ import {
   claimSupplierFn,
   getMySupplierClaimFn,
   searchSuppliersToClaimFn,
+} from '@/lib/server/supplier-claims'
+import {
   sendSupplierClaimVerificationCodeFn,
   verifySupplierClaimCodeFn,
-} from '@/lib/server/supplier-claims'
+} from '@/lib/server/supplier-claim-verifications'
 
 export function useMySupplierClaim() {
   const getMySupplierClaim = useServerFn(getMySupplierClaimFn)
 
+  // TODO: consdier using suspense query and suspense boundary at callsite
   const claimQuery = useQuery({
     queryKey: queryKeys.supplierClaim(),
     queryFn: async () => {

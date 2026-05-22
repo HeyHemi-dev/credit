@@ -5,12 +5,14 @@ import { db } from '@/db/connection'
 import {
   approveSupplierClaim,
   claimSupplierForUser,
-  consumeSupplierClaimVerification,
-  createOrRefreshSupplierClaimVerification,
   getSupplierClaimByUserId,
   getSupplierOwnedByUserId,
-  verifySupplierClaimCode,
 } from '@/db/queries/supplier-claims'
+import {
+  consumeSupplierClaimVerification,
+  createOrRefreshSupplierClaimVerification,
+  verifySupplierClaimCode,
+} from '@/db/queries/supplier-claim-verifications'
 import {
   supplierClaimVerifications,
   suppliers,
