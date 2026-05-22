@@ -13,6 +13,7 @@ import { SERVICE, SERVICE_KEYS } from '@/lib/constants'
 import { FormField } from '@/components/ui/form-field'
 import { useCredits } from '@/hooks/use-credits'
 import { Button } from '@/components/ui/button'
+import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { SupplierSearchCombobox } from '@/components/credit/supplier-search-combobox'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreditContext } from '@/contexts/credit-page-context'
@@ -140,22 +141,28 @@ export function CreateCreditForm({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2">
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={() => onCancel()}
-          disabled={form.state.isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          form="create-event-credit-form"
-          disabled={form.state.isSubmitting}
-        >
-          Save
-        </Button>
+      <div className="grid gap-2">
+        {createCreditMutation.error?.message && (
+          <FormErrorMessage message={createCreditMutation.error.message} />
+        )}
+
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => onCancel()}
+            disabled={form.state.isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="create-event-credit-form"
+            disabled={form.state.isSubmitting}
+          >
+            Save
+          </Button>
+        </div>
       </div>
     </form>
   )

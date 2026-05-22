@@ -7,10 +7,10 @@ import {
   useSendSupplierClaimVerificationCode,
   useVerifySupplierClaimCode,
 } from '@/hooks/use-supplier-claims'
-import { FormErrorMessage } from '@/components/suppliers/supplier-claim-shared'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
+import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { Input } from '@/components/ui/input'
 
 type VerifyClaimCodeFormValues = {

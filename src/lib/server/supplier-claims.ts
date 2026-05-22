@@ -81,7 +81,6 @@ export const claimSupplierFn = createServerFn({ method: 'POST' })
     return claim
   })
 
-// TODO: refactor if some db queries can run concurrently
 export async function createOrUpdateSupplierClaim(
   supplierId: string,
   userId: string,
