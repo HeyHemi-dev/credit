@@ -12,6 +12,10 @@ import {
   verifySupplierClaimCode,
 } from '@/db/queries/supplier-claim-verifications'
 import { requireValidatedSession } from '@/db/queries/auth'
+import {
+  SUPPLIER_CLAIM_CODE_EXPIRY_MS,
+  SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS,
+} from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { generateToken } from '@/lib/generate-token'
 import {
@@ -23,9 +27,6 @@ import {
   emptyInputSchema,
   verifySupplierClaimCodeSchema,
 } from '@/lib/types/validation-schema'
-
-const SUPPLIER_CLAIM_CODE_EXPIRY_MS = 10 * 60 * 1000
-const SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS = 30_000
 
 export const sendSupplierClaimVerificationCodeFn = createServerFn({
   method: 'POST',

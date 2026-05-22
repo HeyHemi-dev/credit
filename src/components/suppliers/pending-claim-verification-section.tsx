@@ -1,5 +1,7 @@
 import { useForm } from '@tanstack/react-form'
 import type { SupplierClaim } from '@/lib/types/front-end'
+import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
+import { formatDurationFromMs } from '@/lib/format-dates'
 import { verifySupplierClaimCodeSchema } from '@/lib/types/validation-schema'
 import {
   useSendSupplierClaimVerificationCode,
@@ -36,6 +38,9 @@ export function PendingClaimVerificationSection({
       await verifyCodeMutation.mutateAsync(value.code)
     },
   })
+  const expiryDurationLabel = formatDurationFromMs(
+    SUPPLIER_CLAIM_CODE_EXPIRY_MS,
+  )
 
   return (
     <div className="grid gap-4 rounded-2xl border border-border/60 bg-background p-4">
@@ -61,11 +66,10 @@ export function PendingClaimVerificationSection({
               ? 'Resend code'
               : 'Send code'}
         </Button>
-        {/* TODO: derive X mins from SUPPLIER_CLAIM_CODE_EXPIRY_MS, so server and UI stay in sync */}
         {/* TODO: make this a count down */}
-        {/* Create a relative time formatting fn (if it doesn't exist) for formating MS in s, m, h, d, months */}
+
         <p className="text-xs text-muted-foreground">
-          Codes expire after 10 minutes.
+          Codes expire after {expiryDurationLabel}.
         </p>
       </div>
 
