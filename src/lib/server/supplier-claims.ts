@@ -87,7 +87,18 @@ export async function createOrUpdateSupplierClaim(
   userId: string,
   userEmail: string,
 ): Promise<SupplierClaim> {
-  const ownedSupplier = await getSupplierOwnedByUserId(userId)
+  const [
+    ownedSupplier,
+    supplier,
+    existingClaimForSupplier,
+    existingClaimForUser,
+  ] = await Promise.all([
+    getSupplierOwnedByUserId(userId),
+    getSupplierById(supplierId),
+    getSupplierClaimRowBySupplierId(supplierId),
+    getSupplierClaimByUserId(userId),
+  ])
+
   if (ownedSupplier) {
     if (ownedSupplier.id === supplierId) {
       throw ERROR.INVALID_STATE('You already own this supplier profile')
@@ -96,22 +107,18 @@ export async function createOrUpdateSupplierClaim(
     throw ERROR.RESOURCE_CONFLICT('You already have a claimed supplier profile')
   }
 
-  const supplier = await getSupplierById(supplierId)
   if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
 
   if (supplier.claimedByUserId && supplier.claimedByUserId !== userId) {
     throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
   }
 
-  const existingClaimForSupplier =
-    await getSupplierClaimRowBySupplierId(supplierId)
   if (existingClaimForSupplier && existingClaimForSupplier.userId !== userId) {
     throw ERROR.RESOURCE_CONFLICT(
       'This supplier already has a pending claim request',
     )
   }
 
-  const existingClaimForUser = await getSupplierClaimByUserId(userId)
   const nextClaim =
     existingClaimForUser === null
       ? await createSupplierClaim(supplierId, userId)
