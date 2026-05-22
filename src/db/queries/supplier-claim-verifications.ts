@@ -20,7 +20,8 @@ export async function deleteSupplierClaimVerificationByClaimId(
       .where(eq(supplierClaimVerifications.supplierClaimId, supplierClaimId)),
   )
 
-  if (error) throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
+  if (error)
+    throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
 }
 
 export async function consumeSupplierClaimVerification(verificationId: string) {
@@ -47,6 +48,7 @@ export async function consumeSupplierClaimVerification(verificationId: string) {
   return rows[0]
 }
 
+// TODO: move up a layer to serverfns, so business logic is separated from db queries. similar to `createOrUpdateSupplierClaim`
 export async function createOrRefreshSupplierClaimVerification(
   userId: string,
   codeHash: string,
@@ -154,7 +156,9 @@ export async function verifySupplierClaimCode(
   if (
     claim.verification.attemptCount >= SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS
   ) {
-    throw ERROR.INVALID_STATE('Too many incorrect attempts. Request a new code.')
+    throw ERROR.INVALID_STATE(
+      'Too many incorrect attempts. Request a new code.',
+    )
   }
 
   if (claim.verification.codeHash !== codeHash) {
@@ -183,7 +187,9 @@ export async function verifySupplierClaimCode(
     }
 
     if (nextAttemptCount >= SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS) {
-      throw ERROR.INVALID_STATE('Too many incorrect attempts. Request a new code.')
+      throw ERROR.INVALID_STATE(
+        'Too many incorrect attempts. Request a new code.',
+      )
     }
 
     throw ERROR.VALIDATION_ERROR('Incorrect code. Try again.')
