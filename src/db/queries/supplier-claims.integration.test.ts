@@ -3,8 +3,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import {
+  approveSupplierClaim,
+  claimSupplierForUser,
+  consumeSupplierClaimVerification,
   createOrRefreshSupplierClaimVerification,
-  createOrUpdateSupplierClaim,
   getSupplierClaimByUserId,
   getSupplierOwnedByUserId,
   verifySupplierClaimCode,
@@ -14,8 +16,10 @@ import {
   suppliers,
   userInNeonAuth,
 } from '@/db/schema'
+import { createOrUpdateSupplierClaim } from '@/lib/server/supplier-claims'
 import { isIntegrationTestMode } from '@/testing/integration'
 
+// TODO: split tests, so that each descibe is one function
 describe('supplier claims', () => {
   const createdSupplierIds: Array<string> = []
   const createdUserIds: Array<string> = []
@@ -31,6 +35,7 @@ describe('supplier claims', () => {
     }
   })
 
+  // TODO: Skip should be on the describe or test/file level. not each individual test
   it.skipIf(!isIntegrationTestMode)(
     'creates a pending claim when the login email does not match the supplier email',
     async () => {
@@ -46,8 +51,7 @@ describe('supplier claims', () => {
       )
 
       // Assert
-      expect(claim.userId).toBe(user.id)
-      expect(claim.supplierId).toBe(supplier.id)
+      expect(claim.supplier.id).toBe(supplier.id)
       expect(claim.status).toBe('pending')
     },
   )
@@ -86,7 +90,15 @@ describe('supplier claims', () => {
       )
 
       // Act
-      await verifySupplierClaimCode(user.id, hashVerificationCode(user.id, code))
+      const claim = await verifySupplierClaimCode(
+        user.id,
+        hashVerificationCode(user.id, code),
+      )
+      await claimSupplierForUser(claim.supplier.id, user.id)
+      await approveSupplierClaim(claim.claim.id)
+      if (claim.verification) {
+        await consumeSupplierClaimVerification(claim.verification.id)
+      }
       const savedClaim = await getSupplierClaimByUserId(user.id)
       const ownedSupplier = await getSupplierOwnedByUserId(user.id)
 
@@ -118,7 +130,9 @@ describe('supplier claims', () => {
       const [verification] = await db
         .select()
         .from(supplierClaimVerifications)
-        .where(eq(supplierClaimVerifications.supplierClaimId, updatedClaim.claim.id))
+        .where(
+          eq(supplierClaimVerifications.supplierClaimId, updatedClaim.claim.id),
+        )
         .limit(1)
 
       // Assert
@@ -128,7 +142,9 @@ describe('supplier claims', () => {
     },
   )
 
-  async function createTestUser(overrides: Partial<typeof userInNeonAuth.$inferInsert> = {}) {
+  async function createTestUser(
+    overrides: Partial<typeof userInNeonAuth.$inferInsert> = {},
+  ) {
     const userId = randomUUID()
     createdUserIds.push(userId)
 

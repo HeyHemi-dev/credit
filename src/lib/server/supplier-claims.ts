@@ -7,13 +7,21 @@ import type {
   SupplierClaimSearchResult,
   SupplierClaimStatus,
 } from '@/lib/types/front-end'
+import type { SupplierClaimRow } from '@/db/queries/supplier-claims'
 import type { SupplierRow } from '@/db/queries/suppliers'
 import { requireValidatedSession } from '@/db/queries/auth'
 import {
+  approveSupplierClaim,
+  claimSupplierForUser,
+  consumeSupplierClaimVerification,
   createOrRefreshSupplierClaimVerification,
-  createOrUpdateSupplierClaim,
+  createSupplierClaim,
+  deleteSupplierClaimVerificationByClaimId,
+  getSupplierById,
   getSupplierClaimByUserId,
+  getSupplierClaimRowBySupplierId,
   getSupplierOwnedByUserId,
+  resetSupplierClaim,
   searchSuppliersForClaim,
   verifySupplierClaimCode,
 } from '@/db/queries/supplier-claims'
@@ -59,20 +67,26 @@ export const claimSupplierFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }): Promise<SupplierClaim> => {
     const { user } = await requireValidatedSession()
 
-    // TODO: can't we just return the claim right away? do we need a roundtrip to get again?
-    await createOrUpdateSupplierClaim(data.supplierId, user.id, user.email)
-
-    const claim = await getCurrentSupplierClaim(user.id)
-    if (!claim)
-      throw ERROR.DATABASE_ERROR('Supplier claim was not found after saving')
+    const claim = await createOrUpdateSupplierClaim(
+      data.supplierId,
+      user.id,
+      user.email,
+    )
 
     if (claim.status === 'pending') {
-      await sendSupplierClaimVerificationCode(
+      const verification = await sendSupplierClaimVerificationCode(
         user.id,
         claim.supplier.name,
         claim.supplier.email,
       )
-      return await getRequiredCurrentSupplierClaim(user.id)
+
+      return {
+        ...claim,
+        verification: {
+          email: claim.supplier.email,
+          lastSentAt: verification.lastSentAt.toISOString(),
+        },
+      }
     }
 
     return claim
@@ -104,11 +118,22 @@ export const verifySupplierClaimCodeFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }): Promise<SupplierClaim> => {
     const { user } = await requireValidatedSession()
 
-    await verifySupplierClaimCode(
+    const claim = await verifySupplierClaimCode(
       user.id,
       hashSupplierClaimVerificationCode(user.id, data.code),
     )
-    return await getRequiredCurrentSupplierClaim(user.id)
+
+    await claimSupplierForUser(claim.supplier.id, user.id)
+    await approveSupplierClaim(claim.claim.id)
+    if (claim.verification) {
+      await consumeSupplierClaimVerification(claim.verification.id)
+    }
+
+    return {
+      supplier: mapSupplierToClient(claim.supplier),
+      status: 'claimed',
+      verification: null,
+    }
   })
 
 async function getCurrentSupplierClaim(
@@ -139,11 +164,82 @@ async function getCurrentSupplierClaim(
   }
 }
 
-// rename to requireSupplierClaim
 async function getRequiredCurrentSupplierClaim(userId: string) {
   const claim = await getCurrentSupplierClaim(userId)
   if (!claim) throw ERROR.DATABASE_ERROR('Supplier claim was not found')
   return claim
+}
+
+export async function createOrUpdateSupplierClaim(
+  supplierId: string,
+  userId: string,
+  userEmail: string,
+): Promise<SupplierClaim> {
+  const ownedSupplier = await getSupplierOwnedByUserId(userId)
+  if (ownedSupplier) {
+    if (ownedSupplier.id === supplierId) {
+      throw ERROR.INVALID_STATE('You already own this supplier profile')
+    }
+
+    throw ERROR.RESOURCE_CONFLICT('You already have a claimed supplier profile')
+  }
+
+  const supplier = await getSupplierById(supplierId)
+  if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
+
+  if (supplier.claimedByUserId && supplier.claimedByUserId !== userId) {
+    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
+  }
+
+  const existingClaimForSupplier = await getSupplierClaimRowBySupplierId(
+    supplierId,
+  )
+  if (existingClaimForSupplier && existingClaimForSupplier.userId !== userId) {
+    throw ERROR.RESOURCE_CONFLICT(
+      'This supplier already has a pending claim request',
+    )
+  }
+
+  const existingClaimForUser = await getSupplierClaimByUserId(userId)
+  const nextClaim =
+    existingClaimForUser === null
+      ? await createSupplierClaim(supplierId, userId)
+      : await saveSupplierClaim(existingClaimForUser.claim, supplierId)
+
+  if (userEmail.trim().toLowerCase() !== supplier.email.trim().toLowerCase()) {
+    return {
+      supplier: mapSupplierToClient(supplier),
+      status: 'pending',
+      verification:
+        existingClaimForUser?.claim.supplierId === supplierId &&
+        existingClaimForUser.claim.status === 'pending'
+          ? {
+              email: supplier.email,
+              lastSentAt:
+                existingClaimForUser.verification?.lastSentAt.toISOString() ??
+                null,
+            }
+          : {
+              email: supplier.email,
+              lastSentAt: null,
+            },
+    }
+  }
+
+  await claimSupplierForUser(supplier.id, userId)
+  await approveSupplierClaim(nextClaim.id)
+  if (
+    existingClaimForUser?.claim.id === nextClaim.id &&
+    existingClaimForUser.verification
+  ) {
+    await consumeSupplierClaimVerification(existingClaimForUser.verification.id)
+  }
+
+  return {
+    supplier: mapSupplierToClient(supplier),
+    status: 'claimed',
+    verification: null,
+  }
 }
 
 // TODO: move to an emails file, this should be treated as one layer deeper, similar to how queries are one layer deeper.
@@ -155,7 +251,7 @@ async function sendSupplierClaimVerificationCode(
   const code = generateToken(6)
   const expiresAt = new Date(Date.now() + SUPPLIER_CLAIM_CODE_EXPIRY_MS)
 
-  await createOrRefreshSupplierClaimVerification(
+  const verification = await createOrRefreshSupplierClaimVerification(
     userId,
     hashSupplierClaimVerificationCode(userId, code),
     expiresAt,
@@ -180,6 +276,29 @@ async function sendSupplierClaimVerificationCode(
       '<p>If you did not request this, you can ignore this email.</p>',
     ].join(''),
   })
+
+  return verification
+}
+
+async function saveSupplierClaim(
+  existingClaim: SupplierClaimRow,
+  supplierId: string,
+) {
+  if (
+    existingClaim.supplierId !== supplierId ||
+    existingClaim.status !== 'pending'
+  ) {
+    await deleteSupplierClaimVerificationByClaimId(existingClaim.id)
+  }
+
+  if (
+    existingClaim.supplierId === supplierId &&
+    existingClaim.status === 'pending'
+  ) {
+    return existingClaim
+  }
+
+  return await resetSupplierClaim(existingClaim.id, supplierId)
 }
 
 function hashSupplierClaimVerificationCode(userId: string, code: string) {

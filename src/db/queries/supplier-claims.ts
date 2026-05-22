@@ -1,4 +1,4 @@
-import { and, eq, ilike, or } from 'drizzle-orm'
+import { eq, ilike, or } from 'drizzle-orm'
 import type { SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { db } from '@/db/connection'
 import {
@@ -22,6 +22,7 @@ type SupplierClaimSearchRow = {
   supplier: typeof suppliers.$inferSelect
   claimStatus: SupplierClaimSearchResult['claimStatus']
 }
+
 export async function getSupplierOwnedByUserId(userId: string) {
   const [row] = await db
     .select()
@@ -30,6 +31,16 @@ export async function getSupplierOwnedByUserId(userId: string) {
     .limit(1)
 
   return row ?? null
+}
+
+export async function getSupplierById(supplierId: string) {
+  const [supplier] = await db
+    .select()
+    .from(suppliers)
+    .where(eq(suppliers.id, supplierId))
+    .limit(1)
+
+  return supplier ?? null
 }
 
 export async function getSupplierClaimByUserId(userId: string) {
@@ -51,6 +62,26 @@ export async function getSupplierClaimByUserId(userId: string) {
   return row ?? null
 }
 
+export async function getSupplierClaimRowByUserId(userId: string) {
+  const [row] = await db
+    .select()
+    .from(supplierClaims)
+    .where(eq(supplierClaims.userId, userId))
+    .limit(1)
+
+  return row ?? null
+}
+
+export async function getSupplierClaimRowBySupplierId(supplierId: string) {
+  const [row] = await db
+    .select()
+    .from(supplierClaims)
+    .where(eq(supplierClaims.supplierId, supplierId))
+    .limit(1)
+
+  return row ?? null
+}
+
 export async function searchSuppliersForClaim(
   query: string,
   userId: string,
@@ -61,7 +92,7 @@ export async function searchSuppliersForClaim(
   const handleLike = `%${normalizeHandle(q)}%`
   const qLike = `%${q}%`
 
-  return await db
+  const rows = await db
     .select({
       supplier: suppliers,
       claim: supplierClaims,
@@ -77,80 +108,132 @@ export async function searchSuppliersForClaim(
       ),
     )
     .limit(20)
-    // TODO: replace .then
-    .then<Array<SupplierClaimSearchRow>>((rows) =>
-      rows.map((row) => ({
-        supplier: row.supplier,
-        claimStatus:
-          row.supplier.claimedByUserId === userId
-            ? 'claimedByYou'
-            : row.supplier.claimedByUserId
-              ? 'claimed'
-              : row.claim && row.claim.userId !== userId
-                ? 'pending'
-                : 'available',
-      })),
-    )
-}
 
-export async function createOrUpdateSupplierClaim(
-  supplierId: string,
-  userId: string,
-  userEmail: string,
-) {
-  const ownedSupplier = await getSupplierOwnedByUserId(userId)
-  if (ownedSupplier) {
-    if (ownedSupplier.id === supplierId) {
-      throw ERROR.INVALID_STATE('You already own this supplier profile')
+  return rows.map((row) => {
+    let claimStatus: SupplierClaimSearchResult['claimStatus'] = 'available'
+
+    if (row.supplier.claimedByUserId === userId) claimStatus = 'claimedByYou'
+    else if (row.supplier.claimedByUserId) claimStatus = 'claimed'
+    else if (row.claim && row.claim.userId !== userId) claimStatus = 'pending'
+
+    return {
+      supplier: row.supplier,
+      claimStatus,
     }
-
-    throw ERROR.RESOURCE_CONFLICT('You already have a claimed supplier profile')
-  }
-
-  const supplier = await getSupplierById(supplierId)
-  if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
-
-  if (supplier.claimedByUserId && supplier.claimedByUserId !== userId) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
-  }
-
-  const [existingClaimForSupplier] = await db
-    .select()
-    .from(supplierClaims)
-    .where(eq(supplierClaims.supplierId, supplierId))
-    .limit(1)
-
-  if (existingClaimForSupplier && existingClaimForSupplier.userId !== userId) {
-    throw ERROR.RESOURCE_CONFLICT(
-      'This supplier already has a pending claim request',
-    )
-  }
-
-  const [existingClaimForUser] = await db
-    .select()
-    .from(supplierClaims)
-    .where(eq(supplierClaims.userId, userId))
-    .limit(1)
-
-  const nextClaim =
-    existingClaimForUser === undefined
-      ? await insertSupplierClaim(supplierId, userId)
-      : await updateSupplierClaim(existingClaimForUser, supplierId)
-
-  if (userEmail.trim().toLowerCase() !== supplier.email.trim().toLowerCase()) {
-    return nextClaim
-  }
-
-  await approveSupplierClaim(nextClaim.id, userId)
-  const approvedClaim = await getSupplierClaimByUserId(userId)
-  if (!approvedClaim) {
-    throw ERROR.DATABASE_ERROR('Supplier claim was not found after approval')
-  }
-
-  return approvedClaim.claim
+  })
 }
 
-// TODO: rename to upsert
+export async function createSupplierClaim(supplierId: string, userId: string) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .insert(supplierClaims)
+      .values({
+        supplierId,
+        userId,
+        status: 'pending',
+      })
+      .returning(),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to create supplier claim')
+  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to create supplier claim')
+  return rows[0]
+}
+
+export async function resetSupplierClaim(
+  claimId: string,
+  supplierId: string,
+) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(supplierClaims)
+      .set({
+        supplierId,
+        status: 'pending',
+        updatedAt: new Date(),
+      })
+      .where(eq(supplierClaims.id, claimId))
+      .returning(),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
+  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
+  return rows[0]
+}
+
+export async function approveSupplierClaim(claimId: string) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(supplierClaims)
+      .set({
+        status: 'approved',
+        updatedAt: new Date(),
+      })
+      .where(eq(supplierClaims.id, claimId))
+      .returning(),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
+  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
+  return rows[0]
+}
+
+export async function claimSupplierForUser(supplierId: string, userId: string) {
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(suppliers)
+      .set({
+        claimedByUserId: userId,
+        updatedAt: new Date(),
+      })
+      .where(eq(suppliers.id, supplierId))
+      .returning(),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
+  if (rows.length === 0) {
+    throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
+  }
+
+  return rows[0]
+}
+
+export async function deleteSupplierClaimVerificationByClaimId(
+  supplierClaimId: string,
+) {
+  const { error } = await tryCatch(
+    db
+      .delete(supplierClaimVerifications)
+      .where(eq(supplierClaimVerifications.supplierClaimId, supplierClaimId)),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
+}
+
+export async function consumeSupplierClaimVerification(verificationId: string) {
+  const now = new Date()
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(supplierClaimVerifications)
+      .set({
+        consumedAt: now,
+        updatedAt: now,
+      })
+      .where(eq(supplierClaimVerifications.id, verificationId))
+      .returning(),
+  )
+
+  if (error) {
+    throw ERROR.DATABASE_ERROR('Failed to complete supplier claim verification')
+  }
+
+  if (rows.length === 0) {
+    throw ERROR.DATABASE_ERROR('Failed to complete supplier claim verification')
+  }
+
+  return rows[0]
+}
+
 export async function createOrRefreshSupplierClaimVerification(
   userId: string,
   codeHash: string,
@@ -258,9 +341,7 @@ export async function verifySupplierClaimCode(
   if (
     claim.verification.attemptCount >= SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS
   ) {
-    throw ERROR.INVALID_STATE(
-      'Too many incorrect attempts. Request a new code.',
-    )
+    throw ERROR.INVALID_STATE('Too many incorrect attempts. Request a new code.')
   }
 
   if (claim.verification.codeHash !== codeHash) {
@@ -289,25 +370,13 @@ export async function verifySupplierClaimCode(
     }
 
     if (nextAttemptCount >= SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS) {
-      throw ERROR.INVALID_STATE(
-        'Too many incorrect attempts. Request a new code.',
-      )
+      throw ERROR.INVALID_STATE('Too many incorrect attempts. Request a new code.')
     }
 
     throw ERROR.VALIDATION_ERROR('Incorrect code. Try again.')
   }
 
-  await approveSupplierClaim(claim.claim.id, userId)
-}
-
-async function getSupplierById(supplierId: string) {
-  const [supplier] = await db
-    .select()
-    .from(suppliers)
-    .where(eq(suppliers.id, supplierId))
-    .limit(1)
-
-  return supplier ?? null
+  return claim
 }
 
 async function getPendingSupplierClaimByUserId(userId: string) {
@@ -315,150 +384,4 @@ async function getPendingSupplierClaimByUserId(userId: string) {
   if (!claim) return null
   if (claim.claim.status !== 'pending') return null
   return claim
-}
-
-async function insertSupplierClaim(supplierId: string, userId: string) {
-  const { data: rows, error } = await tryCatch(
-    db
-      .insert(supplierClaims)
-      .values({
-        supplierId,
-        userId,
-        status: 'pending',
-      })
-      .returning(),
-  )
-
-  if (error) throw ERROR.DATABASE_ERROR('Failed to create supplier claim')
-  if (rows.length === 0)
-    throw ERROR.DATABASE_ERROR('Failed to create supplier claim')
-  return rows[0]
-}
-
-async function updateSupplierClaim(
-  existingClaimForUser: SupplierClaimRow,
-  supplierId: string,
-) {
-  if (
-    existingClaimForUser.supplierId !== supplierId ||
-    existingClaimForUser.status !== 'pending'
-  ) {
-    await deleteSupplierClaimVerification(existingClaimForUser.id)
-  }
-
-  if (
-    existingClaimForUser.supplierId === supplierId &&
-    existingClaimForUser.status === 'pending'
-  ) {
-    return existingClaimForUser
-  }
-
-  const { data: rows, error } = await tryCatch(
-    db
-      .update(supplierClaims)
-      .set({
-        supplierId,
-        status: 'pending',
-        updatedAt: new Date(),
-      })
-      .where(eq(supplierClaims.userId, existingClaimForUser.userId))
-      .returning(),
-  )
-
-  if (error) throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
-  if (rows.length === 0)
-    throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
-  return rows[0]
-}
-
-async function deleteSupplierClaimVerification(supplierClaimId: string) {
-  const { error } = await tryCatch(
-    db
-      .delete(supplierClaimVerifications)
-      .where(eq(supplierClaimVerifications.supplierClaimId, supplierClaimId)),
-  )
-
-  if (error)
-    throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
-}
-
-async function approveSupplierClaim(claimId: string, userId: string) {
-  const [claim] = await db
-    .select({
-      claim: supplierClaims,
-      supplier: suppliers,
-      verification: supplierClaimVerifications,
-    })
-    .from(supplierClaims)
-    .innerJoin(suppliers, eq(supplierClaims.supplierId, suppliers.id))
-    .leftJoin(
-      supplierClaimVerifications,
-      eq(supplierClaimVerifications.supplierClaimId, supplierClaims.id),
-    )
-    .where(
-      and(eq(supplierClaims.id, claimId), eq(supplierClaims.userId, userId)),
-    )
-    .limit(1)
-
-  if (!claim) throw ERROR.RESOURCE_NOT_FOUND('Supplier claim not found')
-  if (
-    claim.supplier.claimedByUserId &&
-    claim.supplier.claimedByUserId !== userId
-  ) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
-  }
-
-  const now = new Date()
-  const { data: supplierRows, error: supplierError } = await tryCatch(
-    db
-      .update(suppliers)
-      .set({
-        claimedByUserId: userId,
-        updatedAt: now,
-      })
-      .where(eq(suppliers.id, claim.supplier.id))
-      .returning(),
-  )
-
-  if (supplierError)
-    throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
-  if (supplierRows.length === 0) {
-    throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
-  }
-
-  const { data: claimRows, error: claimError } = await tryCatch(
-    db
-      .update(supplierClaims)
-      .set({
-        status: 'approved',
-        updatedAt: now,
-      })
-      .where(eq(supplierClaims.id, claim.claim.id))
-      .returning(),
-  )
-
-  if (claimError) throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
-  if (claimRows.length === 0)
-    throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
-
-  if (!claim.verification) return
-
-  const { data: verificationRows, error: verificationError } = await tryCatch(
-    db
-      .update(supplierClaimVerifications)
-      .set({
-        consumedAt: now,
-        updatedAt: now,
-      })
-      .where(eq(supplierClaimVerifications.id, claim.verification.id))
-      .returning(),
-  )
-
-  if (verificationError) {
-    throw ERROR.DATABASE_ERROR('Failed to complete supplier claim verification')
-  }
-
-  if (verificationRows.length === 0) {
-    throw ERROR.DATABASE_ERROR('Failed to complete supplier claim verification')
-  }
 }
