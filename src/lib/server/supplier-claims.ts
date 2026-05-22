@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
 import { createServerFn } from '@tanstack/react-start'
-import z from 'zod'
 import type {
   Supplier,
   SupplierClaim,
@@ -33,18 +32,17 @@ import {
 } from '@/lib/server/email'
 import {
   claimSupplierSchema,
+  emptyInputSchema,
   searchSuppliersSchema,
   verifySupplierClaimCodeSchema,
 } from '@/lib/types/validation-schema'
 
-// TODO: consider if we need an empty schema input validation?
-const emptySchema = z.object({})
 const SUPPLIER_CLAIM_CODE_EXPIRY_MS = 10 * 60 * 1000
 
 // TODO: separate out supplier claim verfication from supplier claim. Move to new files
 
 export const getMySupplierClaimFn = createServerFn({ method: 'GET' })
-  .inputValidator(emptySchema)
+  .inputValidator(emptyInputSchema)
   .handler(async (): Promise<SupplierClaim | null> => {
     const { user } = await requireValidatedSession()
     return await getCurrentSupplierClaim(user.id)
@@ -95,7 +93,7 @@ export const claimSupplierFn = createServerFn({ method: 'POST' })
 export const sendSupplierClaimVerificationCodeFn = createServerFn({
   method: 'POST',
 })
-  .inputValidator(emptySchema)
+  .inputValidator(emptyInputSchema)
   .handler(async (): Promise<SupplierClaim> => {
     const { user } = await requireValidatedSession()
     const claim = await getRequiredCurrentSupplierClaim(user.id)

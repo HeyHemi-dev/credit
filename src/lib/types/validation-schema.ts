@@ -56,6 +56,7 @@ export type SessionAuth = Extract<
 // Common Schema
 // ===============================
 
+export const emptyInputSchema = z.object({})
 export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
 export const serviceSchema = z.enum(SERVICES, 'Invalid service')
