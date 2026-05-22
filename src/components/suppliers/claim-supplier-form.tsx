@@ -460,7 +460,6 @@ function FormErrorMessage({ message }: { message: string }) {
   )
 }
 
-// TODO: make this inline
 function toClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
   if (status === 'pending') return 'Claim pending'
   if (status === 'claimed') return 'Already claimed'
