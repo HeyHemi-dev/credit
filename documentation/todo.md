@@ -9,10 +9,10 @@
 - [x] Set up email service for transactional emails (Resend? Loops?)
 - [ ] Supplier dedupe/merge workflow (avoid duplicate profiles splitting ratings) - manual; contact support, admin interface?
 - [ ] Allow suppliers to claim profiles (end-to-end)
-- [ ] Add supplier claim flow: search/select supplier to claim
+- [x] Add supplier claim flow: search/select supplier to claim
 - [ ] Allow creating a new supplier from the claim search when the business does not exist yet
 - [ ] Allow suppliers to cancel a pending claim request
-- [ ] Claim verification: auto-claim when Google login email matches supplier email; otherwise verify with emailed one-time code entered in settings. Decision recorded in `documentation/supplier-claim-verification-mvp.md`
+- [x] Claim verification: auto-claim when Google login email matches supplier email; otherwise verify with emailed one-time code entered in settings. Decision recorded in `documentation/supplier-claim-verification-mvp.md`
 - [ ] Allow editing supplier profile (claimed suppliers only)
 - [ ] Make public supplier profile pages
 - [ ] Make public directory pages (browse/search/sort/paginate)

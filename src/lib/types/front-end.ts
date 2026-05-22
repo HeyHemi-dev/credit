@@ -33,9 +33,15 @@ export type Supplier = {
 
 export type SupplierClaimStatus = 'pending' | 'approved' | 'rejected' | 'claimed'
 
+export type SupplierClaimVerification = {
+  email: string
+  lastSentAt: string | null
+}
+
 export type SupplierClaim = {
   supplier: Supplier
   status: SupplierClaimStatus
+  verification: SupplierClaimVerification | null
 }
 
 export type SupplierClaimSearchResult = Supplier & {

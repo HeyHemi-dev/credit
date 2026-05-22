@@ -71,7 +71,7 @@ This prevents the wrong signed-in account from verifying a claim even if they ca
 
 ### Code characteristics
 
-- use a short numeric code, e.g. 6 digits
+- use a short alphanumeric code, e.g. 6 characters
 - store only a **hash** of the code in the database
 - one-time use only
 
@@ -123,7 +123,7 @@ On the settings page, pending claims should support:
 Helpful messages:
 
 - "We sent a code to `supplier@email.com`"
-- "Enter the 6-digit code to verify this claim"
+- "Enter the 6-character code to verify this claim"
 - "This code has expired. Request a new one."
 - "Too many incorrect attempts. Request a new code."
 

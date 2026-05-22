@@ -3,6 +3,7 @@ import {
   date,
   foreignKey,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgSchema,
@@ -56,7 +57,9 @@ export const suppliers = pgTable(
   },
   (table) => [
     uniqueIndex('suppliers_email_unique').on(lower(table.email)),
-    uniqueIndex('suppliers_claimed_by_user_id_unique').on(table.claimedByUserId),
+    uniqueIndex('suppliers_claimed_by_user_id_unique').on(
+      table.claimedByUserId,
+    ),
     index('suppliers_email_domain_idx').on(table.emailDomain),
     index('suppliers_instagram_handle_idx').on(table.instagramHandle),
     index('suppliers_tiktok_handle_idx').on(table.tiktokHandle),
@@ -85,6 +88,32 @@ export const supplierClaims = pgTable(
   ],
 )
 export const supplierClaimColumns = getTableColumns(supplierClaims)
+
+export const supplierClaimVerifications = pgTable(
+  'supplier_claim_verifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    supplierClaimId: uuid('supplier_claim_id')
+      .notNull()
+      .references(() => supplierClaims.id, { onDelete: 'cascade' }),
+    codeHash: text('code_hash').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    consumedAt: timestamp('consumed_at'),
+    attemptCount: integer('attempt_count').notNull().default(0),
+    lastSentAt: timestamp('last_sent_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('supplier_claim_verifications_supplier_claim_id_unique').on(
+      table.supplierClaimId,
+    ),
+    index('supplier_claim_verifications_expires_at_idx').on(table.expiresAt),
+  ],
+)
+export const supplierClaimVerificationColumns = getTableColumns(
+  supplierClaimVerifications,
+)
 
 // Events table
 export const events = pgTable(
@@ -130,6 +159,7 @@ export const eventSupplierColumns = getTableColumns(eventSuppliers)
 // Neon Auth schema - for reference only
 // ===================================================
 
+// TODO: replace neon auth references with better auth.
 export const neonAuth = pgSchema('neon_auth')
 
 export const userInNeonAuth = neonAuth.table(

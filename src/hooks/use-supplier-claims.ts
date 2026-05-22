@@ -7,6 +7,8 @@ import {
   claimSupplierFn,
   getMySupplierClaimFn,
   searchSuppliersToClaimFn,
+  sendSupplierClaimVerificationCodeFn,
+  verifySupplierClaimCodeFn,
 } from '@/lib/server/supplier-claims'
 
 export function useMySupplierClaim() {
@@ -65,4 +67,45 @@ export function useClaimSupplier() {
   })
 
   return { claimMutation }
+}
+
+export function useSendSupplierClaimVerificationCode() {
+  const queryClient = useQueryClient()
+  const sendSupplierClaimVerificationCode = useServerFn(
+    sendSupplierClaimVerificationCodeFn,
+  )
+
+  // TODO: consider optimistic update
+  const sendCodeMutation = useMutation({
+    mutationFn: async () => {
+      return await sendSupplierClaimVerificationCode({ data: {} })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
+
+  return { sendCodeMutation }
+}
+
+export function useVerifySupplierClaimCode() {
+  const queryClient = useQueryClient()
+  const verifySupplierClaimCode = useServerFn(verifySupplierClaimCodeFn)
+
+  const verifyCodeMutation = useMutation({
+    mutationFn: async (code: string) => {
+      return await verifySupplierClaimCode({
+        data: { code },
+      })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
+
+  return { verifyCodeMutation }
 }
