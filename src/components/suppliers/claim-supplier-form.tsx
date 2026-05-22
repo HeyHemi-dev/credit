@@ -439,20 +439,13 @@ function ClaimStateMessage({
         <p className="font-medium">{title}</p>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
-      <SupplierSummary supplier={supplier} />
-    </div>
-  )
-}
-
-// TODO: inline function
-function SupplierSummary({ supplier }: { supplier: Supplier }) {
-  return (
-    <div className="grid gap-0.5 text-sm">
-      <p className="font-medium">{supplier.name}</p>
-      <p className="text-muted-foreground">{supplier.email}</p>
-      {supplier.region && (
-        <p className="text-muted-foreground">Based in {supplier.region}</p>
-      )}
+      <div className="grid gap-0.5 text-sm">
+        <p className="font-medium">{supplier.name}</p>
+        <p className="text-muted-foreground">{supplier.email}</p>
+        {supplier.region && (
+          <p className="text-muted-foreground">Based in {supplier.region}</p>
+        )}
+      </div>
     </div>
   )
 }
