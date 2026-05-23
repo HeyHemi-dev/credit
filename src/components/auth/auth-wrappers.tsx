@@ -30,18 +30,6 @@ const AuthViewClient = React.lazy(() =>
   })),
 )
 
-const AccountSettingsViewClient = React.lazy(() =>
-  accountViewClientImport().then((module) => ({
-    default: module.AccountSettingsViewClient,
-  })),
-)
-
-const AccountSecurityViewClient = React.lazy(() =>
-  accountViewClientImport().then((module) => ({
-    default: module.AccountSecurityViewClient,
-  })),
-)
-
 const RedirectToSignInClient = React.lazy(() =>
   accountViewClientImport().then((module) => ({
     default: module.RedirectToSignInClient,
@@ -95,30 +83,6 @@ export function AuthView({ pathname }: PathnameProps) {
     <ClientOnly fallback={fallback}>
       <React.Suspense fallback={fallback}>
         <AuthViewClient pathname={pathname} />
-      </React.Suspense>
-    </ClientOnly>
-  )
-}
-
-export function AccountSettingsView() {
-  const fallback = <Skeleton className="h-80 w-full" />
-
-  return (
-    <ClientOnly fallback={fallback}>
-      <React.Suspense fallback={fallback}>
-        <AccountSettingsViewClient />
-      </React.Suspense>
-    </ClientOnly>
-  )
-}
-
-export function AccountSecurityView() {
-  const fallback = <Skeleton className="h-80 w-full" />
-
-  return (
-    <ClientOnly fallback={fallback}>
-      <React.Suspense fallback={fallback}>
-        <AccountSecurityViewClient />
       </React.Suspense>
     </ClientOnly>
   )
