@@ -30,9 +30,15 @@ const AuthViewClient = React.lazy(() =>
   })),
 )
 
-const AccountViewClient = React.lazy(() =>
+const AccountSettingsViewClient = React.lazy(() =>
   accountViewClientImport().then((module) => ({
-    default: module.AccountViewClient,
+    default: module.AccountSettingsViewClient,
+  })),
+)
+
+const AccountSecurityViewClient = React.lazy(() =>
+  accountViewClientImport().then((module) => ({
+    default: module.AccountSecurityViewClient,
   })),
 )
 
@@ -94,13 +100,25 @@ export function AuthView({ pathname }: PathnameProps) {
   )
 }
 
-export function AccountView({ pathname }: PathnameProps) {
+export function AccountSettingsView() {
   const fallback = <Skeleton className="h-80 w-full" />
 
   return (
     <ClientOnly fallback={fallback}>
       <React.Suspense fallback={fallback}>
-        <AccountViewClient pathname={pathname} />
+        <AccountSettingsViewClient />
+      </React.Suspense>
+    </ClientOnly>
+  )
+}
+
+export function AccountSecurityView() {
+  const fallback = <Skeleton className="h-80 w-full" />
+
+  return (
+    <ClientOnly fallback={fallback}>
+      <React.Suspense fallback={fallback}>
+        <AccountSecurityViewClient />
       </React.Suspense>
     </ClientOnly>
   )

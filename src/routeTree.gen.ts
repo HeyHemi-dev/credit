@@ -22,7 +22,8 @@ import { Route as publicPublicLayoutAuthPathnameRouteImport } from './routes/(pu
 import { Route as appAppLayoutSTokenRouteImport } from './routes/(app)/_appLayout.s.$token'
 import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_appLayout.events.$eventId'
 import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
-import { Route as appAppLayoutAccountPathnameRouteImport } from './routes/(app)/_appLayout.account.$pathname'
+import { Route as appAppLayoutAccountSettingsRouteImport } from './routes/(app)/_appLayout.account.settings'
+import { Route as appAppLayoutAccountSecurityRouteImport } from './routes/(app)/_appLayout.account.security'
 
 const ApiSessionRoute = ApiSessionRouteImport.update({
   id: '/api/session',
@@ -91,10 +92,16 @@ const appAppLayoutEEventIdRoute = appAppLayoutEEventIdRouteImport.update({
   path: '/e/$eventId',
   getParentRoute: () => appAppLayoutRoute,
 } as any)
-const appAppLayoutAccountPathnameRoute =
-  appAppLayoutAccountPathnameRouteImport.update({
-    id: '/account/$pathname',
-    path: '/account/$pathname',
+const appAppLayoutAccountSettingsRoute =
+  appAppLayoutAccountSettingsRouteImport.update({
+    id: '/account/settings',
+    path: '/account/settings',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
+const appAppLayoutAccountSecurityRoute =
+  appAppLayoutAccountSecurityRouteImport.update({
+    id: '/account/security',
+    path: '/account/security',
     getParentRoute: () => appAppLayoutRoute,
   } as any)
 
@@ -105,7 +112,8 @@ export interface FileRoutesByFullPath {
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
-  '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/account/security': typeof appAppLayoutAccountSecurityRoute
+  '/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/s/$token': typeof appAppLayoutSTokenRoute
@@ -119,7 +127,8 @@ export interface FileRoutesByTo {
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
-  '/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/account/security': typeof appAppLayoutAccountSecurityRoute
+  '/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/s/$token': typeof appAppLayoutSTokenRoute
@@ -136,7 +145,8 @@ export interface FileRoutesById {
   '/(public)/_publicLayout/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(public)/_publicLayout/': typeof publicPublicLayoutIndexRoute
-  '/(app)/_appLayout/account/$pathname': typeof appAppLayoutAccountPathnameRoute
+  '/(app)/_appLayout/account/security': typeof appAppLayoutAccountSecurityRoute
+  '/(app)/_appLayout/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/(app)/_appLayout/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/(app)/_appLayout/s/$token': typeof appAppLayoutSTokenRoute
@@ -152,7 +162,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/auth/$'
     | '/'
-    | '/account/$pathname'
+    | '/account/security'
+    | '/account/settings'
     | '/e/$eventId'
     | '/events/$eventId'
     | '/s/$token'
@@ -166,7 +177,8 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/auth/$'
     | '/'
-    | '/account/$pathname'
+    | '/account/security'
+    | '/account/settings'
     | '/e/$eventId'
     | '/events/$eventId'
     | '/s/$token'
@@ -182,7 +194,8 @@ export interface FileRouteTypes {
     | '/(public)/_publicLayout/terms'
     | '/api/auth/$'
     | '/(public)/_publicLayout/'
-    | '/(app)/_appLayout/account/$pathname'
+    | '/(app)/_appLayout/account/security'
+    | '/(app)/_appLayout/account/settings'
     | '/(app)/_appLayout/e/$eventId'
     | '/(app)/_appLayout/events/$eventId'
     | '/(app)/_appLayout/s/$token'
@@ -290,11 +303,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAppLayoutEEventIdRouteImport
       parentRoute: typeof appAppLayoutRoute
     }
-    '/(app)/_appLayout/account/$pathname': {
-      id: '/(app)/_appLayout/account/$pathname'
-      path: '/account/$pathname'
-      fullPath: '/account/$pathname'
-      preLoaderRoute: typeof appAppLayoutAccountPathnameRouteImport
+    '/(app)/_appLayout/account/settings': {
+      id: '/(app)/_appLayout/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof appAppLayoutAccountSettingsRouteImport
+      parentRoute: typeof appAppLayoutRoute
+    }
+    '/(app)/_appLayout/account/security': {
+      id: '/(app)/_appLayout/account/security'
+      path: '/account/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof appAppLayoutAccountSecurityRouteImport
       parentRoute: typeof appAppLayoutRoute
     }
   }
@@ -302,7 +322,8 @@ declare module '@tanstack/react-router' {
 
 interface appAppLayoutRouteChildren {
   appAppLayoutCreateSupplierRoute: typeof appAppLayoutCreateSupplierRoute
-  appAppLayoutAccountPathnameRoute: typeof appAppLayoutAccountPathnameRoute
+  appAppLayoutAccountSecurityRoute: typeof appAppLayoutAccountSecurityRoute
+  appAppLayoutAccountSettingsRoute: typeof appAppLayoutAccountSettingsRoute
   appAppLayoutEEventIdRoute: typeof appAppLayoutEEventIdRoute
   appAppLayoutEventsEventIdRoute: typeof appAppLayoutEventsEventIdRoute
   appAppLayoutSTokenRoute: typeof appAppLayoutSTokenRoute
@@ -311,7 +332,8 @@ interface appAppLayoutRouteChildren {
 
 const appAppLayoutRouteChildren: appAppLayoutRouteChildren = {
   appAppLayoutCreateSupplierRoute: appAppLayoutCreateSupplierRoute,
-  appAppLayoutAccountPathnameRoute: appAppLayoutAccountPathnameRoute,
+  appAppLayoutAccountSecurityRoute: appAppLayoutAccountSecurityRoute,
+  appAppLayoutAccountSettingsRoute: appAppLayoutAccountSettingsRoute,
   appAppLayoutEEventIdRoute: appAppLayoutEEventIdRoute,
   appAppLayoutEventsEventIdRoute: appAppLayoutEventsEventIdRoute,
   appAppLayoutSTokenRoute: appAppLayoutSTokenRoute,
