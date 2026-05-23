@@ -71,6 +71,8 @@ export const SHARE_TOKEN_MIN_LENGTH = 32
 export const DEBOUNCE_INPUT_MS = 300
 export const BATCH_AUTOSAVE_MS = 60_000
 export const THROTTLE_COPY_MS = 500
+export const SUPPLIER_CLAIM_CODE_EXPIRY_MS = 10 * 60 * 1000
+export const SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS = 30_000
 
 export const DEDUPE_IGNORED_EMAIL_DOMAINS = new Set([
   'gmail.com',

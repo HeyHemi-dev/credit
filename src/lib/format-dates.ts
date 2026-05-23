@@ -1,3 +1,4 @@
+import { formatDuration, intervalToDuration } from 'date-fns'
 import { isIsoCalendarDateString } from '@/lib/date-strings'
 
 /**
@@ -34,4 +35,22 @@ export function formatDate(date: Date | undefined) {
     month: 'long',
     year: 'numeric',
   })
+}
+
+export function formatDurationFromMs(durationMs: number) {
+  const safeDurationMs = Math.max(0, durationMs)
+  const duration = intervalToDuration({
+    start: 0,
+    end: safeDurationMs,
+  })
+
+  return formatDuration(duration)
+}
+
+export function formatRemainingMinutesFromMs(durationMs: number) {
+  const safeDurationMs = Math.max(0, durationMs)
+  if (safeDurationMs < 60_000) return 'less than a minute'
+
+  const remainingMinutes = Math.ceil(safeDurationMs / 60_000)
+  return remainingMinutes === 1 ? '1 minute' : `${remainingMinutes} minutes`
 }

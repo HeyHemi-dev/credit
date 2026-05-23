@@ -56,8 +56,6 @@ export function CopyButton({
   )
 }
 
-// TODO: replace copy and submit buttons with action button
-
 type ActionButtonProps = ButtonPrimitive.Props &
   VariantProps<typeof buttonVariants> & {
     isActing: boolean

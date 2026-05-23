@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest'
+import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
 import {
   formatDateToDrizzleDateString,
+  formatDurationFromMs,
+  formatRemainingMinutesFromMs,
   parseDrizzleDateStringToDate,
 } from '@/lib/format-dates'
 import { weddingDateSchema } from '@/lib/types/validation-schema'
@@ -67,5 +70,53 @@ describe('weddingDateSchema', () => {
 
     // Assert
     expect(result.success).toBe(false)
+  })
+})
+
+describe('formatDurationFromMs', () => {
+  it('formats the supplier claim expiry duration in human-readable copy', () => {
+    // Arrange
+    const expiryMs = SUPPLIER_CLAIM_CODE_EXPIRY_MS
+
+    // Act
+    const durationLabel = formatDurationFromMs(expiryMs)
+
+    // Assert
+    expect(durationLabel).toBe('10 minutes')
+  })
+
+  it('formats short durations in seconds', () => {
+    // Arrange
+    const shortDurationMs = 30_000
+
+    // Act
+    const durationLabel = formatDurationFromMs(shortDurationMs)
+
+    // Assert
+    expect(durationLabel).toBe('30 seconds')
+  })
+})
+
+describe('formatRemainingMinutesFromMs', () => {
+  it('rounds remaining time up to the next minute', () => {
+    // Arrange
+    const remainingMs = 9 * 60_000 + 15_000
+
+    // Act
+    const durationLabel = formatRemainingMinutesFromMs(remainingMs)
+
+    // Assert
+    expect(durationLabel).toBe('10 minutes')
+  })
+
+  it('avoids showing seconds for short remaining durations', () => {
+    // Arrange
+    const remainingMs = 30_000
+
+    // Act
+    const durationLabel = formatRemainingMinutesFromMs(remainingMs)
+
+    // Assert
+    expect(durationLabel).toBe('less than a minute')
   })
 })

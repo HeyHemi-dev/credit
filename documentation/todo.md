@@ -9,10 +9,10 @@
 - [x] Set up email service for transactional emails (Resend? Loops?)
 - [ ] Supplier dedupe/merge workflow (avoid duplicate profiles splitting ratings) - manual; contact support, admin interface?
 - [ ] Allow suppliers to claim profiles (end-to-end)
-- [ ] Add supplier claim flow: search/select supplier to claim
+- [x] Add supplier claim flow: search/select supplier to claim
 - [ ] Allow creating a new supplier from the claim search when the business does not exist yet
 - [ ] Allow suppliers to cancel a pending claim request
-- [ ] Claim verification: auto-claim when Google login email matches supplier email; otherwise verify with emailed one-time code entered in settings. Decision recorded in `documentation/supplier-claim-verification-mvp.md`
+- [x] Claim verification: auto-claim when Google login email matches supplier email; otherwise verify with emailed one-time code entered in settings. Decision recorded in `documentation/supplier-claim-verification-mvp.md`
 - [ ] Allow editing supplier profile (claimed suppliers only)
 - [ ] Make public supplier profile pages
 - [ ] Make public directory pages (browse/search/sort/paginate)
@@ -29,6 +29,7 @@
 
 - [ ] Allow user to generate API token
 - [ ] Align settings card styles across Better Auth and custom cards (button roundness, spacing, title style, helper text, etc.)
+- [ ] Standardize button patterns in `src/components/copy-button.tsx`: replace remaining copy/submit button variants with `ActionButton` where appropriate
 - [ ] Allow archiving old events
 - [ ] Allow couples to mark event as complete
 - [ ] Dedupe events on create (event name/date/region; consider a match when 2 of 3 are similar)
@@ -36,6 +37,11 @@
 - [x] Redirect users into the app automatically after login (likely to `/events`)
 - [ ] Add checkbox-style tag selection for copying: client-side only, allow copying a formatted subset of tags
 - [ ] Handle auth in middleware: add `src/start.ts` request middleware to attach Better Auth session/user to server context; refactor serverFns to rely on context (don’t pass session tokens from client) and enforce auth on supplier search/dedupe + other protected serverFns
+- [ ] Refine the auth token model across `src/hooks/use-auth.ts` and related server auth helpers. See `documentation/auth-token-refactor-notes.md`
+- [ ] Refactor account auth/settings routes away from `$pathname`-driven page switching. See `documentation/account-auth-route-refactor-notes.md`
+- [ ] Add auth checks to supplier serverFns in `src/lib/server/suppliers.ts`: enforce session or share-token access for `searchSuppliersFn` and `dedupeSuppliersFn`
+- [ ] Log the creator auth context in `src/lib/server/suppliers.ts`: record which user or share token created a supplier
+- [ ] Replace Neon auth schema references in `src/db/schema.ts` with Better Auth-aligned references
 - [x] Update worktree workflow script output to show active branches count (e.g. "x/10 DB branches used.")
 - [x] Update auth settings pages to use Better Auth components
 - [ ] Use route loaders for performance (preload data) and to set/update the document title

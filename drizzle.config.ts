@@ -1,5 +1,7 @@
 import { defineConfig } from 'drizzle-kit'
-import { CR_DATABASE_URL } from '@/lib/env'
+
+const databaseUrl = process.env.CR_DATABASE_URL
+if (!databaseUrl) throw new Error('CR_DATABASE_URL is not set')
 
 export default defineConfig({
   out: './drizzle',
@@ -7,6 +9,6 @@ export default defineConfig({
   schemaFilter: ['public'],
   dialect: 'postgresql',
   dbCredentials: {
-    url: CR_DATABASE_URL,
+    url: databaseUrl,
   },
 })

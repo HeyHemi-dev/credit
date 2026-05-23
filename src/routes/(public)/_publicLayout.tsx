@@ -47,7 +47,7 @@ function Footer() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/auth/$pathname" params={{ pathname: 'sign-up' }}>
+            <Link to="/auth/sign-up">
               Sign up
             </Link>
           </li>

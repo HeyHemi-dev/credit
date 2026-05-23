@@ -1,16 +1,11 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
-import { Alert02Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import type {
-  Supplier,
-  SupplierClaimSearchResult,
-} from '@/lib/types/front-end'
+import type { Supplier, SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { authClient } from '@/auth'
+import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { claimSupplierSchema } from '@/lib/types/validation-schema'
-import { useClaimSupplier, useMySupplierClaim, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
+import { useClaimSupplier, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
 import {
@@ -30,54 +25,16 @@ const defaultValues: ClaimSupplierFormValues = {
   supplierId: '',
 }
 
-export function ClaimSupplierSettingsCard() {
-  const { claimQuery } = useMySupplierClaim()
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl leading-none font-semibold">
-          Claim Your Business
-        </CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Search for your business to start a claim. We will email you a
-          one-time code to verify your ownership.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6">
-        {claimQuery.data?.status === 'claimed' && (
-          <ClaimStateMessage
-            title="This supplier profile is already yours."
-            description="You’re connected to the supplier profile below."
-            supplier={claimQuery.data.supplier}
-          />
-        )}
-
-        {claimQuery.data?.status === 'pending' && (
-          <ClaimStateMessage
-            title="Your supplier claim is pending."
-            description="If the email does not auto-match, the next step is verifying with a one-time code sent to this supplier email."
-            supplier={claimQuery.data.supplier}
-          />
-        )}
-
-        {claimQuery.data?.status !== 'claimed' && (
-          <ClaimSupplierForm initialSupplier={claimQuery.data?.supplier ?? null} />
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function ClaimSupplierForm({
+export function ClaimSupplierForm({
   initialSupplier,
 }: {
   initialSupplier: Supplier | null
 }) {
   const { claimMutation } = useClaimSupplier()
   const { data: sessionData } = authClient.useSession()
-  const [selectedSupplier, setSelectedSupplier] =
-    React.useState<SupplierClaimSearchResult | Supplier | null>(initialSupplier)
+  const [selectedSupplier, setSelectedSupplier] = React.useState<
+    SupplierClaimSearchResult | Supplier | null
+  >(initialSupplier)
   const selectedSupplierEmail = selectedSupplier?.email?.toLowerCase() ?? null
   const sessionEmail = sessionData?.user.email?.toLowerCase() ?? null
   const isInstantClaimAvailable =
@@ -114,11 +71,7 @@ function ClaimSupplierForm({
         <form.Field
           name="supplierId"
           children={(field) => (
-            <FormField
-              field={field}
-              label="Your business"
-              isRequired
-            >
+            <FormField field={field} label="Your business" isRequired>
               <ClaimSupplierCombobox
                 initialSupplier={initialSupplier}
                 onSelect={(supplier) => {
@@ -164,8 +117,9 @@ function ClaimSupplierForm({
 
       {claimMutation.isSuccess && (
         <p className="text-sm text-muted-foreground">
-          Claim saved for {claimMutation.data.supplier.name}. Verification
-          comes next.
+          {claimMutation.data.status === 'claimed'
+            ? `${claimMutation.data.supplier.name} is now linked to your account.`
+            : `We emailed a verification code to ${claimMutation.data.supplier.email}.`}
         </p>
       )}
 
@@ -208,11 +162,16 @@ function ClaimSupplierCombobox({
   const statusMessage = React.useMemo(() => {
     if (isPending) return 'Searching...'
     if (searchQuery.isError) return 'Something went wrong. Please try again.'
-    if (userInput === '')
-      return 'Start typing to find your supplier profile.'
+    if (userInput === '') return 'Start typing to find your supplier profile.'
     if (!searchQuery.isFetching && searchResults.length === 0)
       return 'No suppliers found yet.'
-  }, [isPending, searchQuery.isError, searchQuery.isFetching, searchResults.length, userInput])
+  }, [
+    isPending,
+    searchQuery.isError,
+    searchQuery.isFetching,
+    searchResults.length,
+    userInput,
+  ])
 
   return (
     <Combobox
@@ -259,7 +218,7 @@ function ClaimSupplierCombobox({
                 )}
                 {supplier.claimStatus !== 'available' && (
                   <span className="text-muted-foreground">
-                    {getClaimStatusLabel(supplier.claimStatus)}
+                    {toClaimStatusLabel(supplier.claimStatus)}
                   </span>
                 )}
               </p>
@@ -274,48 +233,7 @@ function ClaimSupplierCombobox({
   )
 }
 
-function ClaimStateMessage({
-  title,
-  description,
-  supplier,
-}: {
-  title: string
-  description: string
-  supplier: Supplier
-}) {
-  return (
-    <div className="grid gap-2 rounded-2xl border border-border/60 bg-muted/30 p-4">
-      <div className="grid gap-0.5">
-        <p className="font-medium">{title}</p>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <SupplierSummary supplier={supplier} />
-    </div>
-  )
-}
-
-function SupplierSummary({ supplier }: { supplier: Supplier }) {
-  return (
-    <div className="grid gap-0.5 text-sm">
-      <p className="font-medium">{supplier.name}</p>
-      <p className="text-muted-foreground">{supplier.email}</p>
-      {supplier.region && (
-        <p className="text-muted-foreground">Based in {supplier.region}</p>
-      )}
-    </div>
-  )
-}
-
-function FormErrorMessage({ message }: { message: string }) {
-  return (
-    <div className="text-destructive bg-destructive/5 ring-destructive/10 grid grid-cols-[auto_1fr] gap-2 rounded-2xl p-4 ring-1">
-      <HugeiconsIcon icon={Alert02Icon} className="size-4" />
-      <span>{message}</span>
-    </div>
-  )
-}
-
-function getClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
+function toClaimStatusLabel(status: SupplierClaimSearchResult['claimStatus']) {
   if (status === 'pending') return 'Claim pending'
   if (status === 'claimed') return 'Already claimed'
   if (status === 'claimedByYou') return 'Already linked to you'

@@ -2,101 +2,14 @@ import { Link } from '@tanstack/react-router'
 import { LinkSquare02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-  RedirectToSignIn as BetterAuthRedirectToSignIn,
-  AuthView as BetterAuthView,
-  SessionsCard,
   SignedIn,
   SignedOut,
-  UpdateNameCard,
   UserButton,
 } from '@daveyplate/better-auth-ui'
-import { AuthQueryProvider } from '@daveyplate/better-auth-tanstack'
-import { AuthUIProviderTanstack } from '@daveyplate/better-auth-ui/tanstack'
-import React from 'react'
-import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
-import { authClient } from '@/auth'
+import { AuthUiShell } from '@/components/auth/auth-ui-shell'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ClaimSupplierSettingsCard } from '@/components/suppliers/claim-supplier-form'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
-
-type PathnameProps = {
-  pathname: string
-}
-
-const ACCOUNT_PATHNAME = {
-  SETTINGS: 'settings',
-  SECURITY: 'security',
-} as const
-
-function AuthUiShell({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthQueryProvider>
-      <BetterAuthStylesheet />
-      <AuthUIProviderTanstack
-        authClient={authClient}
-        social={{ providers: ['google'] }}
-        credentials={false}
-        organization={false}
-        redirectTo={AUTH_REDIRECT_PATH}
-        teams={false}
-      >
-        {children}
-      </AuthUIProviderTanstack>
-    </AuthQueryProvider>
-  )
-}
-
-function BetterAuthStylesheet() {
-  React.useEffect(() => {
-    const linkId = 'better-auth-ui-css'
-    if (document.getElementById(linkId)) return
-
-    const link = document.createElement('link')
-    link.id = linkId
-    link.rel = 'stylesheet'
-    link.href = betterAuthCss
-    document.head.append(link)
-  }, [])
-
-  return null
-}
-
-function AccountSettingsContent({ pathname }: PathnameProps) {
-  if (pathname === ACCOUNT_PATHNAME.SECURITY) {
-    return (
-      <div className="grid w-full content-start gap-4 md:gap-6">
-        <SessionsCard />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg md:text-xl leading-none font-semibold">
-              Delete Account
-            </CardTitle>
-            <CardDescription className="text-xs md:text-sm">
-              To delete your account and associated data, please contact us.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <a
-              href="mailto:hello.hemi.phillips@gmail.com"
-              className="text-primary text-sm underline-offset-4 hover:underline"
-            >
-              hello.hemi.phillips@gmail.com
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  return (
-    <div className="grid w-full content-start gap-4 md:gap-6">
-      <UpdateNameCard />
-      <ClaimSupplierSettingsCard />
-    </div>
-  )
-}
 
 export function PublicHeaderAuthActionsClient() {
   return (
@@ -157,54 +70,6 @@ export function AppHeaderAuthClient() {
           </SignedIn>
         }
       />
-    </AuthUiShell>
-  )
-}
-
-export function AuthViewClient({ pathname }: PathnameProps) {
-  return (
-    <AuthUiShell>
-      <BetterAuthView
-        pathname={pathname}
-        localization={{
-          SIGN_IN: 'Log in as a wedding supplier',
-          SIGN_UP: 'Sign up as a wedding supplier',
-        }}
-        classNames={{
-          base: 'max-w-auto',
-          header: 'text-center',
-          title: 'text-2xl font-light text-balance',
-          description: 'text-sm text-muted-foreground text-pretty',
-        }}
-        cardFooter={
-          <p className="grow text-center text-xs text-balance text-muted-foreground/60">
-            By continuing, you agree to our{' '}
-            <Link to="/terms" target="_blank">
-              Terms of Use
-            </Link>{' '}
-            and{' '}
-            <Link to="/privacy" target="_blank">
-              Privacy Policy
-            </Link>
-          </p>
-        }
-      />
-    </AuthUiShell>
-  )
-}
-
-export function AccountViewClient({ pathname }: PathnameProps) {
-  return (
-    <AuthUiShell>
-      <AccountSettingsContent pathname={pathname} />
-    </AuthUiShell>
-  )
-}
-
-export function RedirectToSignInClient() {
-  return (
-    <AuthUiShell>
-      <BetterAuthRedirectToSignIn />
     </AuthUiShell>
   )
 }

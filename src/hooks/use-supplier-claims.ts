@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import { useDebouncedState } from '@tanstack/react-pacer'
 import { useServerFn } from '@tanstack/react-start'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
@@ -8,11 +13,15 @@ import {
   getMySupplierClaimFn,
   searchSuppliersToClaimFn,
 } from '@/lib/server/supplier-claims'
+import {
+  sendSupplierClaimVerificationCodeFn,
+  verifySupplierClaimCodeFn,
+} from '@/lib/server/supplier-claim-verifications'
 
 export function useMySupplierClaim() {
   const getMySupplierClaim = useServerFn(getMySupplierClaimFn)
 
-  const claimQuery = useQuery({
+  const claimQuery = useSuspenseQuery({
     queryKey: queryKeys.supplierClaim(),
     queryFn: async () => {
       return await getMySupplierClaim({ data: {} })
@@ -65,4 +74,44 @@ export function useClaimSupplier() {
   })
 
   return { claimMutation }
+}
+
+export function useSendSupplierClaimVerificationCode() {
+  const queryClient = useQueryClient()
+  const sendSupplierClaimVerificationCode = useServerFn(
+    sendSupplierClaimVerificationCodeFn,
+  )
+
+  const sendCodeMutation = useMutation({
+    mutationFn: async () => {
+      return await sendSupplierClaimVerificationCode({ data: {} })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
+
+  return { sendCodeMutation }
+}
+
+export function useVerifySupplierClaimCode() {
+  const queryClient = useQueryClient()
+  const verifySupplierClaimCode = useServerFn(verifySupplierClaimCodeFn)
+
+  const verifyCodeMutation = useMutation({
+    mutationFn: async (code: string) => {
+      return await verifySupplierClaimCode({
+        data: { code },
+      })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
+
+  return { verifyCodeMutation }
 }

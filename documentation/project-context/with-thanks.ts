@@ -11,13 +11,11 @@ export const withThanksCaseStudyDraft = {
   excerpt:
     'Mobile-first wedding supplier tagging tool: send one link to the couple; get copy-ready, formatted supplier tags back for Instagram.',
 
-  // TODO: add real image paths in heyhemi once exported
   heroImage: {
     src: '/with-thanks/hero.png',
     alt: 'With Thanks project preview',
   },
 
-  // TODO: fill when ready
   liveUrl: undefined,
   repoUrl: undefined,
 
@@ -39,8 +37,14 @@ export const withThanksCaseStudyDraft = {
       type: 'md',
       text: '**Zod** - runtime validation at the request boundary',
     },
-    { type: 'md', text: '**Drizzle ORM** - typed data layer, no client-side queries' },
-    { type: 'md', text: '**Neon Postgres** - DB branching for preview deployments' },
+    {
+      type: 'md',
+      text: '**Drizzle ORM** - typed data layer, no client-side queries',
+    },
+    {
+      type: 'md',
+      text: '**Neon Postgres** - DB branching for preview deployments',
+    },
     {
       type: 'md',
       text: '**Neon Auth** (Better Auth) - photographer sign-in',
@@ -268,7 +272,6 @@ export const withThanksCaseStudyDraft = {
     ],
   },
 
-  // TODO: choose final palette for heyhemi (these are placeholders)
   theme: {
     brandBg: '#0b3b35',
     indexBg: '#e8f3f0',

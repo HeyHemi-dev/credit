@@ -1,6 +1,4 @@
 import { useForm } from '@tanstack/react-form'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon } from '@hugeicons/core-free-icons'
 import React from 'react'
 import { RadioGroup } from '@base-ui/react'
 import { PillRadioItem } from '../ui/pill-radio-item'
@@ -9,10 +7,11 @@ import type {
   AuthToken,
   CreateSupplierForm,
 } from '@/lib/types/validation-schema'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
+import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
 import { AUTH_STATUS, REGION, REGION_KEYS } from '@/lib/constants'
 import { useCreateSupplier } from '@/hooks/use-suppliers'
@@ -245,17 +244,6 @@ export function CreateSupplierForm({
         <FormErrorMessage message={createMutation.error.message} />
       )}
     </form>
-  )
-}
-
-function FormErrorMessage({ message }: { message: string }) {
-  return (
-    <Card className="bg-destructive/5 text-destructive ring-destructive/10">
-      <CardContent className="grid grid-cols-[auto_1fr] gap-2">
-        <HugeiconsIcon icon={Alert02Icon} className="size-4" />
-        <span>{message}</span>
-      </CardContent>
-    </Card>
   )
 }
 

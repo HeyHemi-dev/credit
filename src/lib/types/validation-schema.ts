@@ -56,6 +56,7 @@ export type SessionAuth = Extract<
 // Common Schema
 // ===============================
 
+export const emptyInputSchema = z.object({})
 export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
 export const serviceSchema = z.enum(SERVICES, 'Invalid service')
@@ -148,6 +149,17 @@ export const claimSupplierSchema = z.object({
   supplierId: z.uuid(),
 })
 export type ClaimSupplier = z.infer<typeof claimSupplierSchema>
+
+export const verifySupplierClaimCodeSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9]{6}$/, 'Enter a valid 6-character code'),
+})
+export type VerifySupplierClaimCode = z.infer<
+  typeof verifySupplierClaimCodeSchema
+>
 
 export const searchSuppliersSchema = z.object({
   query: z.string().trim().min(1, 'Search query is required'),

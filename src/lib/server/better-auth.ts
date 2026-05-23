@@ -12,14 +12,14 @@ import {
   verificationInNeonAuth,
 } from '@/db/schema'
 import { AUTH_ALLOWED_HOSTS, AUTH_API_BASE_PATH } from '@/lib/auth-constants'
-import { AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '@/lib/env'
+import { requireEnv } from '@/lib/env'
 
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: [...AUTH_ALLOWED_HOSTS],
   },
   basePath: AUTH_API_BASE_PATH,
-  secret: AUTH_SECRET,
+  secret: requireEnv('AUTH_SECRET'),
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: {
@@ -39,8 +39,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     google: {
-      clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientId: requireEnv('GOOGLE_CLIENT_ID'),
+      clientSecret: requireEnv('GOOGLE_CLIENT_SECRET'),
       accessType: 'offline',
       prompt: 'select_account',
     },

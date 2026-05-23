@@ -7,7 +7,7 @@ import { auth } from '@/lib/server/better-auth'
 import { tryCatch } from '@/lib/try-catch'
 import { ERROR } from '@/lib/errors'
 
-export async function getValidatedSession() {
+async function getValidatedSession() {
   const { data, error } = await tryCatch(
     auth.api.getSession({
       headers: getRequestHeaders(),
