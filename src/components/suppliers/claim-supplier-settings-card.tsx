@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton'
 import { PendingClaimVerificationSection } from '@/components/suppliers/pending-claim-verification-section'
 import {
   ClaimStateMessage,
@@ -52,6 +53,32 @@ export function ClaimSupplierSettingsCard() {
             initialSupplier={claimQuery.data?.supplier ?? null}
           />
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+export function ClaimSupplierSettingsCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </CardHeader>
+      <CardContent className="grid gap-6">
+        <div className="grid gap-2 rounded-2xl border border-border/60 bg-muted/30 p-4">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/5" />
+        </div>
+        <div className="grid gap-4">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="flex justify-end">
+          <Skeleton className="h-10 w-32" />
+        </div>
       </CardContent>
     </Card>
   )

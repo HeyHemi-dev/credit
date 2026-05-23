@@ -17,7 +17,10 @@ import betterAuthCss from '@daveyplate/better-auth-ui/css?url'
 import { authClient } from '@/auth'
 import { Brand, HeaderLayout } from '@/components/header'
 import { PublicStartFreeButton } from '@/components/auth/auth-wrappers'
-import { ClaimSupplierSettingsCard } from '@/components/suppliers/claim-supplier-settings-card'
+import {
+  ClaimSupplierSettingsCard,
+  ClaimSupplierSettingsCardSkeleton,
+} from '@/components/suppliers/claim-supplier-settings-card'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AUTH_REDIRECT_PATH } from '@/lib/auth-constants'
 
@@ -93,7 +96,9 @@ function AccountSettingsContent({ pathname }: PathnameProps) {
   return (
     <div className="grid w-full content-start gap-4 md:gap-6">
       <UpdateNameCard />
-      <ClaimSupplierSettingsCard />
+      <React.Suspense fallback={<ClaimSupplierSettingsCardSkeleton />}>
+        <ClaimSupplierSettingsCard />
+      </React.Suspense>
     </div>
   )
 }

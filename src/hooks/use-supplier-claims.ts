@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import { useDebouncedState } from '@tanstack/react-pacer'
 import { useServerFn } from '@tanstack/react-start'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
@@ -16,8 +21,7 @@ import {
 export function useMySupplierClaim() {
   const getMySupplierClaim = useServerFn(getMySupplierClaimFn)
 
-  // TODO: consdier using suspense query and suspense boundary at callsite
-  const claimQuery = useQuery({
+  const claimQuery = useSuspenseQuery({
     queryKey: queryKeys.supplierClaim(),
     queryFn: async () => {
       return await getMySupplierClaim({ data: {} })
