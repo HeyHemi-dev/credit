@@ -9,6 +9,8 @@ type PathnameProps = {
 }
 
 const authClientImport = () => import('@/components/auth/auth-client')
+const accountViewClientImport = () =>
+  import('@/components/auth/account-view-client')
 
 const PublicHeaderAuthActionsClient = React.lazy(() =>
   authClientImport().then((module) => ({
@@ -29,13 +31,13 @@ const AuthViewClient = React.lazy(() =>
 )
 
 const AccountViewClient = React.lazy(() =>
-  authClientImport().then((module) => ({
+  accountViewClientImport().then((module) => ({
     default: module.AccountViewClient,
   })),
 )
 
 const RedirectToSignInClient = React.lazy(() =>
-  authClientImport().then((module) => ({
+  accountViewClientImport().then((module) => ({
     default: module.RedirectToSignInClient,
   })),
 )
