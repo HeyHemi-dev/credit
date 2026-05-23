@@ -1,15 +1,15 @@
 import { Resend } from 'resend'
 import type { CreateEmailOptions } from 'resend'
-import { EMAIL_FROM, RESEND_API_KEY } from '@/lib/env'
+import { requireEnv } from '@/lib/env'
 import { ERROR } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 import { tryCatch } from '@/lib/try-catch'
 
 type TextEmailOptions = Extract<CreateEmailOptions, { text: string }>
 
-const resend = new Resend(RESEND_API_KEY)
+const resend = new Resend(requireEnv('RESEND_API_KEY'))
 
-export const TRANSACTIONAL_EMAIL_FROM = `With Thanks <${EMAIL_FROM}>`
+export const TRANSACTIONAL_EMAIL_FROM = `With Thanks <${requireEnv('EMAIL_FROM')}>`
 
 export async function sendTransactionalEmail(
   input: TextEmailOptions,

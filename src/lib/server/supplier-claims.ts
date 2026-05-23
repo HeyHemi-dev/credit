@@ -1,69 +1,192 @@
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import type {
   SupplierClaim,
   SupplierClaimSearchResult,
 } from '@/lib/types/front-end'
 import type { SupplierClaimRow } from '@/db/queries/supplier-claims'
-import { requireValidatedSession } from '@/db/queries/auth'
-import {
-  approveSupplierClaim,
-  claimSupplierForUser,
-  createSupplierClaim,
-  getSupplierById,
-  getSupplierClaimByUserId,
-  getSupplierClaimRowBySupplierId,
-  getSupplierOwnedByUserId,
-  resetSupplierClaim,
-  searchSuppliersForClaim,
-} from '@/db/queries/supplier-claims'
-import {
-  consumeSupplierClaimVerification,
-  deleteSupplierClaimVerificationByClaimId,
-} from '@/db/queries/supplier-claim-verifications'
-import { ERROR } from '@/lib/errors'
-import {
-  getCurrentSupplierClaim,
-  mapSupplierToClient,
-} from '@/lib/server/supplier-claim-state'
-import { sendSupplierClaimVerificationCode } from '@/lib/server/supplier-claim-verifications'
+import type { SupplierRow } from '@/db/queries/suppliers'
 import {
   claimSupplierSchema,
   emptyInputSchema,
   searchSuppliersSchema,
 } from '@/lib/types/validation-schema'
 
+const requireValidatedSessionServer = createServerOnlyFn(async () => {
+  const { requireValidatedSession } = await import('@/db/queries/auth')
+  return await requireValidatedSession()
+})
+
+const getCurrentSupplierClaimServer = createServerOnlyFn(async (userId: string) => {
+  const { getCurrentSupplierClaim } = await import(
+    '@/lib/server/supplier-claim-state'
+  )
+  return await getCurrentSupplierClaim(userId)
+})
+
+const searchSuppliersForClaimServer = createServerOnlyFn(
+  async (query: string, userId: string) => {
+    const { searchSuppliersForClaim } = await import(
+      '@/db/queries/supplier-claims'
+    )
+    return await searchSuppliersForClaim(query, userId)
+  },
+)
+
+const mapSupplierToClientServer = createServerOnlyFn(
+  async (supplier: SupplierRow) => {
+    const { mapSupplierToClient } = await import(
+      '@/lib/server/supplier-claim-state'
+    )
+    return mapSupplierToClient(supplier)
+  },
+)
+
+const sendSupplierClaimVerificationCodeServer = createServerOnlyFn(
+  async (userId: string, supplierName: string, supplierEmail: string) => {
+    const { sendSupplierClaimVerificationCode } = await import(
+      '@/lib/server/supplier-claim-verifications'
+    )
+    return await sendSupplierClaimVerificationCode(
+      userId,
+      supplierName,
+      supplierEmail,
+    )
+  },
+)
+
+const createOrUpdateSupplierClaimServer = createServerOnlyFn(
+  async (supplierId: string, userId: string, userEmail: string) => {
+    const {
+      approveSupplierClaim,
+      claimSupplierForUser,
+      createSupplierClaim,
+      getSupplierById,
+      getSupplierClaimByUserId,
+      getSupplierClaimRowBySupplierId,
+      getSupplierOwnedByUserId,
+    } = await import('@/db/queries/supplier-claims')
+    const { consumeSupplierClaimVerification } = await import(
+      '@/db/queries/supplier-claim-verifications'
+    )
+    const { ERROR } = await import('@/lib/errors')
+    const { mapSupplierToClient } = await import(
+      '@/lib/server/supplier-claim-state'
+    )
+
+    const [
+      ownedSupplier,
+      supplier,
+      existingClaimForSupplier,
+      existingClaimForUser,
+    ] = await Promise.all([
+      getSupplierOwnedByUserId(userId),
+      getSupplierById(supplierId),
+      getSupplierClaimRowBySupplierId(supplierId),
+      getSupplierClaimByUserId(userId),
+    ])
+
+    if (ownedSupplier) {
+      if (ownedSupplier.id === supplierId) {
+        throw ERROR.INVALID_STATE('You already own this supplier profile')
+      }
+
+      throw ERROR.RESOURCE_CONFLICT(
+        'You already have a claimed supplier profile',
+      )
+    }
+
+    if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
+
+    if (supplier.claimedByUserId && supplier.claimedByUserId !== userId) {
+      throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
+    }
+
+    if (
+      existingClaimForSupplier &&
+      existingClaimForSupplier.userId !== userId
+    ) {
+      throw ERROR.RESOURCE_CONFLICT(
+        'This supplier already has a pending claim request',
+      )
+    }
+
+    const nextClaim =
+      existingClaimForUser === null
+        ? await createSupplierClaim(supplierId, userId)
+        : await saveSupplierClaim(existingClaimForUser.claim, supplierId)
+
+    if (userEmail.trim().toLowerCase() !== supplier.email.trim().toLowerCase()) {
+      let verificationLastSentAt: string | null = null
+
+      if (
+        existingClaimForUser?.claim.supplierId === supplierId &&
+        existingClaimForUser.claim.status === 'pending'
+      ) {
+        verificationLastSentAt =
+          existingClaimForUser.verification?.lastSentAt.toISOString() ?? null
+      }
+
+      return {
+        supplier: mapSupplierToClient(supplier),
+        status: 'pending' as const,
+        verification: {
+          email: supplier.email,
+          lastSentAt: verificationLastSentAt,
+        },
+      }
+    }
+
+    await claimSupplierForUser(supplier.id, userId)
+    await approveSupplierClaim(nextClaim.id)
+    if (
+      existingClaimForUser?.claim.id === nextClaim.id &&
+      existingClaimForUser.verification
+    ) {
+      await consumeSupplierClaimVerification(existingClaimForUser.verification.id)
+    }
+
+    return {
+      supplier: mapSupplierToClient(supplier),
+      status: 'claimed' as const,
+      verification: null,
+    }
+  },
+)
+
 export const getMySupplierClaimFn = createServerFn({ method: 'GET' })
   .inputValidator(emptyInputSchema)
   .handler(async (): Promise<SupplierClaim | null> => {
-    const { user } = await requireValidatedSession()
-    return await getCurrentSupplierClaim(user.id)
+    const { user } = await requireValidatedSessionServer()
+    return await getCurrentSupplierClaimServer(user.id)
   })
 
 export const searchSuppliersToClaimFn = createServerFn({ method: 'GET' })
   .inputValidator(searchSuppliersSchema)
   .handler(async ({ data }): Promise<Array<SupplierClaimSearchResult>> => {
-    const { user } = await requireValidatedSession()
+    const { user } = await requireValidatedSessionServer()
+    const suppliers = await searchSuppliersForClaimServer(data.query, user.id)
 
-    const suppliers = await searchSuppliersForClaim(data.query, user.id)
-    return suppliers.map((row) => ({
-      ...mapSupplierToClient(row.supplier),
-      claimStatus: row.claimStatus,
-    }))
+    return await Promise.all(
+      suppliers.map(async (row) => ({
+        ...(await mapSupplierToClientServer(row.supplier)),
+        claimStatus: row.claimStatus,
+      })),
+    )
   })
 
 export const claimSupplierFn = createServerFn({ method: 'POST' })
   .inputValidator(claimSupplierSchema)
   .handler(async ({ data }): Promise<SupplierClaim> => {
-    const { user } = await requireValidatedSession()
+    const { user } = await requireValidatedSessionServer()
 
-    const claim = await createOrUpdateSupplierClaim(
+    const claim = await createOrUpdateSupplierClaimServer(
       data.supplierId,
       user.id,
       user.email,
     )
 
     if (claim.status === 'pending') {
-      const verification = await sendSupplierClaimVerificationCode(
+      const verification = await sendSupplierClaimVerificationCodeServer(
         user.id,
         claim.supplier.name,
         claim.supplier.email,
@@ -86,84 +209,17 @@ export async function createOrUpdateSupplierClaim(
   userId: string,
   userEmail: string,
 ): Promise<SupplierClaim> {
-  const [
-    ownedSupplier,
-    supplier,
-    existingClaimForSupplier,
-    existingClaimForUser,
-  ] = await Promise.all([
-    getSupplierOwnedByUserId(userId),
-    getSupplierById(supplierId),
-    getSupplierClaimRowBySupplierId(supplierId),
-    getSupplierClaimByUserId(userId),
-  ])
-
-  if (ownedSupplier) {
-    if (ownedSupplier.id === supplierId) {
-      throw ERROR.INVALID_STATE('You already own this supplier profile')
-    }
-
-    throw ERROR.RESOURCE_CONFLICT('You already have a claimed supplier profile')
-  }
-
-  if (!supplier) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
-
-  if (supplier.claimedByUserId && supplier.claimedByUserId !== userId) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
-  }
-
-  if (existingClaimForSupplier && existingClaimForSupplier.userId !== userId) {
-    throw ERROR.RESOURCE_CONFLICT(
-      'This supplier already has a pending claim request',
-    )
-  }
-
-  const nextClaim =
-    existingClaimForUser === null
-      ? await createSupplierClaim(supplierId, userId)
-      : await saveSupplierClaim(existingClaimForUser.claim, supplierId)
-
-  if (userEmail.trim().toLowerCase() !== supplier.email.trim().toLowerCase()) {
-    let verificationLastSentAt: string | null = null
-
-    if (
-      existingClaimForUser?.claim.supplierId === supplierId &&
-      existingClaimForUser.claim.status === 'pending'
-    ) {
-      verificationLastSentAt =
-        existingClaimForUser.verification?.lastSentAt.toISOString() ?? null
-    }
-
-    return {
-      supplier: mapSupplierToClient(supplier),
-      status: 'pending',
-      verification: {
-        email: supplier.email,
-        lastSentAt: verificationLastSentAt,
-      },
-    }
-  }
-
-  await claimSupplierForUser(supplier.id, userId)
-  await approveSupplierClaim(nextClaim.id)
-  if (
-    existingClaimForUser?.claim.id === nextClaim.id &&
-    existingClaimForUser.verification
-  ) {
-    await consumeSupplierClaimVerification(existingClaimForUser.verification.id)
-  }
-
-  return {
-    supplier: mapSupplierToClient(supplier),
-    status: 'claimed',
-    verification: null,
-  }
+  return await createOrUpdateSupplierClaimServer(supplierId, userId, userEmail)
 }
 
 async function saveSupplierClaim(
   existingClaim: SupplierClaimRow,
   supplierId: string,
 ) {
+  const { deleteSupplierClaimVerificationByClaimId } = await import(
+    '@/db/queries/supplier-claim-verifications'
+  )
+  const { resetSupplierClaim } = await import('@/db/queries/supplier-claims')
   if (
     existingClaim.supplierId !== supplierId ||
     existingClaim.status !== 'pending'
