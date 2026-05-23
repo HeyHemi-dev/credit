@@ -82,7 +82,6 @@ export function useSendSupplierClaimVerificationCode() {
     sendSupplierClaimVerificationCodeFn,
   )
 
-  // TODO: consider optimistic update
   const sendCodeMutation = useMutation({
     mutationFn: async () => {
       return await sendSupplierClaimVerificationCode({ data: {} })

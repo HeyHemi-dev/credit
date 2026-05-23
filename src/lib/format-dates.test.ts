@@ -3,6 +3,7 @@ import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
 import {
   formatDateToDrizzleDateString,
   formatDurationFromMs,
+  formatRemainingMinutesFromMs,
   parseDrizzleDateStringToDate,
 } from '@/lib/format-dates'
 import { weddingDateSchema } from '@/lib/types/validation-schema'
@@ -93,5 +94,29 @@ describe('formatDurationFromMs', () => {
 
     // Assert
     expect(durationLabel).toBe('30 seconds')
+  })
+})
+
+describe('formatRemainingMinutesFromMs', () => {
+  it('rounds remaining time up to the next minute', () => {
+    // Arrange
+    const remainingMs = 9 * 60_000 + 15_000
+
+    // Act
+    const durationLabel = formatRemainingMinutesFromMs(remainingMs)
+
+    // Assert
+    expect(durationLabel).toBe('10 minutes')
+  })
+
+  it('avoids showing seconds for short remaining durations', () => {
+    // Arrange
+    const remainingMs = 30_000
+
+    // Act
+    const durationLabel = formatRemainingMinutesFromMs(remainingMs)
+
+    // Assert
+    expect(durationLabel).toBe('less than a minute')
   })
 })

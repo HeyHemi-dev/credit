@@ -1,7 +1,11 @@
+import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { SupplierClaim } from '@/lib/types/front-end'
 import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
-import { formatDurationFromMs } from '@/lib/format-dates'
+import {
+  formatDurationFromMs,
+  formatRemainingMinutesFromMs,
+} from '@/lib/format-dates'
 import { verifySupplierClaimCodeSchema } from '@/lib/types/validation-schema'
 import {
   useSendSupplierClaimVerificationCode,
@@ -66,11 +70,11 @@ export function PendingClaimVerificationSection({
               ? 'Resend code'
               : 'Send code'}
         </Button>
-        {/* TODO: make this a count down */}
 
-        <p className="text-xs text-muted-foreground">
-          Codes expire after {expiryDurationLabel}.
-        </p>
+        <VerificationCodeExpiryMessage
+          expiryDurationLabel={expiryDurationLabel}
+          lastSentAt={claim.verification?.lastSentAt ?? null}
+        />
       </div>
 
       {sendCodeMutation.isSuccess && (
@@ -139,4 +143,42 @@ export function PendingClaimVerificationSection({
       )}
     </div>
   )
+}
+
+function VerificationCodeExpiryMessage({
+  expiryDurationLabel,
+  lastSentAt,
+}: {
+  expiryDurationLabel: string
+  lastSentAt: string | null
+}) {
+  const [currentTimeMs, setCurrentTimeMs] = React.useState(() => Date.now())
+
+  const lastSentAtMs = lastSentAt ? new Date(lastSentAt).getTime() : null
+  const remainingExpiryMs =
+    lastSentAtMs === null
+      ? null
+      : lastSentAtMs + SUPPLIER_CLAIM_CODE_EXPIRY_MS - currentTimeMs
+
+  React.useEffect(() => {
+    if (lastSentAtMs === null) return
+
+    setCurrentTimeMs(Date.now())
+
+    const intervalId = window.setInterval(() => {
+      setCurrentTimeMs(Date.now())
+    }, 60_000)
+
+    return () => window.clearInterval(intervalId)
+  }, [lastSentAtMs])
+
+  let message = `Codes expire after ${expiryDurationLabel}.`
+  if (remainingExpiryMs !== null && remainingExpiryMs > 0) {
+    message = `Code expires in ${formatRemainingMinutesFromMs(remainingExpiryMs)}.`
+  }
+  if (remainingExpiryMs !== null && remainingExpiryMs <= 0) {
+    message = 'Code expired. Send code to get a new one.'
+  }
+
+  return <p className="text-xs text-muted-foreground">{message}</p>
 }

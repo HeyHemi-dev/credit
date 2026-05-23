@@ -46,3 +46,11 @@ export function formatDurationFromMs(durationMs: number) {
 
   return formatDuration(duration)
 }
+
+export function formatRemainingMinutesFromMs(durationMs: number) {
+  const safeDurationMs = Math.max(0, durationMs)
+  if (safeDurationMs < 60_000) return 'less than a minute'
+
+  const remainingMinutes = Math.ceil(safeDurationMs / 60_000)
+  return remainingMinutes === 1 ? '1 minute' : `${remainingMinutes} minutes`
+}
