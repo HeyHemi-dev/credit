@@ -54,3 +54,17 @@ That route is still mostly a pass-through to Better Auth's preferred pathname-ba
 - `src/components/auth/auth-client.tsx` keeps the Better Auth provider shell and header auth widgets
 - account page composition moves into route files or account-specific page components
 - shared account navigation can stay in a layout-level component
+
+## Related UI Cleanup
+
+While refactoring auth/account settings, consider introducing a shared settings card wrapper for consistent custom-card styling across account pages.
+
+Suggested shape:
+
+- component accepts `title`, `description`, and `children`
+- use it for cards like the supplier claim settings card and other custom settings cards that sit beside Better Auth UI cards
+
+Likely touchpoints:
+
+- `src/components/suppliers/claim-supplier-settings-card.tsx`
+- custom settings cards in account routes/components

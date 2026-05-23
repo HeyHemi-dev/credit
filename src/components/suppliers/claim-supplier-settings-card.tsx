@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-// TODO: make a settings card component for consistent styling of cards. props: title, description, children
 export function ClaimSupplierSettingsCard() {
   const { claimQuery } = useMySupplierClaim()
 
