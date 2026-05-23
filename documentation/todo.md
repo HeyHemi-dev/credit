@@ -38,6 +38,7 @@
 - [ ] Add checkbox-style tag selection for copying: client-side only, allow copying a formatted subset of tags
 - [ ] Handle auth in middleware: add `src/start.ts` request middleware to attach Better Auth session/user to server context; refactor serverFns to rely on context (don’t pass session tokens from client) and enforce auth on supplier search/dedupe + other protected serverFns
 - [ ] Refine the auth token model across `src/hooks/use-auth.ts` and related server auth helpers. See `documentation/auth-token-refactor-notes.md`
+- [ ] Refactor account auth/settings routes away from `$pathname`-driven page switching. See `documentation/account-auth-route-refactor-notes.md`
 - [ ] Add auth checks to supplier serverFns in `src/lib/server/suppliers.ts`: enforce session or share-token access for `searchSuppliersFn` and `dedupeSuppliersFn`
 - [ ] Log the creator auth context in `src/lib/server/suppliers.ts`: record which user or share token created a supplier
 - [ ] Replace Neon auth schema references in `src/db/schema.ts` with Better Auth-aligned references
