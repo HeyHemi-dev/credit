@@ -18,7 +18,9 @@ import { Route as publicPublicLayoutTermsRouteImport } from './routes/(public)/_
 import { Route as publicPublicLayoutPrivacyRouteImport } from './routes/(public)/_publicLayout.privacy'
 import { Route as appAppLayoutCreateSupplierRouteImport } from './routes/(app)/_appLayout.create-supplier'
 import { Route as appAppLayoutEventsIndexRouteImport } from './routes/(app)/_appLayout.events.index'
-import { Route as publicPublicLayoutAuthPathnameRouteImport } from './routes/(public)/_publicLayout.auth.$pathname'
+import { Route as publicPublicLayoutAuthSignUpRouteImport } from './routes/(public)/_publicLayout.auth.sign-up'
+import { Route as publicPublicLayoutAuthSignOutRouteImport } from './routes/(public)/_publicLayout.auth.sign-out'
+import { Route as publicPublicLayoutAuthSignInRouteImport } from './routes/(public)/_publicLayout.auth.sign-in'
 import { Route as appAppLayoutSTokenRouteImport } from './routes/(app)/_appLayout.s.$token'
 import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_appLayout.events.$eventId'
 import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
@@ -70,10 +72,22 @@ const appAppLayoutEventsIndexRoute = appAppLayoutEventsIndexRouteImport.update({
   path: '/events/',
   getParentRoute: () => appAppLayoutRoute,
 } as any)
-const publicPublicLayoutAuthPathnameRoute =
-  publicPublicLayoutAuthPathnameRouteImport.update({
-    id: '/auth/$pathname',
-    path: '/auth/$pathname',
+const publicPublicLayoutAuthSignUpRoute =
+  publicPublicLayoutAuthSignUpRouteImport.update({
+    id: '/auth/sign-up',
+    path: '/auth/sign-up',
+    getParentRoute: () => publicPublicLayoutRoute,
+  } as any)
+const publicPublicLayoutAuthSignOutRoute =
+  publicPublicLayoutAuthSignOutRouteImport.update({
+    id: '/auth/sign-out',
+    path: '/auth/sign-out',
+    getParentRoute: () => publicPublicLayoutRoute,
+  } as any)
+const publicPublicLayoutAuthSignInRoute =
+  publicPublicLayoutAuthSignInRouteImport.update({
+    id: '/auth/sign-in',
+    path: '/auth/sign-in',
     getParentRoute: () => publicPublicLayoutRoute,
   } as any)
 const appAppLayoutSTokenRoute = appAppLayoutSTokenRouteImport.update({
@@ -117,7 +131,9 @@ export interface FileRoutesByFullPath {
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/s/$token': typeof appAppLayoutSTokenRoute
-  '/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
+  '/auth/sign-in': typeof publicPublicLayoutAuthSignInRoute
+  '/auth/sign-out': typeof publicPublicLayoutAuthSignOutRoute
+  '/auth/sign-up': typeof publicPublicLayoutAuthSignUpRoute
   '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,7 +148,9 @@ export interface FileRoutesByTo {
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/s/$token': typeof appAppLayoutSTokenRoute
-  '/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
+  '/auth/sign-in': typeof publicPublicLayoutAuthSignInRoute
+  '/auth/sign-out': typeof publicPublicLayoutAuthSignOutRoute
+  '/auth/sign-up': typeof publicPublicLayoutAuthSignUpRoute
   '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesById {
@@ -150,7 +168,9 @@ export interface FileRoutesById {
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
   '/(app)/_appLayout/events/$eventId': typeof appAppLayoutEventsEventIdRoute
   '/(app)/_appLayout/s/$token': typeof appAppLayoutSTokenRoute
-  '/(public)/_publicLayout/auth/$pathname': typeof publicPublicLayoutAuthPathnameRoute
+  '/(public)/_publicLayout/auth/sign-in': typeof publicPublicLayoutAuthSignInRoute
+  '/(public)/_publicLayout/auth/sign-out': typeof publicPublicLayoutAuthSignOutRoute
+  '/(public)/_publicLayout/auth/sign-up': typeof publicPublicLayoutAuthSignUpRoute
   '/(app)/_appLayout/events/': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRouteTypes {
@@ -167,7 +187,9 @@ export interface FileRouteTypes {
     | '/e/$eventId'
     | '/events/$eventId'
     | '/s/$token'
-    | '/auth/$pathname'
+    | '/auth/sign-in'
+    | '/auth/sign-out'
+    | '/auth/sign-up'
     | '/events'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -182,7 +204,9 @@ export interface FileRouteTypes {
     | '/e/$eventId'
     | '/events/$eventId'
     | '/s/$token'
-    | '/auth/$pathname'
+    | '/auth/sign-in'
+    | '/auth/sign-out'
+    | '/auth/sign-up'
     | '/events'
   id:
     | '__root__'
@@ -199,7 +223,9 @@ export interface FileRouteTypes {
     | '/(app)/_appLayout/e/$eventId'
     | '/(app)/_appLayout/events/$eventId'
     | '/(app)/_appLayout/s/$token'
-    | '/(public)/_publicLayout/auth/$pathname'
+    | '/(public)/_publicLayout/auth/sign-in'
+    | '/(public)/_publicLayout/auth/sign-out'
+    | '/(public)/_publicLayout/auth/sign-up'
     | '/(app)/_appLayout/events/'
   fileRoutesById: FileRoutesById
 }
@@ -275,11 +301,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAppLayoutEventsIndexRouteImport
       parentRoute: typeof appAppLayoutRoute
     }
-    '/(public)/_publicLayout/auth/$pathname': {
-      id: '/(public)/_publicLayout/auth/$pathname'
-      path: '/auth/$pathname'
-      fullPath: '/auth/$pathname'
-      preLoaderRoute: typeof publicPublicLayoutAuthPathnameRouteImport
+    '/(public)/_publicLayout/auth/sign-up': {
+      id: '/(public)/_publicLayout/auth/sign-up'
+      path: '/auth/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof publicPublicLayoutAuthSignUpRouteImport
+      parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/(public)/_publicLayout/auth/sign-out': {
+      id: '/(public)/_publicLayout/auth/sign-out'
+      path: '/auth/sign-out'
+      fullPath: '/auth/sign-out'
+      preLoaderRoute: typeof publicPublicLayoutAuthSignOutRouteImport
+      parentRoute: typeof publicPublicLayoutRoute
+    }
+    '/(public)/_publicLayout/auth/sign-in': {
+      id: '/(public)/_publicLayout/auth/sign-in'
+      path: '/auth/sign-in'
+      fullPath: '/auth/sign-in'
+      preLoaderRoute: typeof publicPublicLayoutAuthSignInRouteImport
       parentRoute: typeof publicPublicLayoutRoute
     }
     '/(app)/_appLayout/s/$token': {
@@ -348,14 +388,18 @@ interface publicPublicLayoutRouteChildren {
   publicPublicLayoutPrivacyRoute: typeof publicPublicLayoutPrivacyRoute
   publicPublicLayoutTermsRoute: typeof publicPublicLayoutTermsRoute
   publicPublicLayoutIndexRoute: typeof publicPublicLayoutIndexRoute
-  publicPublicLayoutAuthPathnameRoute: typeof publicPublicLayoutAuthPathnameRoute
+  publicPublicLayoutAuthSignInRoute: typeof publicPublicLayoutAuthSignInRoute
+  publicPublicLayoutAuthSignOutRoute: typeof publicPublicLayoutAuthSignOutRoute
+  publicPublicLayoutAuthSignUpRoute: typeof publicPublicLayoutAuthSignUpRoute
 }
 
 const publicPublicLayoutRouteChildren: publicPublicLayoutRouteChildren = {
   publicPublicLayoutPrivacyRoute: publicPublicLayoutPrivacyRoute,
   publicPublicLayoutTermsRoute: publicPublicLayoutTermsRoute,
   publicPublicLayoutIndexRoute: publicPublicLayoutIndexRoute,
-  publicPublicLayoutAuthPathnameRoute: publicPublicLayoutAuthPathnameRoute,
+  publicPublicLayoutAuthSignInRoute: publicPublicLayoutAuthSignInRoute,
+  publicPublicLayoutAuthSignOutRoute: publicPublicLayoutAuthSignOutRoute,
+  publicPublicLayoutAuthSignUpRoute: publicPublicLayoutAuthSignUpRoute,
 }
 
 const publicPublicLayoutRouteWithChildren =

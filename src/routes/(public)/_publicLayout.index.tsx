@@ -358,8 +358,7 @@ function CTA() {
         className="min-w-[9em] border border-primary-foreground"
         render={(props) => (
           <Link
-            to="/auth/$pathname"
-            params={{ pathname: 'sign-up' }}
+            to="/auth/sign-up"
             className={props.className}
           >
             Start Free
