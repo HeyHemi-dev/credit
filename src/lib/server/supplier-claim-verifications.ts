@@ -1,6 +1,7 @@
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import {
   SUPPLIER_CLAIM_CODE_EXPIRY_MS,
+  SUPPLIER_CLAIM_STATUS,
   SUPPLIER_CLAIM_VERIFICATION_COOLDOWN_MS,
 } from '@/lib/constants'
 import {
@@ -42,7 +43,7 @@ const hashSupplierClaimVerificationCodeServer = createServerOnlyFn(
   },
 )
 
-const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
+export const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
   async (userId: string, codeHash: string, expiresAt: Date) => {
     const { getSupplierClaimByUserId } = await import(
       '@/db/queries/supplier-claims'
@@ -54,17 +55,10 @@ const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
     const { ERROR } = await import('@/lib/errors')
 
     const claim = await getSupplierClaimByUserId(userId)
-    if (!claim || claim.claim.status !== 'pending') {
+    if (!claim || claim.claim.status !== SUPPLIER_CLAIM_STATUS.PENDING) {
       throw ERROR.INVALID_STATE(
         'Start a supplier claim before requesting a code',
       )
-    }
-
-    if (
-      claim.supplier.claimedByUserId &&
-      claim.supplier.claimedByUserId !== userId
-    ) {
-      throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
     }
 
     const now = new Date()
@@ -96,9 +90,7 @@ const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
 
 const verifySupplierClaimCodeServer = createServerOnlyFn(
   async (userId: string, codeHash: string) => {
-    const { approveSupplierClaim, claimSupplierForUser } = await import(
-      '@/db/queries/supplier-claims'
-    )
+    const { approveSupplierClaim } = await import('@/db/queries/supplier-claims')
     const { consumeSupplierClaimVerification, verifySupplierClaimCode } =
       await import('@/db/queries/supplier-claim-verifications')
     const { mapSupplierToClient } = await import(
@@ -107,7 +99,6 @@ const verifySupplierClaimCodeServer = createServerOnlyFn(
 
     const claim = await verifySupplierClaimCode(userId, codeHash)
 
-    await claimSupplierForUser(claim.supplier.id, userId)
     await approveSupplierClaim(claim.claim.id)
     if (claim.verification) {
       await consumeSupplierClaimVerification(claim.verification.id)
@@ -176,16 +167,4 @@ export async function sendSupplierClaimVerificationCode(
   })
 
   return verification
-}
-
-export async function createOrRefreshSupplierClaimVerification(
-  userId: string,
-  codeHash: string,
-  expiresAt: Date,
-) {
-  return await createOrRefreshSupplierClaimVerificationServer(
-    userId,
-    codeHash,
-    expiresAt,
-  )
 }

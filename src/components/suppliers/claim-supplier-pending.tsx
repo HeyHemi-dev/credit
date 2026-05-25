@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import type { SupplierClaim } from '@/lib/types/front-end'
-
 import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
 import {
   formatDurationFromMs,
@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
-import { Input } from '@/components/ui/input'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp'
 
 type VerifyClaimCodeFormValues = {
   code: string
@@ -69,7 +73,7 @@ export function ClaimSupplierPending({ claim }: { claim: SupplierClaim }) {
 }
 
 function ClaimSupplierVerificationForm() {
-  const { verifyCodeMutation, cancelClaimMutation } = useSupplierClaim()
+  const { verifyCodeMutation, archiveClaimMutation } = useSupplierClaim()
 
   const form = useForm({
     defaultValues: verifyCodeDefaultValues,
@@ -96,23 +100,30 @@ function ClaimSupplierVerificationForm() {
             name="code"
             children={(field) => (
               <FormField field={field} label="Verification code" isRequired>
-                <Input
+                <InputOTP
                   id={field.name}
+                  className="w-full"
                   inputMode="text"
                   autoComplete="one-time-code"
                   maxLength={6}
-                  placeholder="abc123"
+                  pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     field.handleChange(
-                      event.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '')
-                        .slice(0, 6),
+                      value.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 6),
                     )
                   }
-                />
+                >
+                  <InputOTPGroup className="w-full">
+                    <InputOTPSlot index={0} className="w-auto flex-1" />
+                    <InputOTPSlot index={1} className="w-auto flex-1" />
+                    <InputOTPSlot index={2} className="w-auto flex-1" />
+                    <InputOTPSlot index={3} className="w-auto flex-1" />
+                    <InputOTPSlot index={4} className="w-auto flex-1" />
+                    <InputOTPSlot index={5} className="w-auto flex-1" />
+                  </InputOTPGroup>
+                </InputOTP>
               </FormField>
             )}
           />
@@ -123,10 +134,10 @@ function ClaimSupplierVerificationForm() {
             type="button"
             variant="link"
             className="h-auto px-0 text-sm"
-            onClick={() => cancelClaimMutation.mutate()}
-            disabled={cancelClaimMutation.isPending}
+            onClick={() => archiveClaimMutation.mutate()}
+            disabled={archiveClaimMutation.isPending}
           >
-            {cancelClaimMutation.isPending ? 'Cancelling…' : 'Cancel claim'}
+            {archiveClaimMutation.isPending ? 'Cancelling…' : 'Cancel claim'}
           </Button>
           <Button
             type="submit"
@@ -138,8 +149,8 @@ function ClaimSupplierVerificationForm() {
         </div>
       </form>
 
-      {cancelClaimMutation.error?.message && (
-        <FormErrorMessage message={cancelClaimMutation.error.message} />
+      {archiveClaimMutation.error?.message && (
+        <FormErrorMessage message={archiveClaimMutation.error.message} />
       )}
 
       {verifyCodeMutation.error?.message && (

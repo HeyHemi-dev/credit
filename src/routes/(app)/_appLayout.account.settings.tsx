@@ -74,9 +74,11 @@ function ClaimSupplierCard() {
         <CardTitle className="text-lg leading-none font-semibold md:text-xl">
           {claimCardState.title}
         </CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          {claimCardState.description}
-        </CardDescription>
+        {claimCardState.description && (
+          <CardDescription className="text-xs md:text-sm">
+            {claimCardState.description}
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent>{content}</CardContent>
     </Card>
@@ -98,9 +100,8 @@ function getClaimSupplierCardState(claim: SupplierClaim | null) {
   if (claim?.status === 'claimed') {
     return {
       state: 'claimed' as const,
-      title: 'Supplier profile claimed',
-      description:
-        'Your account is already connected to this supplier profile.',
+      title: 'Supplier profile linked',
+      description: '',
       claim,
     }
   }

@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
 import { supplierClaimVerifications } from '@/db/schema'
+import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { tryCatch } from '@/lib/try-catch'
 
@@ -9,19 +10,6 @@ const SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS = 5
 
 export type SupplierClaimVerificationRow =
   typeof supplierClaimVerifications.$inferSelect
-
-export async function deleteSupplierClaimVerificationByClaimId(
-  supplierClaimId: string,
-) {
-  const { error } = await tryCatch(
-    db
-      .delete(supplierClaimVerifications)
-      .where(eq(supplierClaimVerifications.supplierClaimId, supplierClaimId)),
-  )
-
-  if (error)
-    throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
-}
 
 export async function consumeSupplierClaimVerification(verificationId: string) {
   const now = new Date()
@@ -112,17 +100,13 @@ export async function verifySupplierClaimCode(
   userId: string,
   codeHash: string,
 ) {
-  const claim = await getPendingSupplierClaimByUserId(userId)
+  const claim = await getSupplierClaimByUserId(userId)
   if (!claim) throw ERROR.INVALID_STATE('No pending supplier claim was found')
+  if (claim.claim.status !== SUPPLIER_CLAIM_STATUS.PENDING) {
+    throw ERROR.INVALID_STATE('No pending supplier claim was found')
+  }
   if (!claim.verification) {
     throw ERROR.INVALID_STATE('Request a verification code before trying again')
-  }
-
-  if (
-    claim.supplier.claimedByUserId &&
-    claim.supplier.claimedByUserId !== userId
-  ) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
   }
 
   const now = new Date()
@@ -178,12 +162,5 @@ export async function verifySupplierClaimCode(
     throw ERROR.VALIDATION_ERROR('Incorrect code. Try again.')
   }
 
-  return claim
-}
-
-async function getPendingSupplierClaimByUserId(userId: string) {
-  const claim = await getSupplierClaimByUserId(userId)
-  if (!claim) return null
-  if (claim.claim.status !== 'pending') return null
   return claim
 }

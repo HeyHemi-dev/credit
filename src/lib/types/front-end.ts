@@ -31,7 +31,7 @@ export type Supplier = {
   tiktokHandle: string | null
 }
 
-export type SupplierClaimStatus = 'pending' | 'approved' | 'rejected' | 'claimed'
+export type SupplierClaimStatus = 'pending' | 'claimed'
 
 export type SupplierClaimVerification = {
   email: string
