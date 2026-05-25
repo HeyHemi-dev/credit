@@ -27,24 +27,13 @@ const verifyCodeDefaultValues: VerifyClaimCodeFormValues = {
   code: '',
 }
 
-export function ClaimSupplierVerificationPending({
+export function ClaimSupplierPending({
   claim,
 }: {
   claim: SupplierClaim
 }) {
   const { cancelClaimMutation } = useCancelPendingSupplierClaim()
   const { sendCodeMutation } = useSendSupplierClaimVerificationCode()
-  const { verifyCodeMutation } = useVerifySupplierClaimCode()
-
-  const form = useForm({
-    defaultValues: verifyCodeDefaultValues,
-    validators: {
-      onSubmit: verifySupplierClaimCodeSchema,
-    },
-    onSubmit: async ({ value }) => {
-      await verifyCodeMutation.mutateAsync(value.code)
-    },
-  })
   const expiryDurationLabel = formatDurationFromMs(
     SUPPLIER_CLAIM_CODE_EXPIRY_MS,
   )
@@ -72,56 +61,7 @@ export function ClaimSupplierVerificationPending({
           </p>
         )}
 
-        <form
-          id="verify-supplier-claim-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            form.handleSubmit()
-          }}
-          className="grid gap-4"
-        >
-          <FieldGroup className="grid gap-4">
-            <form.Field
-              name="code"
-              children={(field) => (
-                <FormField
-                  field={field}
-                  label="Verification code"
-                  description="Enter the 6-character code from your email."
-                  isRequired
-                >
-                  <Input
-                    id={field.name}
-                    inputMode="text"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    placeholder="a1b2c3"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(event) =>
-                      field.handleChange(
-                        event.target.value
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, '')
-                          .slice(0, 6),
-                      )
-                    }
-                  />
-                </FormField>
-              )}
-            />
-          </FieldGroup>
-
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              form="verify-supplier-claim-form"
-              disabled={verifyCodeMutation.isPending || form.state.isSubmitting}
-            >
-              {verifyCodeMutation.isPending ? 'Verifying…' : 'Verify claim'}
-            </Button>
-          </div>
-        </form>
+        <ClaimSupplierVerificationForm />
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <VerificationCodeExpiryMessage
@@ -146,10 +86,6 @@ export function ClaimSupplierVerificationPending({
         {sendCodeMutation.error?.message && (
           <FormErrorMessage message={sendCodeMutation.error.message} />
         )}
-
-        {verifyCodeMutation.error?.message && (
-          <FormErrorMessage message={verifyCodeMutation.error.message} />
-        )}
       </div>
 
       <div className="flex justify-start">
@@ -170,6 +106,79 @@ export function ClaimSupplierVerificationPending({
         <FormErrorMessage message={cancelClaimMutation.error.message} />
       )}
     </div>
+  )
+}
+
+function ClaimSupplierVerificationForm() {
+  const { verifyCodeMutation } = useVerifySupplierClaimCode()
+
+  const form = useForm({
+    defaultValues: verifyCodeDefaultValues,
+    validators: {
+      onSubmit: verifySupplierClaimCodeSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await verifyCodeMutation.mutateAsync(value.code)
+    },
+  })
+
+  return (
+    <>
+      <form
+        id="verify-supplier-claim-form"
+        onSubmit={(event) => {
+          event.preventDefault()
+          form.handleSubmit()
+        }}
+        className="grid gap-4"
+      >
+        <FieldGroup className="grid gap-4">
+          <form.Field
+            name="code"
+            children={(field) => (
+              <FormField
+                field={field}
+                label="Verification code"
+                description="Enter the 6-character code from your email."
+                isRequired
+              >
+                <Input
+                  id={field.name}
+                  inputMode="text"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder="a1b2c3"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(event) =>
+                    field.handleChange(
+                      event.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '')
+                        .slice(0, 6),
+                    )
+                  }
+                />
+              </FormField>
+            )}
+          />
+        </FieldGroup>
+
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            form="verify-supplier-claim-form"
+            disabled={verifyCodeMutation.isPending || form.state.isSubmitting}
+          >
+            {verifyCodeMutation.isPending ? 'Verifying…' : 'Verify claim'}
+          </Button>
+        </div>
+      </form>
+
+      {verifyCodeMutation.error?.message && (
+        <FormErrorMessage message={verifyCodeMutation.error.message} />
+      )}
+    </>
   )
 }
 

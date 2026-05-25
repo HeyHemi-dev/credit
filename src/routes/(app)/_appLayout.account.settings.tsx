@@ -3,9 +3,9 @@ import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
-import { ClaimSupplierVerificationPending } from '@/components/suppliers/claim-supplier-pending'
 import { ClaimSupplierForm } from '@/components/suppliers/claim-supplier-form'
-import { ClaimSupplierVerified } from '@/components/suppliers/claim-supplier-shared'
+import { ClaimSupplierPending } from '@/components/suppliers/claim-supplier-pending'
+import { ClaimSupplierVerified } from '@/components/suppliers/claim-supplier-verified'
 import { useMySupplierClaim } from '@/hooks/use-supplier-claims'
 import {
   Card,
@@ -79,8 +79,7 @@ function ClaimSupplierCard() {
     <ClaimSupplierForm initialSupplier={claimQuery.data?.supplier ?? null} />
   )
 
-  if (pendingClaim)
-    content = <ClaimSupplierVerificationPending claim={pendingClaim} />
+  if (pendingClaim) content = <ClaimSupplierPending claim={pendingClaim} />
 
   if (claimedClaim) {
     content = <ClaimSupplierVerified supplier={claimedClaim.supplier} />
