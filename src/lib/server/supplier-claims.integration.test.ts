@@ -11,7 +11,7 @@ import {
 } from '@/db/schema'
 import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import {
-  archiveActiveSupplierClaimServer,
+  archiveSupplierClaimServer,
   createOrUpdateSupplierClaimServer,
 } from '@/lib/server/supplier-claims'
 import { createOrRefreshSupplierClaimVerificationServer } from '@/lib/server/supplier-claim-verifications'
@@ -87,7 +87,7 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
   })
 })
 
-describe.skipIf(!isIntegrationTestMode)('archiveActiveSupplierClaim', () => {
+describe.skipIf(!isIntegrationTestMode)('archiveSupplierClaim', () => {
   const createdSupplierIds: Array<string> = []
   const createdUserIds: Array<string> = []
 
@@ -118,7 +118,7 @@ describe.skipIf(!isIntegrationTestMode)('archiveActiveSupplierClaim', () => {
     if (!pendingClaim) throw new Error('Pending claim not found')
 
     // Act
-    await archiveActiveSupplierClaimServer(user.id)
+    await archiveSupplierClaimServer(user.id)
     const savedClaim = await getSupplierClaimByUserId(user.id)
     const [archivedClaim] = await db
       .select()
@@ -155,7 +155,7 @@ describe.skipIf(!isIntegrationTestMode)('archiveActiveSupplierClaim', () => {
     if (!approvedClaim) throw new Error('Approved claim not found')
 
     // Act
-    await archiveActiveSupplierClaimServer(user.id)
+    await archiveSupplierClaimServer(user.id)
     const savedClaim = await getSupplierClaimByUserId(user.id)
     const [archivedClaim] = await db
       .select()
