@@ -1,4 +1,4 @@
-import { eq, ilike, or } from 'drizzle-orm'
+import { and, eq, ilike, inArray, or } from 'drizzle-orm'
 import type { SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { db } from '@/db/connection'
 import { supplierClaimVerifications, supplierClaims, suppliers } from '@/db/schema'
@@ -7,20 +7,27 @@ import { normalizeHandle } from '@/lib/formatters'
 import { tryCatch } from '@/lib/try-catch'
 
 export type SupplierClaimRow = typeof supplierClaims.$inferSelect
+const ACTIVE_SUPPLIER_CLAIM_STATUSES = ['pending', 'approved'] as const
 
 type SupplierClaimSearchRow = {
   supplier: typeof suppliers.$inferSelect
   claimStatus: SupplierClaimSearchResult['claimStatus']
 }
 
-export async function getSupplierOwnedByUserId(userId: string) {
+export async function getClaimedSupplierByUserId(userId: string) {
   const [row] = await db
-    .select()
-    .from(suppliers)
-    .where(eq(suppliers.claimedByUserId, userId))
+    .select({ supplier: suppliers })
+    .from(supplierClaims)
+    .innerJoin(suppliers, eq(supplierClaims.supplierId, suppliers.id))
+    .where(
+      and(
+        eq(supplierClaims.userId, userId),
+        eq(supplierClaims.status, 'approved'),
+      ),
+    )
     .limit(1)
 
-  return row ?? null
+  return row?.supplier ?? null
 }
 
 export async function getSupplierById(supplierId: string) {
@@ -46,7 +53,12 @@ export async function getSupplierClaimByUserId(userId: string) {
       supplierClaimVerifications,
       eq(supplierClaimVerifications.supplierClaimId, supplierClaims.id),
     )
-    .where(eq(supplierClaims.userId, userId))
+    .where(
+      and(
+        eq(supplierClaims.userId, userId),
+        inArray(supplierClaims.status, ACTIVE_SUPPLIER_CLAIM_STATUSES),
+      ),
+    )
     .limit(1)
 
   return row ?? null
@@ -56,7 +68,12 @@ export async function getSupplierClaimRowBySupplierId(supplierId: string) {
   const [row] = await db
     .select()
     .from(supplierClaims)
-    .where(eq(supplierClaims.supplierId, supplierId))
+    .where(
+      and(
+        eq(supplierClaims.supplierId, supplierId),
+        inArray(supplierClaims.status, ACTIVE_SUPPLIER_CLAIM_STATUSES),
+      ),
+    )
     .limit(1)
 
   return row ?? null
@@ -78,7 +95,13 @@ export async function searchSuppliersForClaim(
       claim: supplierClaims,
     })
     .from(suppliers)
-    .leftJoin(supplierClaims, eq(supplierClaims.supplierId, suppliers.id))
+    .leftJoin(
+      supplierClaims,
+      and(
+        eq(supplierClaims.supplierId, suppliers.id),
+        inArray(supplierClaims.status, ACTIVE_SUPPLIER_CLAIM_STATUSES),
+      ),
+    )
     .where(
       or(
         ilike(suppliers.name, qLike),
@@ -92,9 +115,13 @@ export async function searchSuppliersForClaim(
   return rows.map((row) => {
     let claimStatus: SupplierClaimSearchResult['claimStatus'] = 'available'
 
-    if (row.supplier.claimedByUserId === userId) claimStatus = 'claimedByYou'
-    else if (row.supplier.claimedByUserId) claimStatus = 'claimed'
-    else if (row.claim && row.claim.userId !== userId) claimStatus = 'pending'
+    if (row.claim?.status === 'approved' && row.claim.userId === userId) {
+      claimStatus = 'claimedByYou'
+    } else if (row.claim?.status === 'approved') {
+      claimStatus = 'claimed'
+    } else if (row.claim?.status === 'pending' && row.claim.userId !== userId) {
+      claimStatus = 'pending'
+    }
 
     return {
       supplier: row.supplier,
@@ -120,33 +147,21 @@ export async function createSupplierClaim(supplierId: string, userId: string) {
   return rows[0]
 }
 
-export async function resetSupplierClaim(
-  claimId: string,
-  supplierId: string,
-) {
+export async function archiveSupplierClaim(claimId: string) {
   const { data: rows, error } = await tryCatch(
     db
       .update(supplierClaims)
       .set({
-        supplierId,
-        status: 'pending',
+        status: 'archived',
         updatedAt: new Date(),
       })
       .where(eq(supplierClaims.id, claimId))
       .returning(),
   )
 
-  if (error) throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
-  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to update supplier claim')
+  if (error) throw ERROR.DATABASE_ERROR('Failed to archive supplier claim')
+  if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to archive supplier claim')
   return rows[0]
-}
-
-export async function deleteSupplierClaim(claimId: string) {
-  const { error } = await tryCatch(
-    db.delete(supplierClaims).where(eq(supplierClaims.id, claimId)),
-  )
-
-  if (error) throw ERROR.DATABASE_ERROR('Failed to delete supplier claim')
 }
 
 export async function approveSupplierClaim(claimId: string) {
@@ -163,25 +178,5 @@ export async function approveSupplierClaim(claimId: string) {
 
   if (error) throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
   if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to approve supplier claim')
-  return rows[0]
-}
-
-export async function claimSupplierForUser(supplierId: string, userId: string) {
-  const { data: rows, error } = await tryCatch(
-    db
-      .update(suppliers)
-      .set({
-        claimedByUserId: userId,
-        updatedAt: new Date(),
-      })
-      .where(eq(suppliers.id, supplierId))
-      .returning(),
-  )
-
-  if (error) throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
-  if (rows.length === 0) {
-    throw ERROR.DATABASE_ERROR('Failed to update supplier ownership')
-  }
-
   return rows[0]
 }

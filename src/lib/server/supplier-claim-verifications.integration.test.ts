@@ -25,35 +25,48 @@ describe.skipIf(!isIntegrationTestMode)(
       }
     })
 
-    it('invalidates the previous verification code when a pending claim switches suppliers', async () => {
+    it('refreshes the existing verification row for the current pending claim instead of creating another one', async () => {
       // Arrange
       const user = await createTestUser(createdUserIds)
-      const firstSupplier = await createTestSupplier(createdSupplierIds)
-      const secondSupplier = await createTestSupplier(createdSupplierIds)
+      const supplier = await createTestSupplier(createdSupplierIds)
+      await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
 
-      await createOrUpdateSupplierClaim(firstSupplier.id, user.id, user.email)
-      await createOrRefreshSupplierClaimVerification(
+      const firstVerification = await createOrRefreshSupplierClaimVerification(
         user.id,
         hashVerificationCode(user.id, 'abc123'),
         new Date(Date.now() + 10 * 60 * 1000),
       )
+      await db
+        .update(supplierClaimVerifications)
+        .set({
+          lastSentAt: new Date(Date.now() - 60 * 1000),
+        })
+        .where(eq(supplierClaimVerifications.id, firstVerification.id))
 
       // Act
-      await createOrUpdateSupplierClaim(secondSupplier.id, user.id, user.email)
-      const updatedClaim = await getSupplierClaimByUserId(user.id)
-      if (!updatedClaim) throw new Error('Updated claim not found')
-      const [verification] = await db
+      const refreshedVerification = await createOrRefreshSupplierClaimVerification(
+        user.id,
+        hashVerificationCode(user.id, 'def456'),
+        new Date(Date.now() + 20 * 60 * 1000),
+      )
+      const activeClaim = await getSupplierClaimByUserId(user.id)
+      if (!activeClaim) throw new Error('Active claim not found')
+      const verificationRows = await db
         .select()
         .from(supplierClaimVerifications)
         .where(
-          eq(supplierClaimVerifications.supplierClaimId, updatedClaim.claim.id),
+          eq(
+            supplierClaimVerifications.supplierClaimId,
+            activeClaim.claim.id,
+          ),
         )
-        .limit(1)
 
       // Assert
-      expect(updatedClaim.claim.supplierId).toBe(secondSupplier.id)
-      expect(updatedClaim.claim.status).toBe('pending')
-      expect(verification).toBeUndefined()
+      expect(refreshedVerification.id).toBe(firstVerification.id)
+      expect(verificationRows).toHaveLength(1)
+      expect(verificationRows[0]?.codeHash).toBe(
+        hashVerificationCode(user.id, 'def456'),
+      )
     })
   },
 )

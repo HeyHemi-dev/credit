@@ -33,6 +33,7 @@ export const supplierClaimStatusEnum = pgEnum('supplier_claim_status', {
   PENDING: 'pending',
   APPROVED: 'approved',
   REJECTED: 'rejected',
+  ARCHIVED: 'archived',
 })
 
 // Suppliers table
@@ -48,18 +49,11 @@ export const suppliers = pgTable(
     instagramHandle: text('instagram_handle'),
     tiktokHandle: text('tiktok_handle'),
     region: regionEnum('region'),
-    claimedByUserId: uuid('claimed_by_user_id').references(
-      () => userInNeonAuth.id,
-      { onDelete: 'set null' },
-    ),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex('suppliers_email_unique').on(lower(table.email)),
-    uniqueIndex('suppliers_claimed_by_user_id_unique').on(
-      table.claimedByUserId,
-    ),
     index('suppliers_email_domain_idx').on(table.emailDomain),
     index('suppliers_instagram_handle_idx').on(table.instagramHandle),
     index('suppliers_tiktok_handle_idx').on(table.tiktokHandle),
@@ -77,13 +71,20 @@ export const supplierClaims = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => userInNeonAuth.id, { onDelete: 'cascade' }),
+    // Claim lifecycle and current ownership are derived from this status.
     status: supplierClaimStatusEnum('status').notNull().default('pending'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('supplier_claims_supplier_id_unique').on(table.supplierId),
-    uniqueIndex('supplier_claims_user_id_unique').on(table.userId),
+    uniqueIndex('supplier_claims_active_supplier_id_unique')
+      .on(table.supplierId)
+      .where(sql`${table.status} in ('pending', 'approved')`),
+    uniqueIndex('supplier_claims_active_user_id_unique')
+      .on(table.userId)
+      .where(sql`${table.status} in ('pending', 'approved')`),
+    index('supplier_claims_supplier_id_idx').on(table.supplierId),
+    index('supplier_claims_user_id_idx').on(table.userId),
     index('supplier_claims_status_idx').on(table.status),
   ],
 )

@@ -10,19 +10,6 @@ const SUPPLIER_CLAIM_VERIFICATION_MAX_ATTEMPTS = 5
 export type SupplierClaimVerificationRow =
   typeof supplierClaimVerifications.$inferSelect
 
-export async function deleteSupplierClaimVerificationByClaimId(
-  supplierClaimId: string,
-) {
-  const { error } = await tryCatch(
-    db
-      .delete(supplierClaimVerifications)
-      .where(eq(supplierClaimVerifications.supplierClaimId, supplierClaimId)),
-  )
-
-  if (error)
-    throw ERROR.DATABASE_ERROR('Failed to reset supplier claim verification')
-}
-
 export async function consumeSupplierClaimVerification(verificationId: string) {
   const now = new Date()
   const { data: rows, error } = await tryCatch(
@@ -116,13 +103,6 @@ export async function verifySupplierClaimCode(
   if (!claim) throw ERROR.INVALID_STATE('No pending supplier claim was found')
   if (!claim.verification) {
     throw ERROR.INVALID_STATE('Request a verification code before trying again')
-  }
-
-  if (
-    claim.supplier.claimedByUserId &&
-    claim.supplier.claimedByUserId !== userId
-  ) {
-    throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
   }
 
   const now = new Date()

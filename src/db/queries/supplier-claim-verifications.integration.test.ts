@@ -4,9 +4,8 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import {
   approveSupplierClaim,
-  claimSupplierForUser,
+  getClaimedSupplierByUserId,
   getSupplierClaimByUserId,
-  getSupplierOwnedByUserId,
 } from '@/db/queries/supplier-claims'
 import {
   consumeSupplierClaimVerification,
@@ -53,17 +52,16 @@ describe.skipIf(!isIntegrationTestMode)('verifySupplierClaimCode', () => {
       user.id,
       hashVerificationCode(user.id, code),
     )
-    await claimSupplierForUser(claim.supplier.id, user.id)
     await approveSupplierClaim(claim.claim.id)
     if (claim.verification) {
       await consumeSupplierClaimVerification(claim.verification.id)
     }
     const savedClaim = await getSupplierClaimByUserId(user.id)
-    const ownedSupplier = await getSupplierOwnedByUserId(user.id)
+    const claimedSupplier = await getClaimedSupplierByUserId(user.id)
 
     // Assert
     expect(savedClaim?.claim.status).toBe('approved')
-    expect(ownedSupplier?.id).toBe(supplier.id)
+    expect(claimedSupplier?.id).toBe(supplier.id)
   })
 })
 

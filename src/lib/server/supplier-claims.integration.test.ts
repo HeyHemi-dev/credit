@@ -3,10 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import {
+  getClaimedSupplierByUserId,
   getSupplierClaimByUserId,
-  getSupplierOwnedByUserId,
 } from '@/db/queries/supplier-claims'
-import { supplierClaimVerifications, suppliers, userInNeonAuth } from '@/db/schema'
+import {
+  supplierClaimVerifications,
+  supplierClaims,
+  suppliers,
+  userInNeonAuth,
+} from '@/db/schema'
 import {
   cancelPendingSupplierClaim,
   createOrUpdateSupplierClaim,
@@ -56,11 +61,25 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
     // Act
     await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
     const savedClaim = await getSupplierClaimByUserId(user.id)
-    const ownedSupplier = await getSupplierOwnedByUserId(user.id)
+    const claimedSupplier = await getClaimedSupplierByUserId(user.id)
 
     // Assert
     expect(savedClaim?.claim.status).toBe('approved')
-    expect(ownedSupplier?.id).toBe(supplier.id)
+    expect(claimedSupplier?.id).toBe(supplier.id)
+  })
+
+  it('requires canceling the current claim before starting a new claim on a different supplier', async () => {
+    // Arrange
+    const user = await createTestUser(createdUserIds)
+    const firstSupplier = await createTestSupplier(createdSupplierIds)
+    const secondSupplier = await createTestSupplier(createdSupplierIds)
+
+    await createOrUpdateSupplierClaim(firstSupplier.id, user.id, user.email)
+
+    // Act / Assert
+    await expect(
+      createOrUpdateSupplierClaim(secondSupplier.id, user.id, user.email),
+    ).rejects.toThrow('Cancel your current supplier claim before starting another one')
   })
 })
 
@@ -79,7 +98,7 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     }
   })
 
-  it('removes the pending claim and its verification so the user returns to no claim state', async () => {
+  it('archives the pending claim and keeps its verification history so the user returns to no active claim state', async () => {
     // Arrange
     const user = await createTestUser(createdUserIds)
     const supplier = await createTestSupplier(createdSupplierIds)
@@ -97,6 +116,11 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     // Act
     await cancelPendingSupplierClaim(user.id)
     const savedClaim = await getSupplierClaimByUserId(user.id)
+    const [archivedClaim] = await db
+      .select()
+      .from(supplierClaims)
+      .where(eq(supplierClaims.id, pendingClaim.claim.id))
+      .limit(1)
     const [verification] = await db
       .select()
       .from(supplierClaimVerifications)
@@ -110,7 +134,8 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
 
     // Assert
     expect(savedClaim).toBeNull()
-    expect(verification).toBeUndefined()
+    expect(archivedClaim?.status).toBe('archived')
+    expect(verification?.supplierClaimId).toBe(pendingClaim.claim.id)
   })
 })
 

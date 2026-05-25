@@ -60,13 +60,6 @@ const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
       )
     }
 
-    if (
-      claim.supplier.claimedByUserId &&
-      claim.supplier.claimedByUserId !== userId
-    ) {
-      throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
-    }
-
     const now = new Date()
     if (
       claim.verification &&
@@ -96,9 +89,7 @@ const createOrRefreshSupplierClaimVerificationServer = createServerOnlyFn(
 
 const verifySupplierClaimCodeServer = createServerOnlyFn(
   async (userId: string, codeHash: string) => {
-    const { approveSupplierClaim, claimSupplierForUser } = await import(
-      '@/db/queries/supplier-claims'
-    )
+    const { approveSupplierClaim } = await import('@/db/queries/supplier-claims')
     const { consumeSupplierClaimVerification, verifySupplierClaimCode } =
       await import('@/db/queries/supplier-claim-verifications')
     const { mapSupplierToClient } = await import(
@@ -107,7 +98,6 @@ const verifySupplierClaimCodeServer = createServerOnlyFn(
 
     const claim = await verifySupplierClaimCode(userId, codeHash)
 
-    await claimSupplierForUser(claim.supplier.id, userId)
     await approveSupplierClaim(claim.claim.id)
     if (claim.verification) {
       await consumeSupplierClaimVerification(claim.verification.id)
