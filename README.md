@@ -100,42 +100,47 @@ ordering.
 
 ### Required GitHub secrets
 
-**Repo secrets for PR CI / cleanup:**
+GitHub Actions now pulls runtime env from Vercel. Keep the stable app and Neon
+configuration values in Vercel, and keep only the automation bootstrap secrets
+in GitHub:
 
-| Secret                 | Purpose                                                                 |
-| ---------------------- | ----------------------------------------------------------------------- |
-| `AUTH_SECRET`          | Better Auth secret used in CI runtime                                   |
-| `CR_NEON_PROJECT_ID`   | Neon project id for PR branch automation                                |
-| `EMAIL_FROM`           | Transactional sender used by runtime and email integration test         |
-| `GOOGLE_CLIENT_ID`     | Google OAuth client id                                                  |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                                              |
-| `NEON_API_KEY`         | Neon API token for PR branch create / restore / delete                  |
-| `NEON_PROD_BRANCH_ID`  | Production Neon branch id used as the PR branch restore source          |
-| `PROD_CR_DATABASE_URL` | Stable production database URL used only to derive the DB role/database |
-| `RESEND_API_KEY`       | Resend API key for live integration testing                             |
-| `VERCEL_ORG_ID`        | Vercel org/team id for preview env updates and production deploy        |
-| `VERCEL_PROJECT_ID`    | Vercel project id for preview env updates and production deploy         |
-| `VERCEL_TOKEN`         | Vercel token for preview env updates and production deploy              |
+| Secret             | Purpose                                                        |
+| ------------------ | -------------------------------------------------------------- |
+| `NEON_API_KEY`     | Neon API token for PR branch create / restore / delete         |
+| `VERCEL_ORG_ID`    | Vercel org/team id for env pulls, preview env updates, deploys |
+| `VERCEL_PROJECT_ID`| Vercel project id for env pulls, preview env updates, deploys  |
+| `VERCEL_TOKEN`     | Vercel token for `vercel pull/build/deploy` and env updates    |
 
-**Production environment secrets for `Release Main`:**
+### Vercel env recommendations
 
-| Secret                 | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `AUTH_SECRET`          | Better Auth secret used in prod runtime             |
-| `CR_DATABASE_URL`      | Stable production DB connection string              |
-| `EMAIL_FROM`           | Transactional sender                                |
-| `GOOGLE_CLIENT_ID`     | Google OAuth client id                              |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                          |
-| `RESEND_API_KEY`       | Resend API key for runtime and live integration test |
-| `VERCEL_ORG_ID`        | Vercel org/team id                                  |
-| `VERCEL_PROJECT_ID`    | Vercel project id                                   |
-| `VERCEL_TOKEN`         | Vercel token for `vercel pull/build/deploy`         |
+For this setup, Vercel should be the source of truth for:
+
+- `AUTH_SECRET`
+- `EMAIL_FROM`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `RESEND_API_KEY`
+- `CR_NEON_PROJECT_ID`
+- `NEON_PROD_BRANCH_ID`
+- `CR_PGDATABASE`
+- `CR_PGUSER`
+
+These should usually be the same in both `preview` and `production`, because
+they describe the same app, OAuth app, email sender, and Neon project.
+
+The important exception is `CR_DATABASE_URL`:
+
+- production keeps the stable prod DB value
+- preview keeps the shared default preview value
+- each PR gets a branch-specific preview override for `CR_DATABASE_URL`
+  pointing at its own `pr-<number>` Neon branch
 
 ### Preview deployment note
 
-GitHub Actions computes the PR database URL and writes it back to Vercel as a
-branch-specific preview override for `CR_DATABASE_URL`. Deployed previews still
-read runtime env vars from Vercel, not GitHub.
+GitHub Actions computes the PR database URL, writes it back to Vercel as a
+branch-specific preview override for `CR_DATABASE_URL`, then pulls preview envs
+from Vercel for that git branch. Deployed previews still read runtime env vars
+from Vercel, not GitHub.
 
 If Vercel starts a preview deployment before the `PR CI` workflow has updated
 that branch-specific `CR_DATABASE_URL`, the first deployed preview may still be

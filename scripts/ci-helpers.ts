@@ -26,6 +26,13 @@ export function writeGithubOutput(key: string, value: string) {
   appendFileSync(outputPath, `${key}=${value}\n`)
 }
 
+export function writeGithubEnv(key: string, value: string) {
+  const envPath = process.env.GITHUB_ENV
+  if (!envPath) return
+
+  appendFileSync(envPath, `${key}=${value}\n`)
+}
+
 export function readDatabaseUrlParts(connectionString: string) {
   const databaseUrlResult = tryCatchSync(() => new URL(connectionString))
   if (databaseUrlResult.error) fail('Database connection string is not a valid URL.')

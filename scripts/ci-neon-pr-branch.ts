@@ -1,12 +1,6 @@
 import { z } from 'zod'
 import { tryCatch } from '../src/lib/try-catch'
-import {
-  readDatabaseUrlParts,
-  requestHeaderToken,
-  requestJson,
-  sleep,
-  writeGithubOutput,
-} from './ci-helpers'
+import { requestHeaderToken, requestJson, sleep, writeGithubOutput } from './ci-helpers'
 import { fail, requireEnv } from './helpers'
 
 const argsSchema = z.object({
@@ -166,9 +160,8 @@ async function deleteBranch(branchId: string) {
 }
 
 async function readConnectionUri(branchId: string) {
-  const { databaseName, roleName } = readDatabaseUrlParts(
-    requireEnv('PROD_CR_DATABASE_URL'),
-  )
+  const databaseName = requireEnv('CR_PGDATABASE')
+  const roleName = requireEnv('CR_PGUSER')
 
   const searchParams = new URLSearchParams({
     branch_id: branchId,

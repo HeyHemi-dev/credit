@@ -16,10 +16,7 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     env:
-      CR_NEON_PROJECT_ID: ${{ secrets.CR_NEON_PROJECT_ID }}
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-      NEON_PROD_BRANCH_ID: ${{ secrets.NEON_PROD_BRANCH_ID }}
-      PROD_CR_DATABASE_URL: ${{ secrets.PROD_CR_DATABASE_URL }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -35,8 +32,17 @@ jobs:
           cache: pnpm
           node-version: 24
 
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Pull shared preview env from Vercel
+        run: vercel pull --yes --environment=preview --token="${VERCEL_TOKEN}"
+
+      - name: Export shared preview env
+        run: pnpm exec tsx scripts/ci-export-vercel-env.ts .vercel/.env.preview.local
 
       - name: Remove Vercel preview database env
         run: pnpm exec tsx scripts/ci-vercel-preview-env.ts remove "${{ github.event.pull_request.head.ref }}"
