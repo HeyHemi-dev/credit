@@ -37,7 +37,7 @@ export function useSupplierSearch(eventId: string) {
   }
 }
 
-export function useCreateSupplier(authToken: AuthToken) {
+export function useSupplier(authToken: AuthToken) {
   const createSupplier = useServerFn(createSupplierFn)
 
   const createMutation = useMutation({
