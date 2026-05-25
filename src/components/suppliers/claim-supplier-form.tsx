@@ -4,7 +4,7 @@ import type { Supplier, SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { authClient } from '@/auth'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { claimSupplierSchema } from '@/lib/types/validation-schema'
-import { useClaimSupplier, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
+import { useSupplierClaim, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
@@ -30,7 +30,7 @@ export function ClaimSupplierForm({
 }: {
   initialSupplier: Supplier | null
 }) {
-  const { claimMutation } = useClaimSupplier()
+  const { claimMutation } = useSupplierClaim()
   const { data: sessionData } = authClient.useSession()
   const [selectedSupplier, setSelectedSupplier] = React.useState<
     SupplierClaimSearchResult | Supplier | null

@@ -9,9 +9,7 @@ import {
 } from '@/lib/format-dates'
 import { verifySupplierClaimCodeSchema } from '@/lib/types/validation-schema'
 import {
-  useCancelPendingSupplierClaim,
-  useSendSupplierClaimVerificationCode,
-  useVerifySupplierClaimCode,
+  useSupplierClaim,
 } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
@@ -32,8 +30,7 @@ export function ClaimSupplierPending({
 }: {
   claim: SupplierClaim
 }) {
-  const { cancelClaimMutation } = useCancelPendingSupplierClaim()
-  const { sendCodeMutation } = useSendSupplierClaimVerificationCode()
+  const { cancelClaimMutation, sendCodeMutation } = useSupplierClaim()
   const expiryDurationLabel = formatDurationFromMs(
     SUPPLIER_CLAIM_CODE_EXPIRY_MS,
   )
@@ -110,7 +107,7 @@ export function ClaimSupplierPending({
 }
 
 function ClaimSupplierVerificationForm() {
-  const { verifyCodeMutation } = useVerifySupplierClaimCode()
+  const { verifyCodeMutation } = useSupplierClaim()
 
   const form = useForm({
     defaultValues: verifyCodeDefaultValues,
