@@ -3,7 +3,7 @@ import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
-import { ClaimSupplierVerificationPending } from '@/components/suppliers/claim-supplier-verification-pending'
+import { ClaimSupplierVerificationPending } from '@/components/suppliers/claim-supplier-pending'
 import { ClaimSupplierForm } from '@/components/suppliers/claim-supplier-form'
 import { ClaimSupplierVerified } from '@/components/suppliers/claim-supplier-shared'
 import { useMySupplierClaim } from '@/hooks/use-supplier-claims'
@@ -59,18 +59,16 @@ function ClaimSupplierCard() {
   const isClaimed = claimQuery.data?.status === 'claimed'
   const claimedClaim = isClaimed ? claimQuery.data : null
 
-  const title =
-    claimedClaim
-      ? 'Supplier profile claimed'
-      : pendingClaim
-        ? `Claim ${pendingClaim.supplier.name}`
-        : 'Claim your supplier profile'
+  const title = claimedClaim
+    ? 'Supplier profile claimed'
+    : pendingClaim
+      ? `Claim ${pendingClaim.supplier.name}`
+      : 'Claim your supplier profile'
 
   let description =
     'Search for your supplier profile. We’ll email a 6-character verification code so you can confirm you own or manage it.'
   if (claimedClaim) {
-    description =
-      'Your account is already connected to this supplier profile.'
+    description = 'Your account is already connected to this supplier profile.'
   }
   if (pendingClaim) {
     description =
@@ -81,7 +79,8 @@ function ClaimSupplierCard() {
     <ClaimSupplierForm initialSupplier={claimQuery.data?.supplier ?? null} />
   )
 
-  if (pendingClaim) content = <ClaimSupplierVerificationPending claim={pendingClaim} />
+  if (pendingClaim)
+    content = <ClaimSupplierVerificationPending claim={pendingClaim} />
 
   if (claimedClaim) {
     content = <ClaimSupplierVerified supplier={claimedClaim.supplier} />
