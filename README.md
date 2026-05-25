@@ -87,66 +87,32 @@ Other Drizzle maintenance scripts are available in [package.json](package.json).
 
 ## CI/CD
 
-GitHub Actions now owns CI, PR Neon branch lifecycle, and production release
-ordering.
+GitHub Actions now handles validation only, while Vercel owns migration, build,
+and deploy.
 
-### Workflows
+### GitHub Actions
 
-| Workflow                    | Trigger                               | Purpose                                                                 |
-| --------------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
-| `PR CI`                     | PR opened, reopened, synchronized     | Reset `pr-<number>` from prod, set preview `CR_DATABASE_URL`, run checks |
-| `Cleanup PR DB`             | PR closed                             | Remove branch-specific preview env override and delete `pr-<number>`    |
-| `Release Main`              | Push to `main`                        | Run checks, migrate prod, run integration tests, deploy to Vercel       |
+The CI workflow runs on pull requests and pushes to `main`, and runs:
 
-### Required GitHub secrets
+- `pnpm lint`
+- `pnpm type-check`
+- `pnpm test`
 
-GitHub Actions now pulls runtime env from Vercel. Keep the stable app and Neon
-configuration values in Vercel, and keep only the automation bootstrap secrets
-in GitHub:
+No GitHub secrets are required for this workflow.
 
-| Secret             | Purpose                                                        |
-| ------------------ | -------------------------------------------------------------- |
-| `NEON_API_KEY`     | Neon API token for PR branch create / restore / delete         |
-| `VERCEL_ORG_ID`    | Vercel org/team id for env pulls, preview env updates, deploys |
-| `VERCEL_PROJECT_ID`| Vercel project id for env pulls, preview env updates, deploys  |
-| `VERCEL_TOKEN`     | Vercel token for `vercel pull/build/deploy` and env updates    |
+### Vercel
 
-### Vercel env recommendations
+Vercel should own the actual deployment pipeline for both preview and
+production, including schema application.
 
-For this setup, Vercel should be the source of truth for:
+Recommended build command:
 
-- `AUTH_SECRET`
-- `EMAIL_FROM`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `RESEND_API_KEY`
-- `CR_NEON_PROJECT_ID`
-- `NEON_PROD_BRANCH_ID`
-- `CR_PGDATABASE`
-- `CR_PGUSER`
+```bash
+pnpm db:migrate && pnpm build
+```
 
-These should usually be the same in both `preview` and `production`, because
-they describe the same app, OAuth app, email sender, and Neon project.
-
-The important exception is `CR_DATABASE_URL`:
-
-- production keeps the stable prod DB value
-- preview keeps the shared default preview value
-- each PR gets a branch-specific preview override for `CR_DATABASE_URL`
-  pointing at its own `pr-<number>` Neon branch
-
-### Preview deployment note
-
-GitHub Actions computes the PR database URL, writes it back to Vercel as a
-branch-specific preview override for `CR_DATABASE_URL`, then pulls preview envs
-from Vercel for that git branch. Deployed previews still read runtime env vars
-from Vercel, not GitHub.
-
-If Vercel starts a preview deployment before the `PR CI` workflow has updated
-that branch-specific `CR_DATABASE_URL`, the first deployed preview may still be
-pointing at the old preview DB value. Re-running the preview deployment after
-the first successful `PR CI` run fixes that and subsequent PR updates reuse the
-correct branch-specific override.
+That keeps each Vercel deployment aligned with the database connection string
+Vercel already provides for that environment.
 
 ## Testing
 

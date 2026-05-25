@@ -9,7 +9,7 @@
 | **Hosting** | Vercel | — |
 | **Testing** | Vitest | — |
 | **Email** | Resend (transactional) | Lifecycle/marketing automation TBD |
-| **CI/CD** | GitHub Actions (PR CI, PR-scoped Neon preview DBs, prod release sequencing) | — |
+| **CI/CD** | GitHub Actions (lint, type-check, tests) + Vercel deploy pipeline (`db:migrate` + build) | — |
 
 # Implementation Notes
 
@@ -29,7 +29,7 @@ Use Neon pooled connection string for runtime (serverless-safe)
 One client per serverless invocation (module-level) using pooled connection; not "new client per query"
 
 ## Migrations
-Run via GitHub Actions for PR validation and on `main` before production deploy
+Run in the Vercel deploy pipeline before app build
 
 ## Two Auth Modes by Design
 
