@@ -11,7 +11,7 @@ import {
 } from '@/db/schema'
 import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import {
-  cancelPendingSupplierClaimServer,
+  archiveActiveSupplierClaimServer,
   createOrUpdateSupplierClaimServer,
 } from '@/lib/server/supplier-claims'
 import { createOrRefreshSupplierClaimVerificationServer } from '@/lib/server/supplier-claim-verifications'
@@ -87,7 +87,7 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
   })
 })
 
-describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
+describe.skipIf(!isIntegrationTestMode)('archiveActiveSupplierClaim', () => {
   const createdSupplierIds: Array<string> = []
   const createdUserIds: Array<string> = []
 
@@ -118,7 +118,7 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     if (!pendingClaim) throw new Error('Pending claim not found')
 
     // Act
-    await cancelPendingSupplierClaimServer(user.id)
+    await archiveActiveSupplierClaimServer(user.id)
     const savedClaim = await getSupplierClaimByUserId(user.id)
     const [archivedClaim] = await db
       .select()
@@ -140,6 +140,32 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     expect(savedClaim).toBeNull()
     expect(archivedClaim?.status).toBe(SUPPLIER_CLAIM_STATUS.ARCHIVED)
     expect(verification?.supplierClaimId).toBe(pendingClaim.claim.id)
+  })
+
+  it('archives an approved claim so the supplier profile is disconnected from the account', async () => {
+    // Arrange
+    const user = await createTestUser(createdUserIds)
+    const supplier = await createTestSupplier(createdSupplierIds, {
+      email: user.email,
+    })
+
+    await createOrUpdateSupplierClaimServer(supplier.id, user.id, user.email)
+
+    const approvedClaim = await getSupplierClaimByUserId(user.id)
+    if (!approvedClaim) throw new Error('Approved claim not found')
+
+    // Act
+    await archiveActiveSupplierClaimServer(user.id)
+    const savedClaim = await getSupplierClaimByUserId(user.id)
+    const [archivedClaim] = await db
+      .select()
+      .from(supplierClaims)
+      .where(eq(supplierClaims.id, approvedClaim.claim.id))
+      .limit(1)
+
+    // Assert
+    expect(savedClaim).toBeNull()
+    expect(archivedClaim?.status).toBe(SUPPLIER_CLAIM_STATUS.ARCHIVED)
   })
 })
 

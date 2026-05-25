@@ -73,7 +73,7 @@ export function ClaimSupplierPending({ claim }: { claim: SupplierClaim }) {
 }
 
 function ClaimSupplierVerificationForm() {
-  const { verifyCodeMutation, cancelClaimMutation } = useSupplierClaim()
+  const { verifyCodeMutation, archiveClaimMutation } = useSupplierClaim()
 
   const form = useForm({
     defaultValues: verifyCodeDefaultValues,
@@ -134,10 +134,10 @@ function ClaimSupplierVerificationForm() {
             type="button"
             variant="link"
             className="h-auto px-0 text-sm"
-            onClick={() => cancelClaimMutation.mutate()}
-            disabled={cancelClaimMutation.isPending}
+            onClick={() => archiveClaimMutation.mutate()}
+            disabled={archiveClaimMutation.isPending}
           >
-            {cancelClaimMutation.isPending ? 'Cancelling…' : 'Cancel claim'}
+            {archiveClaimMutation.isPending ? 'Cancelling…' : 'Cancel claim'}
           </Button>
           <Button
             type="submit"
@@ -149,8 +149,8 @@ function ClaimSupplierVerificationForm() {
         </div>
       </form>
 
-      {cancelClaimMutation.error?.message && (
-        <FormErrorMessage message={cancelClaimMutation.error.message} />
+      {archiveClaimMutation.error?.message && (
+        <FormErrorMessage message={archiveClaimMutation.error.message} />
       )}
 
       {verifyCodeMutation.error?.message && (
