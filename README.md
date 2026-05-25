@@ -92,13 +92,15 @@ and deploy.
 
 ### GitHub Actions
 
-The CI workflow runs on pull requests and pushes to `main`, and runs:
+The CI workflow runs on pull requests and runs:
 
 - `pnpm lint`
 - `pnpm type-check`
 - `pnpm test`
 
-No GitHub secrets are required for this workflow.
+The workflow intentionally uses placeholder env vars so skipped integration-test
+imports do not fail module evaluation. This workflow does not attempt to mirror
+the real preview runtime environment.
 
 ### Vercel
 
