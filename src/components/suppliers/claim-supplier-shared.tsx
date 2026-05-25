@@ -1,6 +1,6 @@
 import type { Supplier } from '@/lib/types/front-end'
 
-export function ClaimStateMessage({
+export function ClaimSupplierSummary({
   title,
   description,
   supplier,
@@ -23,5 +23,15 @@ export function ClaimStateMessage({
         )}
       </div>
     </div>
+  )
+}
+
+export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
+  return (
+    <ClaimSupplierSummary
+      title="This supplier profile is already yours."
+      description="You’re connected to the supplier profile below."
+      supplier={supplier}
+    />
   )
 }

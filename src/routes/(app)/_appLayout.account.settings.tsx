@@ -3,9 +3,9 @@ import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
-import { PendingClaimVerificationSection } from '@/components/suppliers/claim-supplier-verification-pending'
+import { ClaimSupplierVerificationPending } from '@/components/suppliers/claim-supplier-verification-pending'
 import { ClaimSupplierForm } from '@/components/suppliers/claim-supplier-form'
-import { ClaimStateMessage } from '@/components/suppliers/claim-supplier-shared'
+import { ClaimSupplierVerified } from '@/components/suppliers/claim-supplier-shared'
 import { useMySupplierClaim } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
 import {
@@ -58,6 +58,8 @@ function ClaimSupplierCard() {
   const [isChangingSupplier, setIsChangingSupplier] = React.useState(false)
   const isClaimPending = claimQuery.data?.status === 'pending'
   const pendingClaim = isClaimPending ? claimQuery.data : null
+  const isClaimed = claimQuery.data?.status === 'claimed'
+  const claimedClaim = isClaimed ? claimQuery.data : null
   const pendingSupplierId = pendingClaim?.supplier.id ?? null
   const previousPendingSupplierIdRef = React.useRef(pendingSupplierId)
 
@@ -71,12 +73,18 @@ function ClaimSupplierCard() {
   }, [isClaimPending, pendingSupplierId])
 
   const title =
-    pendingClaim && !isChangingSupplier
-      ? `Claim ${pendingClaim.supplier.name}`
-      : 'Claim your supplier profile'
+    claimedClaim
+      ? 'Supplier profile claimed'
+      : pendingClaim && !isChangingSupplier
+        ? `Claim ${pendingClaim.supplier.name}`
+        : 'Claim your supplier profile'
 
   let description =
     'Search for your supplier profile. We’ll email a 6-character verification code so you can confirm you own or manage it.'
+  if (claimedClaim) {
+    description =
+      'Your account is already connected to this supplier profile.'
+  }
   if (pendingClaim && !isChangingSupplier) {
     description =
       'Check your email and enter the verification code below to finish claiming this supplier profile.'
@@ -84,6 +92,48 @@ function ClaimSupplierCard() {
   if (pendingClaim && isChangingSupplier) {
     description =
       'Search for the right supplier profile. Sending a new code will update your pending claim.'
+  }
+
+  let content: React.ReactNode = (
+    <ClaimSupplierForm initialSupplier={claimQuery.data?.supplier ?? null} />
+  )
+
+  if (pendingClaim && !isChangingSupplier) {
+    content = (
+      <ClaimSupplierVerificationPending
+        claim={pendingClaim}
+        onClaimDifferentSupplier={() => setIsChangingSupplier(true)}
+      />
+    )
+  }
+
+  if ((pendingClaim && isChangingSupplier) || (!claimedClaim && !pendingClaim)) {
+    content = (
+      <>
+        <ClaimSupplierForm
+          initialSupplier={
+            isChangingSupplier ? null : (claimQuery.data?.supplier ?? null)
+          }
+        />
+        {pendingClaim && isChangingSupplier && (
+          <div className="flex justify-start">
+            <Button
+              type="button"
+              variant="link"
+              className="h-auto px-0 text-sm"
+              onClick={() => setIsChangingSupplier(false)}
+            >
+              Still claiming {pendingClaim.supplier.name}? Go back to
+              verification.
+            </Button>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  if (claimedClaim) {
+    content = <ClaimSupplierVerified supplier={claimedClaim.supplier} />
   }
 
   return (
@@ -96,60 +146,7 @@ function ClaimSupplierCard() {
           {description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6">
-        {claimQuery.data?.status === 'claimed' && (
-          <ClaimStateMessage
-            title="This supplier profile is already yours."
-            description="You’re connected to the supplier profile below."
-            supplier={claimQuery.data.supplier}
-          />
-        )}
-
-        {pendingClaim && !isChangingSupplier && (
-          <>
-            <ClaimStateMessage
-              title="You are claiming this supplier profile."
-              description={`We sent a verification code to ${pendingClaim.supplier.email}.`}
-              supplier={pendingClaim.supplier}
-            />
-            <PendingClaimVerificationSection claim={pendingClaim} />
-            <div className="flex justify-start">
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto px-0 text-sm"
-                onClick={() => setIsChangingSupplier(true)}
-              >
-                Not the right supplier? Claim a different supplier.
-              </Button>
-            </div>
-          </>
-        )}
-
-        {(claimQuery.data?.status !== 'claimed' && !isClaimPending) ||
-        isChangingSupplier ? (
-          <>
-            <ClaimSupplierForm
-              initialSupplier={
-                isChangingSupplier ? null : (claimQuery.data?.supplier ?? null)
-              }
-            />
-            {isChangingSupplier && pendingClaim && (
-              <div className="flex justify-start">
-                <Button
-                  type="button"
-                  variant="link"
-                  className="h-auto px-0 text-sm"
-                  onClick={() => setIsChangingSupplier(false)}
-                >
-                  Still claiming {pendingClaim.supplier.name}? Go back to
-                  verification.
-                </Button>
-              </div>
-            )}
-          </>
-        ) : null}
-      </CardContent>
+      <CardContent className="grid gap-6">{content}</CardContent>
     </Card>
   )
 }
