@@ -67,6 +67,22 @@ export const REGION_KEYS = Object.keys(REGION) as Array<RegionKey>
 export type Region = (typeof REGION)[RegionKey]
 export const REGIONS = Object.values(REGION)
 
+export const SUPPLIER_CLAIM_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  ARCHIVED: 'archived',
+} as const satisfies ConstEnum
+
+export type SupplierClaimStatusKey = keyof typeof SUPPLIER_CLAIM_STATUS
+export type SupplierClaimRecordStatus =
+  (typeof SUPPLIER_CLAIM_STATUS)[SupplierClaimStatusKey]
+export const SUPPLIER_CLAIM_STATUSES = Object.values(SUPPLIER_CLAIM_STATUS)
+export const ACTIVE_SUPPLIER_CLAIM_STATUSES = [
+  SUPPLIER_CLAIM_STATUS.PENDING,
+  SUPPLIER_CLAIM_STATUS.APPROVED,
+] as const
+
 export const SHARE_TOKEN_MIN_LENGTH = 32
 export const DEBOUNCE_INPUT_MS = 300
 export const BATCH_AUTOSAVE_MS = 60_000

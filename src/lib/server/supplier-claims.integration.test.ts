@@ -2,21 +2,19 @@ import { randomUUID } from 'node:crypto'
 import { afterEach, describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
-import {
-  getClaimedSupplierByUserId,
-  getSupplierClaimByUserId,
-} from '@/db/queries/supplier-claims'
+import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
 import {
   supplierClaimVerifications,
   supplierClaims,
   suppliers,
   userInNeonAuth,
 } from '@/db/schema'
+import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import {
-  cancelPendingSupplierClaim,
-  createOrUpdateSupplierClaim,
+  cancelPendingSupplierClaimServer,
+  createOrUpdateSupplierClaimServer,
 } from '@/lib/server/supplier-claims'
-import { createOrRefreshSupplierClaimVerification } from '@/lib/server/supplier-claim-verifications'
+import { createOrRefreshSupplierClaimVerificationServer } from '@/lib/server/supplier-claim-verifications'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
@@ -40,7 +38,7 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
     const supplier = await createTestSupplier(createdSupplierIds)
 
     // Act
-    const claim = await createOrUpdateSupplierClaim(
+    const claim = await createOrUpdateSupplierClaimServer(
       supplier.id,
       user.id,
       user.email,
@@ -59,13 +57,11 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
     })
 
     // Act
-    await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
+    await createOrUpdateSupplierClaimServer(supplier.id, user.id, user.email)
     const savedClaim = await getSupplierClaimByUserId(user.id)
-    const claimedSupplier = await getClaimedSupplierByUserId(user.id)
-
     // Assert
-    expect(savedClaim?.claim.status).toBe('approved')
-    expect(claimedSupplier?.id).toBe(supplier.id)
+    expect(savedClaim?.claim.status).toBe(SUPPLIER_CLAIM_STATUS.APPROVED)
+    expect(savedClaim?.claim.supplierId).toBe(supplier.id)
   })
 
   it('requires canceling the current claim before starting a new claim on a different supplier', async () => {
@@ -74,11 +70,19 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
     const firstSupplier = await createTestSupplier(createdSupplierIds)
     const secondSupplier = await createTestSupplier(createdSupplierIds)
 
-    await createOrUpdateSupplierClaim(firstSupplier.id, user.id, user.email)
+    await createOrUpdateSupplierClaimServer(
+      firstSupplier.id,
+      user.id,
+      user.email,
+    )
 
     // Act / Assert
     await expect(
-      createOrUpdateSupplierClaim(secondSupplier.id, user.id, user.email),
+      createOrUpdateSupplierClaimServer(
+        secondSupplier.id,
+        user.id,
+        user.email,
+      ),
     ).rejects.toThrow('Cancel your current supplier claim before starting another one')
   })
 })
@@ -103,8 +107,8 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     const user = await createTestUser(createdUserIds)
     const supplier = await createTestSupplier(createdSupplierIds)
 
-    await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
-    await createOrRefreshSupplierClaimVerification(
+    await createOrUpdateSupplierClaimServer(supplier.id, user.id, user.email)
+    await createOrRefreshSupplierClaimVerificationServer(
       user.id,
       `code-hash-${user.id}`,
       new Date(Date.now() + 10 * 60 * 1000),
@@ -114,7 +118,7 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
     if (!pendingClaim) throw new Error('Pending claim not found')
 
     // Act
-    await cancelPendingSupplierClaim(user.id)
+    await cancelPendingSupplierClaimServer(user.id)
     const savedClaim = await getSupplierClaimByUserId(user.id)
     const [archivedClaim] = await db
       .select()
@@ -134,7 +138,7 @@ describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
 
     // Assert
     expect(savedClaim).toBeNull()
-    expect(archivedClaim?.status).toBe('archived')
+    expect(archivedClaim?.status).toBe(SUPPLIER_CLAIM_STATUS.ARCHIVED)
     expect(verification?.supplierClaimId).toBe(pendingClaim.claim.id)
   })
 })

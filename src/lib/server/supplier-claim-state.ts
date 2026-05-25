@@ -1,6 +1,7 @@
 import type { Supplier, SupplierClaim } from '@/lib/types/front-end'
 import type { SupplierRow } from '@/db/queries/suppliers'
 import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
+import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 
 export async function getCurrentSupplierClaim(
@@ -9,7 +10,7 @@ export async function getCurrentSupplierClaim(
   const claim = await getSupplierClaimByUserId(userId)
   if (!claim) return null
 
-  if (claim.claim.status === 'approved') {
+  if (claim.claim.status === SUPPLIER_CLAIM_STATUS.APPROVED) {
     return {
       supplier: mapSupplierToClient(claim.supplier),
       status: 'claimed',

@@ -2,32 +2,19 @@ import { and, eq, ilike, inArray, or } from 'drizzle-orm'
 import type { SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { db } from '@/db/connection'
 import { supplierClaimVerifications, supplierClaims, suppliers } from '@/db/schema'
+import {
+  ACTIVE_SUPPLIER_CLAIM_STATUSES,
+  SUPPLIER_CLAIM_STATUS,
+} from '@/lib/constants'
 import { ERROR } from '@/lib/errors'
 import { normalizeHandle } from '@/lib/formatters'
 import { tryCatch } from '@/lib/try-catch'
 
 export type SupplierClaimRow = typeof supplierClaims.$inferSelect
-const ACTIVE_SUPPLIER_CLAIM_STATUSES = ['pending', 'approved'] as const
 
 type SupplierClaimSearchRow = {
   supplier: typeof suppliers.$inferSelect
   claimStatus: SupplierClaimSearchResult['claimStatus']
-}
-
-export async function getClaimedSupplierByUserId(userId: string) {
-  const [row] = await db
-    .select({ supplier: suppliers })
-    .from(supplierClaims)
-    .innerJoin(suppliers, eq(supplierClaims.supplierId, suppliers.id))
-    .where(
-      and(
-        eq(supplierClaims.userId, userId),
-        eq(supplierClaims.status, 'approved'),
-      ),
-    )
-    .limit(1)
-
-  return row?.supplier ?? null
 }
 
 export async function getSupplierById(supplierId: string) {
@@ -115,11 +102,17 @@ export async function searchSuppliersForClaim(
   return rows.map((row) => {
     let claimStatus: SupplierClaimSearchResult['claimStatus'] = 'available'
 
-    if (row.claim?.status === 'approved' && row.claim.userId === userId) {
+    if (
+      row.claim?.status === SUPPLIER_CLAIM_STATUS.APPROVED &&
+      row.claim.userId === userId
+    ) {
       claimStatus = 'claimedByYou'
-    } else if (row.claim?.status === 'approved') {
+    } else if (row.claim?.status === SUPPLIER_CLAIM_STATUS.APPROVED) {
       claimStatus = 'claimed'
-    } else if (row.claim?.status === 'pending' && row.claim.userId !== userId) {
+    } else if (
+      row.claim?.status === SUPPLIER_CLAIM_STATUS.PENDING &&
+      row.claim.userId !== userId
+    ) {
       claimStatus = 'pending'
     }
 
@@ -137,7 +130,7 @@ export async function createSupplierClaim(supplierId: string, userId: string) {
       .values({
         supplierId,
         userId,
-        status: 'pending',
+        status: SUPPLIER_CLAIM_STATUS.PENDING,
       })
       .returning(),
   )
@@ -152,7 +145,7 @@ export async function archiveSupplierClaim(claimId: string) {
     db
       .update(supplierClaims)
       .set({
-        status: 'archived',
+        status: SUPPLIER_CLAIM_STATUS.ARCHIVED,
         updatedAt: new Date(),
       })
       .where(eq(supplierClaims.id, claimId))
@@ -169,7 +162,7 @@ export async function approveSupplierClaim(claimId: string) {
     db
       .update(supplierClaims)
       .set({
-        status: 'approved',
+        status: SUPPLIER_CLAIM_STATUS.APPROVED,
         updatedAt: new Date(),
       })
       .where(eq(supplierClaims.id, claimId))

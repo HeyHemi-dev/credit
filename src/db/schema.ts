@@ -17,7 +17,12 @@ import {
 } from 'drizzle-orm/pg-core'
 import { getTableColumns, sql } from 'drizzle-orm'
 import type { AnyPgColumn } from 'drizzle-orm/pg-core'
-import { REGION, SERVICE } from '@/lib/constants'
+import {
+  ACTIVE_SUPPLIER_CLAIM_STATUSES,
+  REGION,
+  SERVICE,
+  SUPPLIER_CLAIM_STATUS,
+} from '@/lib/constants'
 
 export function lower(column: AnyPgColumn) {
   return sql`lower(${column})`
@@ -29,12 +34,10 @@ export const serviceEnum = pgEnum('service', SERVICE)
 
 // Enum for region types
 export const regionEnum = pgEnum('region', REGION)
-export const supplierClaimStatusEnum = pgEnum('supplier_claim_status', {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  ARCHIVED: 'archived',
-})
+export const supplierClaimStatusEnum = pgEnum(
+  'supplier_claim_status',
+  SUPPLIER_CLAIM_STATUS,
+)
 
 // Suppliers table
 export const suppliers = pgTable(
@@ -72,17 +75,23 @@ export const supplierClaims = pgTable(
       .notNull()
       .references(() => userInNeonAuth.id, { onDelete: 'cascade' }),
     // Claim lifecycle and current ownership are derived from this status.
-    status: supplierClaimStatusEnum('status').notNull().default('pending'),
+    status: supplierClaimStatusEnum('status')
+      .notNull()
+      .default(SUPPLIER_CLAIM_STATUS.PENDING),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex('supplier_claims_active_supplier_id_unique')
       .on(table.supplierId)
-      .where(sql`${table.status} in ('pending', 'approved')`),
+      .where(sql`${table.status} in ${sql.raw(
+        `(${ACTIVE_SUPPLIER_CLAIM_STATUSES.map((status) => `'${status}'`).join(', ')})`,
+      )}`),
     uniqueIndex('supplier_claims_active_user_id_unique')
       .on(table.userId)
-      .where(sql`${table.status} in ('pending', 'approved')`),
+      .where(sql`${table.status} in ${sql.raw(
+        `(${ACTIVE_SUPPLIER_CLAIM_STATUSES.map((status) => `'${status}'`).join(', ')})`,
+      )}`),
     index('supplier_claims_supplier_id_idx').on(table.supplierId),
     index('supplier_claims_user_id_idx').on(table.userId),
     index('supplier_claims_status_idx').on(table.status),

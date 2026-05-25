@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import {
   approveSupplierClaim,
-  getClaimedSupplierByUserId,
   getSupplierClaimByUserId,
 } from '@/db/queries/supplier-claims'
 import {
@@ -15,8 +14,9 @@ import {
   suppliers,
   userInNeonAuth,
 } from '@/db/schema'
-import { createOrUpdateSupplierClaim } from '@/lib/server/supplier-claims'
-import { createOrRefreshSupplierClaimVerification } from '@/lib/server/supplier-claim-verifications'
+import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
+import { createOrUpdateSupplierClaimServer } from '@/lib/server/supplier-claims'
+import { createOrRefreshSupplierClaimVerificationServer } from '@/lib/server/supplier-claim-verifications'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe.skipIf(!isIntegrationTestMode)('verifySupplierClaimCode', () => {
@@ -38,10 +38,10 @@ describe.skipIf(!isIntegrationTestMode)('verifySupplierClaimCode', () => {
     // Arrange
     const user = await createTestUser(createdUserIds)
     const supplier = await createTestSupplier(createdSupplierIds)
-    await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
+    await createOrUpdateSupplierClaimServer(supplier.id, user.id, user.email)
 
     const code = 'abc123'
-    await createOrRefreshSupplierClaimVerification(
+    await createOrRefreshSupplierClaimVerificationServer(
       user.id,
       hashVerificationCode(user.id, code),
       new Date(Date.now() + 10 * 60 * 1000),
@@ -57,11 +57,9 @@ describe.skipIf(!isIntegrationTestMode)('verifySupplierClaimCode', () => {
       await consumeSupplierClaimVerification(claim.verification.id)
     }
     const savedClaim = await getSupplierClaimByUserId(user.id)
-    const claimedSupplier = await getClaimedSupplierByUserId(user.id)
-
     // Assert
-    expect(savedClaim?.claim.status).toBe('approved')
-    expect(claimedSupplier?.id).toBe(supplier.id)
+    expect(savedClaim?.claim.status).toBe(SUPPLIER_CLAIM_STATUS.APPROVED)
+    expect(savedClaim?.claim.supplierId).toBe(supplier.id)
   })
 })
 

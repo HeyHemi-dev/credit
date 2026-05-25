@@ -4,8 +4,8 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/db/connection'
 import { getSupplierClaimByUserId } from '@/db/queries/supplier-claims'
 import { supplierClaimVerifications, suppliers, userInNeonAuth } from '@/db/schema'
-import { createOrUpdateSupplierClaim } from '@/lib/server/supplier-claims'
-import { createOrRefreshSupplierClaimVerification } from '@/lib/server/supplier-claim-verifications'
+import { createOrUpdateSupplierClaimServer } from '@/lib/server/supplier-claims'
+import { createOrRefreshSupplierClaimVerificationServer } from '@/lib/server/supplier-claim-verifications'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe.skipIf(!isIntegrationTestMode)(
@@ -29,13 +29,14 @@ describe.skipIf(!isIntegrationTestMode)(
       // Arrange
       const user = await createTestUser(createdUserIds)
       const supplier = await createTestSupplier(createdSupplierIds)
-      await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
+      await createOrUpdateSupplierClaimServer(supplier.id, user.id, user.email)
 
-      const firstVerification = await createOrRefreshSupplierClaimVerification(
-        user.id,
-        hashVerificationCode(user.id, 'abc123'),
-        new Date(Date.now() + 10 * 60 * 1000),
-      )
+      const firstVerification =
+        await createOrRefreshSupplierClaimVerificationServer(
+          user.id,
+          hashVerificationCode(user.id, 'abc123'),
+          new Date(Date.now() + 10 * 60 * 1000),
+        )
       await db
         .update(supplierClaimVerifications)
         .set({
@@ -44,11 +45,12 @@ describe.skipIf(!isIntegrationTestMode)(
         .where(eq(supplierClaimVerifications.id, firstVerification.id))
 
       // Act
-      const refreshedVerification = await createOrRefreshSupplierClaimVerification(
-        user.id,
-        hashVerificationCode(user.id, 'def456'),
-        new Date(Date.now() + 20 * 60 * 1000),
-      )
+      const refreshedVerification =
+        await createOrRefreshSupplierClaimVerificationServer(
+          user.id,
+          hashVerificationCode(user.id, 'def456'),
+          new Date(Date.now() + 20 * 60 * 1000),
+        )
       const activeClaim = await getSupplierClaimByUserId(user.id)
       if (!activeClaim) throw new Error('Active claim not found')
       const verificationRows = await db

@@ -4,6 +4,7 @@ import type {
   SupplierClaimSearchResult,
 } from '@/lib/types/front-end'
 import type { SupplierRow } from '@/db/queries/suppliers'
+import { SUPPLIER_CLAIM_STATUS } from '@/lib/constants'
 import {
   claimSupplierSchema,
   emptyInputSchema,
@@ -53,7 +54,7 @@ const sendSupplierClaimVerificationCodeServer = createServerOnlyFn(
   },
 )
 
-const createOrUpdateSupplierClaimServer = createServerOnlyFn(
+export const createOrUpdateSupplierClaimServer = createServerOnlyFn(
   async (supplierId: string, userId: string, userEmail: string) => {
     const {
       approveSupplierClaim,
@@ -81,13 +82,13 @@ const createOrUpdateSupplierClaimServer = createServerOnlyFn(
 
     if (existingClaimForUser) {
       if (
-        existingClaimForUser.claim.status === 'approved' &&
+        existingClaimForUser.claim.status === SUPPLIER_CLAIM_STATUS.APPROVED &&
         existingClaimForUser.claim.supplierId === supplierId
       ) {
         throw ERROR.INVALID_STATE('You already own this supplier profile')
       }
 
-      if (existingClaimForUser.claim.status === 'approved') {
+      if (existingClaimForUser.claim.status === SUPPLIER_CLAIM_STATUS.APPROVED) {
         throw ERROR.RESOURCE_CONFLICT(
           'You already have a claimed supplier profile',
         )
@@ -104,7 +105,7 @@ const createOrUpdateSupplierClaimServer = createServerOnlyFn(
       existingClaimForSupplier &&
       existingClaimForSupplier.userId !== userId
     ) {
-      if (existingClaimForSupplier.status === 'approved') {
+      if (existingClaimForSupplier.status === SUPPLIER_CLAIM_STATUS.APPROVED) {
         throw ERROR.RESOURCE_CONFLICT('This supplier has already been claimed')
       }
 
@@ -123,7 +124,7 @@ const createOrUpdateSupplierClaimServer = createServerOnlyFn(
 
       if (
         existingClaimForUser?.claim.supplierId === supplierId &&
-        existingClaimForUser.claim.status === 'pending'
+        existingClaimForUser.claim.status === SUPPLIER_CLAIM_STATUS.PENDING
       ) {
         verificationLastSentAt =
           existingClaimForUser.verification?.lastSentAt.toISOString() ?? null
@@ -155,7 +156,7 @@ const createOrUpdateSupplierClaimServer = createServerOnlyFn(
   },
 )
 
-const cancelPendingSupplierClaimServer = createServerOnlyFn(
+export const cancelPendingSupplierClaimServer = createServerOnlyFn(
   async (userId: string) => {
     const {
       archiveSupplierClaim,
@@ -164,7 +165,7 @@ const cancelPendingSupplierClaimServer = createServerOnlyFn(
     const { ERROR } = await import('@/lib/errors')
 
     const claim = await getSupplierClaimByUserId(userId)
-    if (!claim || claim.claim.status !== 'pending') {
+    if (!claim || claim.claim.status !== SUPPLIER_CLAIM_STATUS.PENDING) {
       throw ERROR.INVALID_STATE('No pending supplier claim was found')
     }
 
@@ -229,15 +230,3 @@ export const cancelPendingSupplierClaimFn = createServerFn({ method: 'POST' })
     const { user } = await requireValidatedSessionServer()
     await cancelPendingSupplierClaimServer(user.id)
   })
-
-export async function createOrUpdateSupplierClaim(
-  supplierId: string,
-  userId: string,
-  userEmail: string,
-): Promise<SupplierClaim> {
-  return await createOrUpdateSupplierClaimServer(supplierId, userId, userEmail)
-}
-
-export async function cancelPendingSupplierClaim(userId: string) {
-  await cancelPendingSupplierClaimServer(userId)
-}
