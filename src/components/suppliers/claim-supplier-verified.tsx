@@ -3,10 +3,13 @@ import { ClaimSupplierSummary } from '@/components/suppliers/claim-supplier-shar
 
 export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
   return (
-    <ClaimSupplierSummary
-      title="This supplier profile is already yours."
-      description="You’re connected to the supplier profile below."
-      supplier={supplier}
-    />
+    <div className="grid gap-6">
+      <p className="text-sm text-muted-foreground">
+        {supplier.name} is linked to your account. You can now manage this
+        supplier profile and keep its details up to date.
+      </p>
+
+      <ClaimSupplierSummary supplier={supplier} />
+    </div>
   )
 }
