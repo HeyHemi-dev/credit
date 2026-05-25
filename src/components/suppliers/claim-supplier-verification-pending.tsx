@@ -9,6 +9,7 @@ import {
 } from '@/lib/format-dates'
 import { verifySupplierClaimCodeSchema } from '@/lib/types/validation-schema'
 import {
+  useCancelPendingSupplierClaim,
   useSendSupplierClaimVerificationCode,
   useVerifySupplierClaimCode,
 } from '@/hooks/use-supplier-claims'
@@ -28,11 +29,10 @@ const verifyCodeDefaultValues: VerifyClaimCodeFormValues = {
 
 export function ClaimSupplierVerificationPending({
   claim,
-  onClaimDifferentSupplier,
 }: {
   claim: SupplierClaim
-  onClaimDifferentSupplier: () => void
 }) {
+  const { cancelClaimMutation } = useCancelPendingSupplierClaim()
   const { sendCodeMutation } = useSendSupplierClaimVerificationCode()
   const { verifyCodeMutation } = useVerifySupplierClaimCode()
 
@@ -157,11 +157,18 @@ export function ClaimSupplierVerificationPending({
           type="button"
           variant="link"
           className="h-auto px-0 text-sm"
-          onClick={onClaimDifferentSupplier}
+          onClick={() => cancelClaimMutation.mutate()}
+          disabled={cancelClaimMutation.isPending}
         >
-          Not the right supplier? Claim a different supplier.
+          {cancelClaimMutation.isPending
+            ? 'Changing supplier…'
+            : 'Not the right supplier? Claim a different supplier.'}
         </Button>
       </div>
+
+      {cancelClaimMutation.error?.message && (
+        <FormErrorMessage message={cancelClaimMutation.error.message} />
+      )}
     </div>
   )
 }

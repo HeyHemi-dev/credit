@@ -153,6 +153,27 @@ const createOrUpdateSupplierClaimServer = createServerOnlyFn(
   },
 )
 
+const cancelPendingSupplierClaimServer = createServerOnlyFn(
+  async (userId: string) => {
+    const {
+      deleteSupplierClaim,
+      getSupplierClaimByUserId,
+    } = await import('@/db/queries/supplier-claims')
+    const { deleteSupplierClaimVerificationByClaimId } = await import(
+      '@/db/queries/supplier-claim-verifications'
+    )
+    const { ERROR } = await import('@/lib/errors')
+
+    const claim = await getSupplierClaimByUserId(userId)
+    if (!claim || claim.claim.status !== 'pending') {
+      throw ERROR.INVALID_STATE('No pending supplier claim was found')
+    }
+
+    await deleteSupplierClaimVerificationByClaimId(claim.claim.id)
+    await deleteSupplierClaim(claim.claim.id)
+  },
+)
+
 export const getMySupplierClaimFn = createServerFn({ method: 'GET' })
   .inputValidator(emptyInputSchema)
   .handler(async (): Promise<SupplierClaim | null> => {
@@ -204,12 +225,23 @@ export const claimSupplierFn = createServerFn({ method: 'POST' })
     return claim
   })
 
+export const cancelPendingSupplierClaimFn = createServerFn({ method: 'POST' })
+  .inputValidator(emptyInputSchema)
+  .handler(async (): Promise<void> => {
+    const { user } = await requireValidatedSessionServer()
+    await cancelPendingSupplierClaimServer(user.id)
+  })
+
 export async function createOrUpdateSupplierClaim(
   supplierId: string,
   userId: string,
   userEmail: string,
 ): Promise<SupplierClaim> {
   return await createOrUpdateSupplierClaimServer(supplierId, userId, userEmail)
+}
+
+export async function cancelPendingSupplierClaim(userId: string) {
+  await cancelPendingSupplierClaimServer(userId)
 }
 
 async function saveSupplierClaim(

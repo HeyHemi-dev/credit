@@ -9,6 +9,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
 import { queryKeys } from '@/hooks/query-keys'
 import {
+  cancelPendingSupplierClaimFn,
   claimSupplierFn,
   getMySupplierClaimFn,
   searchSuppliersToClaimFn,
@@ -74,6 +75,24 @@ export function useClaimSupplier() {
   })
 
   return { claimMutation }
+}
+
+export function useCancelPendingSupplierClaim() {
+  const queryClient = useQueryClient()
+  const cancelPendingSupplierClaim = useServerFn(cancelPendingSupplierClaimFn)
+
+  const cancelClaimMutation = useMutation({
+    mutationFn: async () => {
+      await cancelPendingSupplierClaim({ data: {} })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
+
+  return { cancelClaimMutation }
 }
 
 export function useSendSupplierClaimVerificationCode() {
