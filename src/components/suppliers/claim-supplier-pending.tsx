@@ -102,6 +102,7 @@ function ClaimSupplierVerificationForm() {
               <FormField field={field} label="Verification code" isRequired>
                 <InputOTP
                   id={field.name}
+                  className="w-full"
                   inputMode="text"
                   autoComplete="one-time-code"
                   maxLength={6}
@@ -114,13 +115,13 @@ function ClaimSupplierVerificationForm() {
                     )
                   }
                 >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
+                  <InputOTPGroup className="w-full">
+                    <InputOTPSlot index={0} className="w-auto flex-1" />
+                    <InputOTPSlot index={1} className="w-auto flex-1" />
+                    <InputOTPSlot index={2} className="w-auto flex-1" />
+                    <InputOTPSlot index={3} className="w-auto flex-1" />
+                    <InputOTPSlot index={4} className="w-auto flex-1" />
+                    <InputOTPSlot index={5} className="w-auto flex-1" />
                   </InputOTPGroup>
                 </InputOTP>
               </FormField>
