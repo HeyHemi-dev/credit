@@ -85,6 +85,64 @@ pnpm worktree:cleanup "$WORKTREE_PATH"
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
+## CI/CD
+
+GitHub Actions now owns CI, PR Neon branch lifecycle, and production release
+ordering.
+
+### Workflows
+
+| Workflow                    | Trigger                               | Purpose                                                                 |
+| --------------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
+| `PR CI`                     | PR opened, reopened, synchronized     | Reset `pr-<number>` from prod, set preview `CR_DATABASE_URL`, run checks |
+| `Cleanup PR DB`             | PR closed                             | Remove branch-specific preview env override and delete `pr-<number>`    |
+| `Release Main`              | Push to `main`                        | Run checks, migrate prod, run integration tests, deploy to Vercel       |
+
+### Required GitHub secrets
+
+**Repo secrets for PR CI / cleanup:**
+
+| Secret                 | Purpose                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `AUTH_SECRET`          | Better Auth secret used in CI runtime                                   |
+| `CR_NEON_PROJECT_ID`   | Neon project id for PR branch automation                                |
+| `EMAIL_FROM`           | Transactional sender used by runtime and email integration test         |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client id                                                  |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                                              |
+| `NEON_API_KEY`         | Neon API token for PR branch create / restore / delete                  |
+| `NEON_PROD_BRANCH_ID`  | Production Neon branch id used as the PR branch restore source          |
+| `PROD_CR_DATABASE_URL` | Stable production database URL used only to derive the DB role/database |
+| `RESEND_API_KEY`       | Resend API key for live integration testing                             |
+| `VERCEL_ORG_ID`        | Vercel org/team id for preview env updates and production deploy        |
+| `VERCEL_PROJECT_ID`    | Vercel project id for preview env updates and production deploy         |
+| `VERCEL_TOKEN`         | Vercel token for preview env updates and production deploy              |
+
+**Production environment secrets for `Release Main`:**
+
+| Secret                 | Purpose                                             |
+| ---------------------- | --------------------------------------------------- |
+| `AUTH_SECRET`          | Better Auth secret used in prod runtime             |
+| `CR_DATABASE_URL`      | Stable production DB connection string              |
+| `EMAIL_FROM`           | Transactional sender                                |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client id                              |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                          |
+| `RESEND_API_KEY`       | Resend API key for runtime and live integration test |
+| `VERCEL_ORG_ID`        | Vercel org/team id                                  |
+| `VERCEL_PROJECT_ID`    | Vercel project id                                   |
+| `VERCEL_TOKEN`         | Vercel token for `vercel pull/build/deploy`         |
+
+### Preview deployment note
+
+GitHub Actions computes the PR database URL and writes it back to Vercel as a
+branch-specific preview override for `CR_DATABASE_URL`. Deployed previews still
+read runtime env vars from Vercel, not GitHub.
+
+If Vercel starts a preview deployment before the `PR CI` workflow has updated
+that branch-specific `CR_DATABASE_URL`, the first deployed preview may still be
+pointing at the old preview DB value. Re-running the preview deployment after
+the first successful `PR CI` run fixes that and subsequent PR updates reuse the
+correct branch-specific override.
+
 ## Testing
 
 [Vitest](https://vitest.dev/):
