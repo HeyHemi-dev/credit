@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import type { SupplierClaim } from '@/lib/types/front-end'
-
 import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
 import {
   formatDurationFromMs,
@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
-import { Input } from '@/components/ui/input'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp'
 
 type VerifyClaimCodeFormValues = {
   code: string
@@ -96,23 +100,29 @@ function ClaimSupplierVerificationForm() {
             name="code"
             children={(field) => (
               <FormField field={field} label="Verification code" isRequired>
-                <Input
+                <InputOTP
                   id={field.name}
                   inputMode="text"
                   autoComplete="one-time-code"
                   maxLength={6}
-                  placeholder="abc123"
+                  pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     field.handleChange(
-                      event.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '')
-                        .slice(0, 6),
+                      value.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 6),
                     )
                   }
-                />
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
               </FormField>
             )}
           />
