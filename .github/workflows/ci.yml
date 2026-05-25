@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+concurrency:
+  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      AUTH_SECRET: ci-auth-secret
+      CR_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+      EMAIL_FROM: ci@example.com
+      GOOGLE_CLIENT_ID: ci-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      RESEND_API_KEY: ci-resend-api-key
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version: 24
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Note placeholder env strategy
+        run: |
+          echo "Using placeholder env vars for PR CI."
+          echo "This workflow validates lint, types, and non-integration tests only."
+          echo "Vercel owns real runtime env, migrations, and deployment wiring."
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm type-check
+
+      - name: Tests
+        run: pnpm test

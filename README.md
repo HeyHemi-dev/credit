@@ -85,6 +85,37 @@ pnpm worktree:cleanup "$WORKTREE_PATH"
 
 Other Drizzle maintenance scripts are available in [package.json](package.json).
 
+## CI/CD
+
+GitHub Actions now handles validation only, while Vercel owns migration, build,
+and deploy.
+
+### GitHub Actions
+
+The CI workflow runs on pull requests and runs:
+
+- `pnpm lint`
+- `pnpm type-check`
+- `pnpm test`
+
+The workflow intentionally uses placeholder env vars so skipped integration-test
+imports do not fail module evaluation. This workflow does not attempt to mirror
+the real preview runtime environment.
+
+### Vercel
+
+Vercel should own the actual deployment pipeline for both preview and
+production, including schema application.
+
+Recommended build command:
+
+```bash
+pnpm db:migrate && pnpm build
+```
+
+That keeps each Vercel deployment aligned with the database connection string
+Vercel already provides for that environment.
+
 ## Testing
 
 [Vitest](https://vitest.dev/):
