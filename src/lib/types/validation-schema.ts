@@ -155,7 +155,7 @@ export const verifySupplierClaimCodeSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .regex(/^[a-z0-9]{6}$/, 'Enter a valid 6-character code'),
+    .regex(/^[a-z0-9]{6}$/, 'Enter a valid code'),
 })
 export type VerifySupplierClaimCode = z.infer<
   typeof verifySupplierClaimCodeSchema

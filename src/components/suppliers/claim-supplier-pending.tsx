@@ -1,16 +1,14 @@
 import * as React from 'react'
 import { useForm } from '@tanstack/react-form'
 import type { SupplierClaim } from '@/lib/types/front-end'
-import { ClaimSupplierSummary } from '@/components/suppliers/claim-supplier-shared'
+
 import { SUPPLIER_CLAIM_CODE_EXPIRY_MS } from '@/lib/constants'
 import {
   formatDurationFromMs,
   formatRemainingMinutesFromMs,
 } from '@/lib/format-dates'
 import { verifySupplierClaimCodeSchema } from '@/lib/types/validation-schema'
-import {
-  useSupplierClaim,
-} from '@/hooks/use-supplier-claims'
+import { useSupplierClaim } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
@@ -25,41 +23,15 @@ const verifyCodeDefaultValues: VerifyClaimCodeFormValues = {
   code: '',
 }
 
-export function ClaimSupplierPending({
-  claim,
-}: {
-  claim: SupplierClaim
-}) {
-  const { cancelClaimMutation, sendCodeMutation } = useSupplierClaim()
+export function ClaimSupplierPending({ claim }: { claim: SupplierClaim }) {
+  const { sendCodeMutation } = useSupplierClaim()
   const expiryDurationLabel = formatDurationFromMs(
     SUPPLIER_CLAIM_CODE_EXPIRY_MS,
   )
 
   return (
-    <div className="grid gap-6">
-      <ClaimSupplierSummary
-        title="You are claiming this supplier profile."
-        description={`We sent a verification code to ${claim.supplier.email}.`}
-        supplier={claim.supplier}
-      />
-
-      <div className="grid gap-4 rounded-2xl border border-border/60 bg-background p-4">
-        <div className="grid gap-1">
-          <p className="text-sm text-muted-foreground">
-            {claim.verification?.lastSentAt
-              ? `We sent a verification code to ${claim.supplier.email}. Enter the 6-character code below to confirm that you own or manage this supplier profile.`
-              : `We’ll send a 6-character verification code to ${claim.supplier.email}.`}
-          </p>
-        </div>
-
-        {sendCodeMutation.isSuccess && (
-          <p className="text-sm text-muted-foreground">
-            We sent a new code to {claim.supplier.email}.
-          </p>
-        )}
-
-        <ClaimSupplierVerificationForm />
-
+    <div className="grid gap-12">
+      <div className="grid gap-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <VerificationCodeExpiryMessage
             expiryDurationLabel={expiryDurationLabel}
@@ -80,34 +52,24 @@ export function ClaimSupplierPending({
           </Button>
         </div>
 
+        {sendCodeMutation.isSuccess && (
+          <p className="text-sm text-muted-foreground">
+            We sent a new code to {claim.supplier.email}.
+          </p>
+        )}
+
         {sendCodeMutation.error?.message && (
           <FormErrorMessage message={sendCodeMutation.error.message} />
         )}
       </div>
 
-      <div className="flex justify-start">
-        <Button
-          type="button"
-          variant="link"
-          className="h-auto px-0 text-sm"
-          onClick={() => cancelClaimMutation.mutate()}
-          disabled={cancelClaimMutation.isPending}
-        >
-          {cancelClaimMutation.isPending
-            ? 'Changing supplier…'
-            : 'Not the right supplier? Claim a different supplier.'}
-        </Button>
-      </div>
-
-      {cancelClaimMutation.error?.message && (
-        <FormErrorMessage message={cancelClaimMutation.error.message} />
-      )}
+      <ClaimSupplierVerificationForm />
     </div>
   )
 }
 
 function ClaimSupplierVerificationForm() {
-  const { verifyCodeMutation } = useSupplierClaim()
+  const { verifyCodeMutation, cancelClaimMutation } = useSupplierClaim()
 
   const form = useForm({
     defaultValues: verifyCodeDefaultValues,
@@ -133,18 +95,13 @@ function ClaimSupplierVerificationForm() {
           <form.Field
             name="code"
             children={(field) => (
-              <FormField
-                field={field}
-                label="Verification code"
-                description="Enter the 6-character code from your email."
-                isRequired
-              >
+              <FormField field={field} label="Verification code" isRequired>
                 <Input
                   id={field.name}
                   inputMode="text"
                   autoComplete="one-time-code"
                   maxLength={6}
-                  placeholder="a1b2c3"
+                  placeholder="abc123"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(event) =>
@@ -161,7 +118,16 @@ function ClaimSupplierVerificationForm() {
           />
         </FieldGroup>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto px-0 text-sm"
+            onClick={() => cancelClaimMutation.mutate()}
+            disabled={cancelClaimMutation.isPending}
+          >
+            {cancelClaimMutation.isPending ? 'Cancelling…' : 'Cancel claim'}
+          </Button>
           <Button
             type="submit"
             form="verify-supplier-claim-form"
@@ -171,6 +137,10 @@ function ClaimSupplierVerificationForm() {
           </Button>
         </div>
       </form>
+
+      {cancelClaimMutation.error?.message && (
+        <FormErrorMessage message={cancelClaimMutation.error.message} />
+      )}
 
       {verifyCodeMutation.error?.message && (
         <FormErrorMessage message={verifyCodeMutation.error.message} />
@@ -211,7 +181,7 @@ function VerificationCodeExpiryMessage({
     message = `Code expires in ${formatRemainingMinutesFromMs(remainingExpiryMs)}.`
   }
   if (remainingExpiryMs !== null && remainingExpiryMs <= 0) {
-    message = 'Code expired. Send code to get a new one.'
+    message = 'Code expired.'
   }
 
   return <p className="text-xs text-muted-foreground">{message}</p>
