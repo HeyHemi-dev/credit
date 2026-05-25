@@ -4,7 +4,7 @@ import type { Supplier, SupplierClaimSearchResult } from '@/lib/types/front-end'
 import { authClient } from '@/auth'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { claimSupplierSchema } from '@/lib/types/validation-schema'
-import { useClaimSupplier, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
+import { useSupplierClaim, useSupplierClaimSearch } from '@/hooks/use-supplier-claims'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FieldGroup } from '@/components/ui/field'
@@ -30,7 +30,7 @@ export function ClaimSupplierForm({
 }: {
   initialSupplier: Supplier | null
 }) {
-  const { claimMutation } = useClaimSupplier()
+  const { claimMutation } = useSupplierClaim()
   const { data: sessionData } = authClient.useSession()
   const [selectedSupplier, setSelectedSupplier] = React.useState<
     SupplierClaimSearchResult | Supplier | null
@@ -71,7 +71,7 @@ export function ClaimSupplierForm({
         <form.Field
           name="supplierId"
           children={(field) => (
-            <FormField field={field} label="Your business" isRequired>
+            <FormField field={field} label="Supplier profile" isRequired>
               <ClaimSupplierCombobox
                 initialSupplier={initialSupplier}
                 onSelect={(supplier) => {
@@ -119,7 +119,7 @@ export function ClaimSupplierForm({
         <p className="text-sm text-muted-foreground">
           {claimMutation.data.status === 'claimed'
             ? `${claimMutation.data.supplier.name} is now linked to your account.`
-            : `We emailed a verification code to ${claimMutation.data.supplier.email}.`}
+            : `We sent a verification code to ${claimMutation.data.supplier.email}.`}
         </p>
       )}
 
@@ -197,7 +197,7 @@ function ClaimSupplierCombobox({
       }}
     >
       <ComboboxInput
-        placeholder="Search by business name..."
+        placeholder="Search by supplier name..."
         showClear={!!userInput}
         value={userInput}
       />

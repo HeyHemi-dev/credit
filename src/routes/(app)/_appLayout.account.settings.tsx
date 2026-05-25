@@ -1,13 +1,12 @@
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
+import type { SupplierClaim } from '@/lib/types/front-end'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
-import {
-  PendingClaimVerificationSection,
-} from '@/components/suppliers/pending-claim-verification-section'
 import { ClaimSupplierForm } from '@/components/suppliers/claim-supplier-form'
-import { ClaimStateMessage } from '@/components/suppliers/supplier-claim-shared'
+import { ClaimSupplierPending } from '@/components/suppliers/claim-supplier-pending'
+import { ClaimSupplierVerified } from '@/components/suppliers/claim-supplier-verified'
 import { useMySupplierClaim } from '@/hooks/use-supplier-claims'
 import {
   Card,
@@ -26,8 +25,8 @@ export const Route = createFileRoute('/(app)/_appLayout/account/settings')({
 function AccountSettings() {
   const fallback = (
     <div className="grid w-full content-start gap-4 md:gap-6">
-      <Skeleton className="h-80 w-full" />
-      <ClaimSupplierSettingsCardSkeleton />
+      <SettingsCardSkeleton />
+      <SettingsCardSkeleton />
     </div>
   )
 
@@ -44,76 +43,77 @@ function AccountSettings() {
 }
 
 function AccountSettingsViewClient() {
-  const { claimQuery } = useMySupplierClaim()
-
   return (
     <AuthUiShell>
       <div className="grid w-full content-start gap-4 md:gap-6">
         <UpdateNameCard />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg leading-none font-semibold md:text-xl">
-              Claim Your Business
-            </CardTitle>
-            <CardDescription className="text-xs md:text-sm">
-              Search for your business to start a claim. We will email you a
-              one-time code to verify your ownership.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6">
-            {claimQuery.data?.status === 'claimed' && (
-              <ClaimStateMessage
-                title="This supplier profile is already yours."
-                description="You’re connected to the supplier profile below."
-                supplier={claimQuery.data.supplier}
-              />
-            )}
-
-            {claimQuery.data?.status === 'pending' && (
-              <>
-                <ClaimStateMessage
-                  title="Your supplier claim is pending."
-                  description="Finish verification with the 6-character code sent to this supplier email."
-                  supplier={claimQuery.data.supplier}
-                />
-                <PendingClaimVerificationSection claim={claimQuery.data} />
-              </>
-            )}
-
-            {claimQuery.data?.status !== 'claimed' && (
-              <ClaimSupplierForm
-                initialSupplier={claimQuery.data?.supplier ?? null}
-              />
-            )}
-          </CardContent>
-        </Card>
+        <ClaimSupplierCard />
       </div>
     </AuthUiShell>
   )
 }
 
-function ClaimSupplierSettingsCardSkeleton() {
+function ClaimSupplierCard() {
+  const { claimQuery } = useMySupplierClaim()
+  const claimCardState = getClaimSupplierCardState(claimQuery.data)
+
+  let content: React.ReactNode
+  if (claimCardState.state === 'pending') {
+    content = <ClaimSupplierPending claim={claimCardState.claim} />
+  } else if (claimCardState.state === 'claimed') {
+    content = <ClaimSupplierVerified supplier={claimCardState.claim.supplier} />
+  } else {
+    content = (
+      <ClaimSupplierForm initialSupplier={claimCardState.initialSupplier} />
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+        <CardTitle className="text-lg leading-none font-semibold md:text-xl">
+          {claimCardState.title}
+        </CardTitle>
+        <CardDescription className="text-xs md:text-sm">
+          {claimCardState.description}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6">
-        <div className="grid gap-2 rounded-2xl border border-border/60 bg-muted/30 p-4">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-4/5" />
-        </div>
-        <div className="grid gap-4">
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="flex justify-end">
-          <Skeleton className="h-10 w-32" />
-        </div>
-      </CardContent>
+      <CardContent>{content}</CardContent>
     </Card>
   )
+}
+
+function getClaimSupplierCardState(claim: SupplierClaim | null) {
+  if (claim?.status === 'pending') {
+    return {
+      state: 'pending' as const,
+      title: `Claim ${claim.supplier.name}`,
+      description: claim.verification?.lastSentAt
+        ? `We sent a verification code to ${claim.supplier.email}. Enter the code below to confirm that you own or manage this supplier profile.`
+        : `We’ll send a verification code to ${claim.supplier.email}.`,
+      claim,
+    }
+  }
+
+  if (claim?.status === 'claimed') {
+    return {
+      state: 'claimed' as const,
+      title: 'Supplier profile claimed',
+      description:
+        'Your account is already connected to this supplier profile.',
+      claim,
+    }
+  }
+
+  return {
+    state: 'initial' as const,
+    title: 'Claim your supplier profile',
+    description:
+      'Search for your supplier profile. We’ll email a verification code so you can confirm you own or manage it.',
+    initialSupplier: claim?.supplier ?? null,
+  }
+}
+
+function SettingsCardSkeleton() {
+  return <Skeleton className="h-80 w-full" />
 }

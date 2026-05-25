@@ -1,6 +1,6 @@
 import type { Supplier } from '@/lib/types/front-end'
 
-export function ClaimStateMessage({
+export function ClaimSupplierSummary({
   title,
   description,
   supplier,

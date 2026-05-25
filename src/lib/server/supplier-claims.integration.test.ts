@@ -6,10 +6,12 @@ import {
   getSupplierClaimByUserId,
   getSupplierOwnedByUserId,
 } from '@/db/queries/supplier-claims'
-import { suppliers, userInNeonAuth } from '@/db/schema'
+import { supplierClaimVerifications, suppliers, userInNeonAuth } from '@/db/schema'
 import {
+  cancelPendingSupplierClaim,
   createOrUpdateSupplierClaim,
 } from '@/lib/server/supplier-claims'
+import { createOrRefreshSupplierClaimVerification } from '@/lib/server/supplier-claim-verifications'
 import { isIntegrationTestMode } from '@/testing/integration'
 
 describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
@@ -59,6 +61,56 @@ describe.skipIf(!isIntegrationTestMode)('createOrUpdateSupplierClaim', () => {
     // Assert
     expect(savedClaim?.claim.status).toBe('approved')
     expect(ownedSupplier?.id).toBe(supplier.id)
+  })
+})
+
+describe.skipIf(!isIntegrationTestMode)('cancelPendingSupplierClaim', () => {
+  const createdSupplierIds: Array<string> = []
+  const createdUserIds: Array<string> = []
+
+  afterEach(async () => {
+    // Arrange
+    for (const supplierId of createdSupplierIds.splice(0).reverse()) {
+      await db.delete(suppliers).where(eq(suppliers.id, supplierId))
+    }
+
+    for (const userId of createdUserIds.splice(0).reverse()) {
+      await db.delete(userInNeonAuth).where(eq(userInNeonAuth.id, userId))
+    }
+  })
+
+  it('removes the pending claim and its verification so the user returns to no claim state', async () => {
+    // Arrange
+    const user = await createTestUser(createdUserIds)
+    const supplier = await createTestSupplier(createdSupplierIds)
+
+    await createOrUpdateSupplierClaim(supplier.id, user.id, user.email)
+    await createOrRefreshSupplierClaimVerification(
+      user.id,
+      `code-hash-${user.id}`,
+      new Date(Date.now() + 10 * 60 * 1000),
+    )
+
+    const pendingClaim = await getSupplierClaimByUserId(user.id)
+    if (!pendingClaim) throw new Error('Pending claim not found')
+
+    // Act
+    await cancelPendingSupplierClaim(user.id)
+    const savedClaim = await getSupplierClaimByUserId(user.id)
+    const [verification] = await db
+      .select()
+      .from(supplierClaimVerifications)
+      .where(
+        eq(
+          supplierClaimVerifications.supplierClaimId,
+          pendingClaim.claim.id,
+        ),
+      )
+      .limit(1)
+
+    // Assert
+    expect(savedClaim).toBeNull()
+    expect(verification).toBeUndefined()
   })
 })
 

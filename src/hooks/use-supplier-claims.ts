@@ -9,6 +9,7 @@ import { useServerFn } from '@tanstack/react-start'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
 import { queryKeys } from '@/hooks/query-keys'
 import {
+  cancelPendingSupplierClaimFn,
   claimSupplierFn,
   getMySupplierClaimFn,
   searchSuppliersToClaimFn,
@@ -58,9 +59,14 @@ export function useSupplierClaimSearch() {
   }
 }
 
-export function useClaimSupplier() {
+export function useSupplierClaim() {
   const queryClient = useQueryClient()
   const claimSupplier = useServerFn(claimSupplierFn)
+  const cancelPendingSupplierClaim = useServerFn(cancelPendingSupplierClaimFn)
+  const sendSupplierClaimVerificationCode = useServerFn(
+    sendSupplierClaimVerificationCodeFn,
+  )
+  const verifySupplierClaimCode = useServerFn(verifySupplierClaimCodeFn)
 
   const claimMutation = useMutation({
     mutationFn: async (supplierId: string) => {
@@ -73,14 +79,16 @@ export function useClaimSupplier() {
     },
   })
 
-  return { claimMutation }
-}
-
-export function useSendSupplierClaimVerificationCode() {
-  const queryClient = useQueryClient()
-  const sendSupplierClaimVerificationCode = useServerFn(
-    sendSupplierClaimVerificationCodeFn,
-  )
+  const cancelClaimMutation = useMutation({
+    mutationFn: async () => {
+      await cancelPendingSupplierClaim({ data: {} })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.supplierClaim(),
+      })
+    },
+  })
 
   const sendCodeMutation = useMutation({
     mutationFn: async () => {
@@ -92,13 +100,6 @@ export function useSendSupplierClaimVerificationCode() {
       })
     },
   })
-
-  return { sendCodeMutation }
-}
-
-export function useVerifySupplierClaimCode() {
-  const queryClient = useQueryClient()
-  const verifySupplierClaimCode = useServerFn(verifySupplierClaimCodeFn)
 
   const verifyCodeMutation = useMutation({
     mutationFn: async (code: string) => {
@@ -113,5 +114,10 @@ export function useVerifySupplierClaimCode() {
     },
   })
 
-  return { verifyCodeMutation }
+  return {
+    claimMutation,
+    cancelClaimMutation,
+    sendCodeMutation,
+    verifyCodeMutation,
+  }
 }

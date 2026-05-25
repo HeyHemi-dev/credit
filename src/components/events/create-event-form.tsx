@@ -8,7 +8,7 @@ import {
   createEventFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
-import { useCreateEvent } from '@/hooks/use-events'
+import { useEvents } from '@/hooks/use-events'
 import { REGION, REGION_KEYS } from '@/lib/constants'
 import { emptyStringToNull } from '@/lib/empty-strings'
 import { FormField } from '@/components/ui/form-field'
@@ -34,7 +34,7 @@ export function CreateEventForm({
   containerRef?: React.RefObject<HTMLDivElement | null>
 }) {
   const authToken = useAuth()
-  const createEvent = useCreateEvent(authToken)
+  const { createEventMutation } = useEvents(authToken)
   const isSession = isSessionAuth(authToken)
 
   const form = useForm({
@@ -44,7 +44,7 @@ export function CreateEventForm({
     },
     onSubmit: async ({ value }) => {
       if (!isSession) return
-      await createEvent.mutateAsync({
+      await createEventMutation.mutateAsync({
         eventName: value.eventName,
         weddingDate: value.weddingDate,
         region: emptyStringToNull(value.region),

@@ -16,7 +16,9 @@ import { logger } from '@/lib/logger'
 import { isSessionAuth, requireSessionAuth } from '@/hooks/use-auth'
 
 export function useEvents(authToken: AuthToken) {
+  const queryClient = useQueryClient()
   const listEvents = useServerFn(listEventsFn)
+  const createEvent = useServerFn(createEventFn)
   const sessionAuth = requireSessionAuth(authToken)
 
   const getEventListQuery = useSuspenseQuery({
@@ -24,15 +26,7 @@ export function useEvents(authToken: AuthToken) {
     queryFn: async () => await listEvents({ data: sessionAuth }),
   })
 
-  return { getEventListQuery }
-}
-
-export function useCreateEvent(authToken: AuthToken) {
-  const queryClient = useQueryClient()
-  const createEvent = useServerFn(createEventFn)
-  const sessionAuth = requireSessionAuth(authToken)
-
-  return useMutation({
+  const createEventMutation = useMutation({
     mutationFn: async (data: CreateEvent) => {
       await createEvent({
         data: {
@@ -48,6 +42,8 @@ export function useCreateEvent(authToken: AuthToken) {
       })
     },
   })
+
+  return { getEventListQuery, createEventMutation }
 }
 
 export function useEvent(eventId: string, authToken: AuthToken) {

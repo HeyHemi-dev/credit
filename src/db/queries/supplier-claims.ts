@@ -141,6 +141,14 @@ export async function resetSupplierClaim(
   return rows[0]
 }
 
+export async function deleteSupplierClaim(claimId: string) {
+  const { error } = await tryCatch(
+    db.delete(supplierClaims).where(eq(supplierClaims.id, claimId)),
+  )
+
+  if (error) throw ERROR.DATABASE_ERROR('Failed to delete supplier claim')
+}
+
 export async function approveSupplierClaim(claimId: string) {
   const { data: rows, error } = await tryCatch(
     db

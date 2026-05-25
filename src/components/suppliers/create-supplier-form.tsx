@@ -14,7 +14,7 @@ import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
 import { AUTH_STATUS, REGION, REGION_KEYS } from '@/lib/constants'
-import { useCreateSupplier } from '@/hooks/use-suppliers'
+import { useSupplier } from '@/hooks/use-suppliers'
 import {
   createSupplierFormSchema,
   regionSchema,
@@ -47,7 +47,7 @@ export function CreateSupplierForm({
     string | null
   >(null)
 
-  const { createMutation } = useCreateSupplier(authToken)
+  const { createMutation } = useSupplier(authToken)
 
   const form = useForm({
     defaultValues,
