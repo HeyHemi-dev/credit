@@ -3,12 +3,11 @@ import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
-import {
-  PendingClaimVerificationSection,
-} from '@/components/suppliers/pending-claim-verification-section'
+import { PendingClaimVerificationSection } from '@/components/suppliers/pending-claim-verification-section'
 import { ClaimSupplierForm } from '@/components/suppliers/claim-supplier-form'
 import { ClaimStateMessage } from '@/components/suppliers/supplier-claim-shared'
 import { useMySupplierClaim } from '@/hooks/use-supplier-claims'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -26,8 +25,8 @@ export const Route = createFileRoute('/(app)/_appLayout/account/settings')({
 function AccountSettings() {
   const fallback = (
     <div className="grid w-full content-start gap-4 md:gap-6">
-      <Skeleton className="h-80 w-full" />
-      <ClaimSupplierSettingsCardSkeleton />
+      <SettingsCardSkeleton />
+      <SettingsCardSkeleton />
     </div>
   )
 
@@ -44,76 +43,117 @@ function AccountSettings() {
 }
 
 function AccountSettingsViewClient() {
-  const { claimQuery } = useMySupplierClaim()
-
   return (
     <AuthUiShell>
       <div className="grid w-full content-start gap-4 md:gap-6">
         <UpdateNameCard />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg leading-none font-semibold md:text-xl">
-              Claim Your Business
-            </CardTitle>
-            <CardDescription className="text-xs md:text-sm">
-              Search for your business to start a claim. We will email you a
-              one-time code to verify your ownership.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6">
-            {claimQuery.data?.status === 'claimed' && (
-              <ClaimStateMessage
-                title="This supplier profile is already yours."
-                description="You’re connected to the supplier profile below."
-                supplier={claimQuery.data.supplier}
-              />
-            )}
-
-            {claimQuery.data?.status === 'pending' && (
-              <>
-                <ClaimStateMessage
-                  title="Your supplier claim is pending."
-                  description="Finish verification with the 6-character code sent to this supplier email."
-                  supplier={claimQuery.data.supplier}
-                />
-                <PendingClaimVerificationSection claim={claimQuery.data} />
-              </>
-            )}
-
-            {claimQuery.data?.status !== 'claimed' && (
-              <ClaimSupplierForm
-                initialSupplier={claimQuery.data?.supplier ?? null}
-              />
-            )}
-          </CardContent>
-        </Card>
+        <ClaimSupplierCard />
       </div>
     </AuthUiShell>
   )
 }
 
-function ClaimSupplierSettingsCardSkeleton() {
+function ClaimSupplierCard() {
+  const { claimQuery } = useMySupplierClaim()
+  const [isChangingSupplier, setIsChangingSupplier] = React.useState(false)
+  const pendingSupplierId =
+    claimQuery.data?.status === 'pending' ? claimQuery.data.supplier.id : null
+  const previousPendingSupplierIdRef = React.useRef(pendingSupplierId)
+
+  React.useEffect(() => {
+    if (claimQuery.data?.status !== 'pending') setIsChangingSupplier(false)
+    if (pendingSupplierId !== previousPendingSupplierIdRef.current) {
+      setIsChangingSupplier(false)
+    }
+
+    previousPendingSupplierIdRef.current = pendingSupplierId
+  }, [claimQuery.data?.status, pendingSupplierId])
+
+  const title =
+    claimQuery.data?.status === 'pending' && !isChangingSupplier
+      ? `Claim ${claimQuery.data.supplier.name}`
+      : 'Claim your supplier profile'
+
+  let description =
+    'Search for your supplier profile. We’ll email a 6-character verification code so you can confirm you own or manage it.'
+  if (claimQuery.data?.status === 'pending' && !isChangingSupplier) {
+    description =
+      'Check your email and enter the verification code below to finish claiming this supplier profile.'
+  }
+  if (claimQuery.data?.status === 'pending' && isChangingSupplier) {
+    description =
+      'Search for the right supplier profile. Sending a new code will update your pending claim.'
+  }
+
   return (
     <Card>
       <CardHeader>
-        <Skeleton className="h-6 w-48" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+        <CardTitle className="text-lg leading-none font-semibold md:text-xl">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-xs md:text-sm">
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="grid gap-2 rounded-2xl border border-border/60 bg-muted/30 p-4">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-4/5" />
-        </div>
-        <div className="grid gap-4">
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="flex justify-end">
-          <Skeleton className="h-10 w-32" />
-        </div>
+        {claimQuery.data?.status === 'claimed' && (
+          <ClaimStateMessage
+            title="This supplier profile is already yours."
+            description="You’re connected to the supplier profile below."
+            supplier={claimQuery.data.supplier}
+          />
+        )}
+
+        {claimQuery.data?.status === 'pending' && !isChangingSupplier && (
+          <>
+            <ClaimStateMessage
+              title="You are claiming this supplier profile."
+              description={`We sent a verification code to ${claimQuery.data.supplier.email}.`}
+              supplier={claimQuery.data.supplier}
+            />
+            <PendingClaimVerificationSection claim={claimQuery.data} />
+            <div className="flex justify-start">
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto px-0 text-sm"
+                onClick={() => setIsChangingSupplier(true)}
+              >
+                Not the right supplier? Claim a different supplier.
+              </Button>
+            </div>
+          </>
+        )}
+
+        {(claimQuery.data?.status !== 'claimed' &&
+          claimQuery.data?.status !== 'pending') ||
+        isChangingSupplier ? (
+          <>
+            <ClaimSupplierForm
+              initialSupplier={
+                isChangingSupplier ? null : (claimQuery.data?.supplier ?? null)
+              }
+            />
+            {isChangingSupplier && claimQuery.data?.status === 'pending' && (
+              <div className="flex justify-start">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="h-auto px-0 text-sm"
+                  onClick={() => setIsChangingSupplier(false)}
+                >
+                  Still claiming {claimQuery.data.supplier.name}? Go back to
+                  verification.
+                </Button>
+              </div>
+            )}
+          </>
+        ) : null}
       </CardContent>
     </Card>
   )
+}
+
+function SettingsCardSkeleton() {
+  return <Skeleton className="h-80 w-full" />
 }

@@ -71,7 +71,7 @@ export function ClaimSupplierForm({
         <form.Field
           name="supplierId"
           children={(field) => (
-            <FormField field={field} label="Your business" isRequired>
+            <FormField field={field} label="Supplier profile" isRequired>
               <ClaimSupplierCombobox
                 initialSupplier={initialSupplier}
                 onSelect={(supplier) => {
@@ -119,7 +119,7 @@ export function ClaimSupplierForm({
         <p className="text-sm text-muted-foreground">
           {claimMutation.data.status === 'claimed'
             ? `${claimMutation.data.supplier.name} is now linked to your account.`
-            : `We emailed a verification code to ${claimMutation.data.supplier.email}.`}
+            : `We sent a verification code to ${claimMutation.data.supplier.email}.`}
         </p>
       )}
 
@@ -197,7 +197,7 @@ function ClaimSupplierCombobox({
       }}
     >
       <ComboboxInput
-        placeholder="Search by business name..."
+        placeholder="Search by supplier name..."
         showClear={!!userInput}
         value={userInput}
       />

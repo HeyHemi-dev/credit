@@ -49,37 +49,16 @@ export function PendingClaimVerificationSection({
   return (
     <div className="grid gap-4 rounded-2xl border border-border/60 bg-background p-4">
       <div className="grid gap-1">
-        <p className="font-medium">Verify by email</p>
         <p className="text-sm text-muted-foreground">
           {claim.verification?.lastSentAt
-            ? `We sent a code to ${claim.supplier.email}. Enter it below to finish your claim.`
-            : `We’ll send a 6-character code to ${claim.supplier.email}.`}
+            ? `We sent a verification code to ${claim.supplier.email}. Enter the 6-character code below to confirm that you own or manage this supplier profile.`
+            : `We’ll send a 6-character verification code to ${claim.supplier.email}.`}
         </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => sendCodeMutation.mutate()}
-          disabled={sendCodeMutation.isPending}
-        >
-          {sendCodeMutation.isPending
-            ? 'Sending…'
-            : claim.verification?.lastSentAt
-              ? 'Resend code'
-              : 'Send code'}
-        </Button>
-
-        <VerificationCodeExpiryMessage
-          expiryDurationLabel={expiryDurationLabel}
-          lastSentAt={claim.verification?.lastSentAt ?? null}
-        />
       </div>
 
       {sendCodeMutation.isSuccess && (
         <p className="text-sm text-muted-foreground">
-          We sent a fresh code to {claim.supplier.email}.
+          We sent a new code to {claim.supplier.email}.
         </p>
       )}
 
@@ -133,6 +112,26 @@ export function PendingClaimVerificationSection({
           </Button>
         </div>
       </form>
+
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <VerificationCodeExpiryMessage
+          expiryDurationLabel={expiryDurationLabel}
+          lastSentAt={claim.verification?.lastSentAt ?? null}
+        />
+        <Button
+          type="button"
+          variant="link"
+          className="h-auto px-0 text-xs"
+          onClick={() => sendCodeMutation.mutate()}
+          disabled={sendCodeMutation.isPending}
+        >
+          {sendCodeMutation.isPending
+            ? 'Sending…'
+            : claim.verification?.lastSentAt
+              ? 'Resend code'
+              : 'Send code'}
+        </Button>
+      </div>
 
       {sendCodeMutation.error?.message && (
         <FormErrorMessage message={sendCodeMutation.error.message} />
