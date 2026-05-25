@@ -4,7 +4,7 @@ DROP INDEX "supplier_claims_supplier_id_unique";--> statement-breakpoint
 DROP INDEX "supplier_claims_user_id_unique";--> statement-breakpoint
 DROP INDEX "suppliers_claimed_by_user_id_unique";--> statement-breakpoint
 UPDATE "supplier_claims" AS "claim"
-SET "status" = 'archived',
+SET "status" = 'rejected',
     "updated_at" = NOW()
 FROM "suppliers" AS "supplier"
 WHERE "supplier"."claimed_by_user_id" IS NOT NULL
