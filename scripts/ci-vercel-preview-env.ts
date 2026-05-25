@@ -65,6 +65,10 @@ function buildProjectUrl(pathname: string) {
   return url.toString()
 }
 
+function requireIsNotProductionBranch(gitBranch: string) {
+  if (gitBranch === 'main') fail('Refusing to update preview env for production branch.')
+}
+
 async function listProjectEnvs(gitBranch: string) {
   const encodedBranch = encodeURIComponent(gitBranch)
   const url = buildProjectUrl(
@@ -94,6 +98,8 @@ async function listProjectEnvs(gitBranch: string) {
 }
 
 async function upsertPreviewEnv(gitBranch: string, databaseUrl: string) {
+  requireIsNotProductionBranch(gitBranch)
+
   await requestJson<unknown>(
     buildProjectUrl('/v10/projects/{projectId}/env?upsert=true'),
     {
@@ -101,6 +107,7 @@ async function upsertPreviewEnv(gitBranch: string, databaseUrl: string) {
         {
           gitBranch,
           key: 'CR_DATABASE_URL',
+          // Preview-only override for this git branch. Do not write to production.
           target: ['preview'],
           type: 'encrypted',
           value: databaseUrl,
@@ -116,6 +123,8 @@ async function upsertPreviewEnv(gitBranch: string, databaseUrl: string) {
 }
 
 async function removePreviewEnv(gitBranch: string) {
+  requireIsNotProductionBranch(gitBranch)
+
   const envVars = await listProjectEnvs(gitBranch)
   if (envVars.length === 0) {
     console.log(`Vercel preview CR_DATABASE_URL already absent for branch ${gitBranch}.`)
