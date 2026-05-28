@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/checkbox'
 import { FieldLabel, FieldTitle } from '@/components/ui/field'
 import { RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
@@ -11,9 +12,10 @@ type PillRadioItemProps = {
 }
 
 type PillPickerItemProps = {
-  children: React.ReactNode
-  isSelected: boolean
-  onClick: () => void
+  id: string
+  label: string
+  checked: boolean
+  onCheckedChange: (checked: boolean) => void
 }
 
 export function PillRadioItem({
@@ -56,27 +58,34 @@ export function PillRadioItem({
 
 // Keep this visually aligned with PillRadioItem so single- and multi-select pills stay in sync.
 export function PillPickerItem({
-  children,
-  isSelected,
-  onClick,
+  id,
+  label,
+  checked,
+  onCheckedChange,
 }: PillPickerItemProps) {
   return (
-    <button
-      type="button"
+    <FieldLabel
+      htmlFor={id}
       className={cn(
-        'flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary',
-        isSelected && 'border-primary/50 bg-secondary hover:bg-secondary',
+        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary has-data-checked:bg-secondary',
+        checked && 'border-primary/50 bg-secondary hover:bg-secondary',
       )}
-      onClick={onClick}
     >
       <FieldTitle
         className={cn(
           'px-3 py-1 text-sm font-normal text-muted-foreground',
-          isSelected && 'text-primary',
+          checked && 'text-primary',
         )}
       >
-        {children}
+        {label}
       </FieldTitle>
-    </button>
+      <Checkbox
+        id={id}
+        checked={checked}
+        aria-label={label}
+        onCheckedChange={onCheckedChange}
+        className="pointer-events-none absolute top-0 left-0 size-0 overflow-hidden border-0 opacity-0"
+      />
+    </FieldLabel>
   )
 }

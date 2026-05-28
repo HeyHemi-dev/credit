@@ -161,15 +161,15 @@ export function EditSupplierProfileForm({
                   return (
                     <PillPickerItem
                       key={key}
-                      isSelected={isSelected}
-                      onClick={() =>
+                      id={`regions-served-${key}`}
+                      label={region}
+                      checked={isSelected}
+                      onCheckedChange={() =>
                         field.handleChange(
                           toggleSelection(field.state.value, region),
                         )
                       }
-                    >
-                      {region}
-                    </PillPickerItem>
+                    />
                   )
                 })}
               </div>
@@ -193,15 +193,15 @@ export function EditSupplierProfileForm({
                   return (
                     <PillPickerItem
                       key={key}
-                      isSelected={isSelected}
-                      onClick={() =>
+                      id={`services-${key}`}
+                      label={service}
+                      checked={isSelected}
+                      onCheckedChange={() =>
                         field.handleChange(
                           toggleSelection(field.state.value, service),
                         )
                       }
-                    >
-                      {service}
-                    </PillPickerItem>
+                    />
                   )
                 })}
               </div>
