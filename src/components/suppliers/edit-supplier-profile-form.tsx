@@ -92,12 +92,7 @@ export function EditSupplierProfileForm({
         <form.Field
           name="email"
           children={(field) => (
-            <FormField
-              field={field}
-              label="Contact email"
-              description="Used for sharing and claim verification. Not shown publicly."
-              isRequired
-            >
+            <FormField field={field} label="Contact email" isRequired>
               <Input
                 id={field.name}
                 placeholder="Email address"
@@ -114,8 +109,8 @@ export function EditSupplierProfileForm({
           children={(field) => (
             <FormField
               field={field}
-              label="Based in"
-              description="Primary home region for this supplier."
+              label="Primary region"
+              description="Where this supplier is based"
             >
               <RadioGroup
                 value={field.state.value}
@@ -212,11 +207,7 @@ export function EditSupplierProfileForm({
         <form.Field
           name="instagramHandle"
           children={(field) => (
-            <FormField
-              field={field}
-              label="Instagram handle"
-              description="If you use Instagram for this business."
-            >
+            <FormField field={field} label="Instagram handle">
               <Input
                 id={field.name}
                 value={field.state.value}
@@ -234,11 +225,7 @@ export function EditSupplierProfileForm({
         <form.Field
           name="tiktokHandle"
           children={(field) => (
-            <FormField
-              field={field}
-              label="TikTok handle"
-              description="If you use TikTok for this business."
-            >
+            <FormField field={field} label="TikTok handle">
               <Input
                 id={field.name}
                 value={field.state.value}
@@ -254,11 +241,7 @@ export function EditSupplierProfileForm({
         <form.Field
           name="website"
           children={(field) => (
-            <FormField
-              field={field}
-              label="Website"
-              description="Full website URL."
-            >
+            <FormField field={field} label="Website">
               <Input
                 id={field.name}
                 value={field.state.value}
