@@ -29,7 +29,7 @@ export function PillRadioItem({
     <FieldLabel
       htmlFor={id}
       className={cn(
-        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary has-data-checked:bg-secondary',
+        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 outline-none hover:bg-secondary has-data-checked:bg-secondary has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
         isSelected && 'bg-secondary hover:bg-secondary',
       )}
       onClick={(event) => {
@@ -67,7 +67,7 @@ export function PillPickerItem({
     <FieldLabel
       htmlFor={id}
       className={cn(
-        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary has-data-checked:bg-secondary',
+        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 outline-none hover:bg-secondary has-data-checked:bg-secondary has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
         checked && 'border-primary/50 bg-secondary hover:bg-secondary',
       )}
     >
