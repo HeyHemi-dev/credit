@@ -49,15 +49,28 @@ export const suppliers = pgTable(
     emailDomain: text('email_domain').generatedAlwaysAs(
       sql`split_part(email, '@', 2)`,
     ),
+    // Primary home region for the supplier's business.
+    region: regionEnum('region'),
+    // Regions this supplier is willing to work or travel in.
+    regionsServed: regionEnum('regions_served')
+      .array()
+      .notNull()
+      .default(sql`'{}'::region[]`),
+    // Services this supplier offers.
+    services: serviceEnum('services')
+      .array()
+      .notNull()
+      .default(sql`'{}'::service[]`),
+    website: text('website'),
     instagramHandle: text('instagram_handle'),
     tiktokHandle: text('tiktok_handle'),
-    region: regionEnum('region'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex('suppliers_email_unique').on(lower(table.email)),
     index('suppliers_email_domain_idx').on(table.emailDomain),
+    index('suppliers_region_idx').on(table.region),
     index('suppliers_instagram_handle_idx').on(table.instagramHandle),
     index('suppliers_tiktok_handle_idx').on(table.tiktokHandle),
   ],

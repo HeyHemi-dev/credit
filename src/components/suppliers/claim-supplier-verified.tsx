@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import type { Supplier } from '@/lib/types/front-end'
 import { ClaimSupplierSummary } from '@/components/suppliers/claim-supplier-shared'
 import { useSupplierClaim } from '@/hooks/use-supplier-claims'
@@ -6,6 +7,7 @@ import { FormErrorMessage } from '@/components/ui/form-error-message'
 
 export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
   const { archiveClaimMutation } = useSupplierClaim()
+  const navigate = useNavigate()
 
   return (
     <div className="grid gap-6">
@@ -15,6 +17,15 @@ export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
       </p>
 
       <ClaimSupplierSummary supplier={supplier} />
+
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          onClick={() => navigate({ to: '/account/edit-profile' })}
+        >
+          Edit supplier profile
+        </Button>
+      </div>
 
       <div className="grid gap-2">
         <p className="text-sm text-muted-foreground">

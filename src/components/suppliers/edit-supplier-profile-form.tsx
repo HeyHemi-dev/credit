@@ -1,90 +1,72 @@
 import { useForm } from '@tanstack/react-form'
-import React from 'react'
 import { RadioGroup } from '@base-ui/react'
 import { PillRadioItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
-import type {
-  AuthToken,
-  CreateSupplierForm,
-} from '@/lib/types/validation-schema'
+import type { CreateSupplierForm } from '@/lib/types/validation-schema'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
 import {
-  AUTH_STATUS,
   REGION,
   REGION_KEYS,
   SERVICE,
   SERVICE_KEYS,
 } from '@/lib/constants'
-import { useSupplier } from '@/hooks/use-suppliers'
+import { useSupplierProfile } from '@/hooks/use-suppliers'
 import {
   createSupplierFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
-import { useBack } from '@/components/back-button'
-import { useDedupe } from '@/hooks/use-dedupe'
-import { emptyStringToNull } from '@/lib/empty-strings'
-import { cn } from '@/lib/utils'
+import {
+  emptyStringToNull,
+  nullToEmptyString,
+} from '@/lib/empty-strings'
 
-const defaultValues: CreateSupplierForm = {
-  name: '',
-  email: '',
-  region: '',
-  regionsServed: [],
-  services: [],
-  website: '',
-  instagramHandle: '',
-  tiktokHandle: '',
-}
-
-export function CreateSupplierForm({
-  authToken,
-  onCreated,
+export function EditSupplierProfileForm({
+  supplier,
+  onSaved,
 }: {
-  authToken: AuthToken
-  onCreated?: (supplier: Supplier) => void
+  supplier: Supplier
+  onSaved?: (supplier: Supplier) => void
 }) {
-  const handleBack = useBack()
-
-  const { dedupeQuery, setDedupeEmail, setDedupeName } = useDedupe()
-  const dedupeCandidates = dedupeQuery.data ?? []
-  const [selectedCandidate, setSelectedCandidate] = React.useState<
-    string | null
-  >(null)
-
-  const { createMutation } = useSupplier(authToken)
+  const { updateProfileMutation } = useSupplierProfile()
+  const defaultValues: CreateSupplierForm = {
+    name: supplier.name,
+    email: supplier.email,
+    region: nullToEmptyString(supplier.region),
+    regionsServed: supplier.regionsServed,
+    services: supplier.services,
+    website: nullToEmptyString(supplier.website),
+    instagramHandle: nullToEmptyString(
+      supplier.instagramHandle ? `@${supplier.instagramHandle}` : null,
+    ),
+    tiktokHandle: nullToEmptyString(
+      supplier.tiktokHandle ? `@${supplier.tiktokHandle}` : null,
+    ),
+  }
 
   const form = useForm({
     defaultValues,
     validators: {
       onSubmit: createSupplierFormSchema,
     },
-
     onSubmit: async ({ value }) => {
-      if (authToken.status !== AUTH_STATUS.AUTHENTICATED) return
-
-      const supplier = await createMutation.mutateAsync({
+      const nextSupplier = await updateProfileMutation.mutateAsync({
         ...value,
         region: emptyStringToNull(value.region),
         website: emptyStringToNull(value.website),
         instagramHandle: emptyStringToNull(value.instagramHandle),
         tiktokHandle: emptyStringToNull(value.tiktokHandle),
       })
-      if (onCreated) {
-        onCreated(supplier)
-        return
-      }
-      handleBack()
+      onSaved?.(nextSupplier)
     },
   })
 
   return (
     <form
-      id="create-supplier-form"
+      id="edit-supplier-profile-form"
       onSubmit={(event) => {
         event.preventDefault()
         form.handleSubmit()
@@ -101,11 +83,7 @@ export function CreateSupplierForm({
                 placeholder="Business name"
                 autoComplete="off"
                 value={field.state.value}
-                onBlur={() => {}}
-                onChange={(event) => {
-                  field.handleChange(event.target.value)
-                  setDedupeName(event.target.value)
-                }}
+                onChange={(event) => field.handleChange(event.target.value)}
               />
             </FormField>
           )}
@@ -117,7 +95,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Contact email"
-              description="Used for sharing and preventing duplicates. Not shown publicly."
+              description="Used for sharing and claim verification. Not shown publicly."
               isRequired
             >
               <Input
@@ -125,7 +103,6 @@ export function CreateSupplierForm({
                 placeholder="Email address"
                 autoComplete="off"
                 value={field.state.value}
-                onBlur={() => setDedupeEmail(field.state.value)}
                 onChange={(event) => field.handleChange(event.target.value)}
               />
             </FormField>
@@ -138,7 +115,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Based in"
-              description="Optional, helps match suppliers correctly."
+              description="Primary home region for this supplier."
             >
               <RadioGroup
                 value={field.state.value}
@@ -174,7 +151,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Regions served"
-              description="Optional, where this supplier can work or travel."
+              description="Where this supplier can work or travel."
             >
               <div className="flex flex-wrap gap-2">
                 {REGION_KEYS.map((key) => {
@@ -208,7 +185,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Services"
-              description="Optional, what this supplier offers."
+              description="What this supplier offers."
             >
               <div className="flex flex-wrap gap-2">
                 {SERVICE_KEYS.map((key) => {
@@ -242,7 +219,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Website"
-              description="Optional, full website URL."
+              description="Full website URL."
             >
               <Input
                 id={field.name}
@@ -260,7 +237,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="Instagram handle"
-              description="If you know it."
+              description="If you use Instagram for this business."
             >
               <Input
                 id={field.name}
@@ -282,7 +259,7 @@ export function CreateSupplierForm({
             <FormField
               field={field}
               label="TikTok handle"
-              description="If you know it."
+              description="If you use TikTok for this business."
             >
               <Input
                 id={field.name}
@@ -297,110 +274,30 @@ export function CreateSupplierForm({
         />
       </FieldGroup>
 
-      {dedupeCandidates.length > 0 && (
-        <DedupeCandidates
-          dedupeCandidates={dedupeCandidates}
-          selectedCandidate={selectedCandidate}
-          setSelectedCandidate={(supplierId) =>
-            setSelectedCandidate(supplierId)
-          }
-        />
-      )}
-
       <div className="grid gap-2">
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end">
           <Button
             type="submit"
-            form="create-supplier-form"
-            disabled={
-              form.state.isSubmitting ||
-              createMutation.isPending ||
-              authToken.status === AUTH_STATUS.PENDING ||
-              selectedCandidate !== null
-            }
+            form="edit-supplier-profile-form"
+            disabled={form.state.isSubmitting || updateProfileMutation.isPending}
           >
-            {createMutation.isPending ? 'Creating…' : 'Create supplier'}
+            {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
           </Button>
-          {dedupeCandidates.length > 0 && (
-            <Button
-              className="order-first"
-              variant="default"
-              onClick={handleBack}
-              disabled={selectedCandidate === null}
-            >
-              Use existing
-            </Button>
-          )}
         </div>
         <p className="text-right text-xs text-muted-foreground/60">
-          Please double-check spelling —this is shared with others.
+          Keep these details current so couples and photographers can credit you correctly.
         </p>
       </div>
-      {createMutation.error?.message && (
-        <FormErrorMessage message={createMutation.error.message} />
+
+      {updateProfileMutation.error?.message && (
+        <FormErrorMessage message={updateProfileMutation.error.message} />
+      )}
+      {updateProfileMutation.isSuccess && (
+        <p className="text-sm text-muted-foreground">
+          Supplier profile updated.
+        </p>
       )}
     </form>
-  )
-}
-
-function DedupeCandidates({
-  dedupeCandidates,
-  selectedCandidate,
-  setSelectedCandidate,
-}: {
-  dedupeCandidates: Array<Supplier>
-  selectedCandidate: string | null
-  setSelectedCandidate: (supplierId: string | null) => void
-}) {
-  function handleClick(supplierId: string) {
-    if (selectedCandidate === supplierId) {
-      setSelectedCandidate(null)
-    } else {
-      setSelectedCandidate(supplierId)
-    }
-  }
-
-  return (
-    <Card className="bg-primary/5 ring-primary/10">
-      <CardContent className="grid gap-4">
-        <div className="grid gap-0.5">
-          <h2 className="font-medium text-primary">
-            We found some similar suppliers.
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Did you mean one of these?
-          </p>
-        </div>
-
-        <div className="grid gap-2">
-          <div className="flex flex-wrap">
-            {dedupeCandidates.map((supplier) => (
-              <Button
-                key={supplier.id}
-                variant="outline"
-                className={cn(
-                  'flex h-auto flex-col items-start gap-0.5 self-start rounded-xl px-4 py-2 text-left !normal-case',
-                  selectedCandidate === supplier.id &&
-                    'border-primary bg-primary/10',
-                )}
-                onClick={() => handleClick(supplier.id)}
-                type="button"
-              >
-                <p>
-                  <span className="font-medium">{supplier.name}</span>
-                  {supplier.region && (
-                    <span className="font-light">{` (${supplier.region})`}</span>
-                  )}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {supplier.email}
-                </p>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   )
 }
 

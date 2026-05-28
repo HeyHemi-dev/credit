@@ -25,6 +25,7 @@ export async function createSupplier(
     ...input,
     name: input.name.trim(),
     email: normalizeEmail(input.email),
+    website: input.website?.trim() ?? null,
     instagramHandle:
       input.instagramHandle && normalizeHandle(input.instagramHandle),
     tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
@@ -36,6 +37,48 @@ export async function createSupplier(
   // Unique email constraint is expected behavior.
   if (error) throw ERROR.RESOURCE_CONFLICT('Supplier email already exists')
   if (rows.length === 0) throw ERROR.DATABASE_ERROR('Failed to create supplier')
+  return rows[0]
+}
+
+type UpdateSupplierInput = Pick<
+  SupplierRow,
+  | 'id'
+  | 'name'
+  | 'email'
+  | 'region'
+  | 'regionsServed'
+  | 'services'
+  | 'website'
+  | 'instagramHandle'
+  | 'tiktokHandle'
+>
+
+export async function updateSupplier(
+  input: UpdateSupplierInput,
+): Promise<SupplierRow> {
+  const normalizedInput = {
+    name: input.name.trim(),
+    email: normalizeEmail(input.email),
+    region: input.region,
+    regionsServed: input.regionsServed,
+    services: input.services,
+    website: input.website?.trim() ?? null,
+    instagramHandle:
+      input.instagramHandle && normalizeHandle(input.instagramHandle),
+    tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
+    updatedAt: new Date(),
+  }
+
+  const { data: rows, error } = await tryCatch(
+    db
+      .update(suppliers)
+      .set(normalizedInput)
+      .where(eq(suppliers.id, input.id))
+      .returning(),
+  )
+
+  if (error) throw ERROR.RESOURCE_CONFLICT('Supplier email already exists')
+  if (rows.length === 0) throw ERROR.RESOURCE_NOT_FOUND('Supplier not found')
   return rows[0]
 }
 

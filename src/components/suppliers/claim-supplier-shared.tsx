@@ -13,6 +13,19 @@ export function ClaimSupplierSummary({
         {supplier.region && (
           <p className="text-muted-foreground">Based in {supplier.region}</p>
         )}
+        {supplier.regionsServed.length > 0 && (
+          <p className="text-muted-foreground">
+            Regions served: {supplier.regionsServed.join(', ')}
+          </p>
+        )}
+        {supplier.services.length > 0 && (
+          <p className="text-muted-foreground">
+            Services: {supplier.services.join(', ')}
+          </p>
+        )}
+        {supplier.website && (
+          <p className="text-muted-foreground">Website: {supplier.website}</p>
+        )}
         {supplier.instagramHandle && (
           <p className="text-muted-foreground">
             Instagram: @{supplier.instagramHandle}

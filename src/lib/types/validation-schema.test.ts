@@ -10,9 +10,12 @@ describe('createSupplierFormSchema', () => {
     const input = {
       name: '  Foo Bar Studio  ',
       email: 'Foo.Bar@Example.COM',
+      region: '',
+      regionsServed: [],
+      services: [],
+      website: '',
       instagramHandle: '@Foo.Bar',
       tiktokHandle: '',
-      region: '',
     }
 
     // Act
@@ -22,10 +25,33 @@ describe('createSupplierFormSchema', () => {
     expect(result).toEqual({
       name: 'Foo Bar Studio',
       email: 'foo.bar@example.com',
+      region: '',
+      regionsServed: [],
+      services: [],
+      website: '',
       instagramHandle: '@foo.bar',
       tiktokHandle: '',
-      region: '',
     })
+  })
+
+  it('rejects duplicate regions served and services', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
+      region: '',
+      regionsServed: ['Auckland', 'Auckland'],
+      services: ['Photographer', 'Photographer'],
+      website: '',
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: '',
+    }
+
+    // Act
+    const result = createSupplierFormSchema.safeParse(input)
+
+    // Assert
+    expect(result.success).toBe(false)
   })
 })
 
@@ -35,9 +61,12 @@ describe('createSupplierSchema', () => {
     const input = {
       name: '  Foo Bar Studio  ',
       email: 'Foo.Bar@Example.COM',
+      region: null,
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'https://example.com',
       instagramHandle: '@Foo.Bar',
       tiktokHandle: null,
-      region: null,
     }
 
     // Act
@@ -47,9 +76,12 @@ describe('createSupplierSchema', () => {
     expect(result).toEqual({
       name: 'Foo Bar Studio',
       email: 'foo.bar@example.com',
+      region: null,
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'https://example.com',
       instagramHandle: 'foo.bar',
       tiktokHandle: null,
-      region: null,
     })
   })
 })

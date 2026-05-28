@@ -60,6 +60,10 @@ export const emptyInputSchema = z.object({})
 export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
 export const serviceSchema = z.enum(SERVICES, 'Invalid service')
+export const websiteSchema = z
+  .string()
+  .trim()
+  .url('Enter a valid website URL')
 export const eventNameSchema = z
   .string()
   .trim()
@@ -73,6 +77,18 @@ export const supplierNameSchema = z
   .string()
   .trim()
   .min(1, 'Supplier name is required')
+
+function hasUniqueItems<T>(values: Array<T>) {
+  return new Set(values).size === values.length
+}
+
+export const regionsServedSchema = z
+  .array(regionSchema)
+  .refine(hasUniqueItems, 'Choose each region only once')
+
+export const servicesSchema = z
+  .array(serviceSchema)
+  .refine(hasUniqueItems, 'Choose each service only once')
 /**
  * Converts a string to a lowercase email address.
  */
@@ -169,9 +185,14 @@ export type SearchSuppliers = z.infer<typeof searchSuppliersSchema>
 export const createSupplierFormSchema = z.object({
   name: supplierNameSchema,
   email: emailSchema,
+  // "Based in" is the supplier's primary home region.
+  region: optionalField(regionSchema),
+  // "Regions served" is where the supplier can work or travel.
+  regionsServed: regionsServedSchema,
+  services: servicesSchema,
+  website: optionalField(websiteSchema),
   instagramHandle: optionalField(instagramHandleSchema),
   tiktokHandle: optionalField(tiktokHandleSchema),
-  region: optionalField(regionSchema),
 })
 export type CreateSupplierForm = z.infer<typeof createSupplierFormSchema>
 
@@ -179,15 +200,21 @@ export type CreateSupplierForm = z.infer<typeof createSupplierFormSchema>
  * Empty strings must be converted to null before validation.
  */
 export const createSupplierSchema = createSupplierFormSchema.extend({
+  region: regionSchema.nullable(),
+  regionsServed: regionsServedSchema,
+  services: servicesSchema,
+  website: websiteSchema.nullable(),
   instagramHandle: instagramHandleSchema
     .nullable()
     .transform((val) => val && stripHandleAtSymbol(val)),
   tiktokHandle: tiktokHandleSchema
     .nullable()
     .transform((val) => val && stripHandleAtSymbol(val)),
-  region: regionSchema.nullable(),
 })
 export type CreateSupplier = z.infer<typeof createSupplierSchema>
+
+export const updateSupplierProfileSchema = createSupplierSchema
+export type UpdateSupplierProfile = z.infer<typeof updateSupplierProfileSchema>
 
 // ===============================
 // Credit Schema
