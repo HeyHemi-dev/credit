@@ -2,7 +2,7 @@ import { useForm } from '@tanstack/react-form'
 import { RadioGroup } from '@base-ui/react'
 import { PillRadioItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
-import type { CreateSupplierForm } from '@/lib/types/validation-schema'
+import type { EditSupplierProfileForm } from '@/lib/types/validation-schema'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
@@ -14,9 +14,9 @@ import {
   SERVICE,
   SERVICE_KEYS,
 } from '@/lib/constants'
-import { useSupplierProfile } from '@/hooks/use-suppliers'
+import { useSupplier } from '@/hooks/use-suppliers'
 import {
-  createSupplierFormSchema,
+  editSupplierProfileFormSchema,
   regionSchema,
 } from '@/lib/types/validation-schema'
 import {
@@ -31,8 +31,8 @@ export function EditSupplierProfileForm({
   supplier: Supplier
   onSaved?: (supplier: Supplier) => void
 }) {
-  const { updateProfileMutation } = useSupplierProfile()
-  const defaultValues: CreateSupplierForm = {
+  const { updateProfileMutation } = useSupplier()
+  const defaultValues: EditSupplierProfileForm = {
     name: supplier.name,
     email: supplier.email,
     region: nullToEmptyString(supplier.region),
@@ -50,7 +50,7 @@ export function EditSupplierProfileForm({
   const form = useForm({
     defaultValues,
     validators: {
-      onSubmit: createSupplierFormSchema,
+      onSubmit: editSupplierProfileFormSchema,
     },
     onSubmit: async ({ value }) => {
       const nextSupplier = await updateProfileMutation.mutateAsync({

@@ -40,9 +40,8 @@ export async function createSupplier(
   return rows[0]
 }
 
-type UpdateSupplierInput = Pick<
+type UpdateSupplierValues = Pick<
   SupplierRow,
-  | 'id'
   | 'name'
   | 'email'
   | 'region'
@@ -54,18 +53,19 @@ type UpdateSupplierInput = Pick<
 >
 
 export async function updateSupplier(
-  input: UpdateSupplierInput,
+  supplierId: string,
+  values: UpdateSupplierValues,
 ): Promise<SupplierRow> {
   const normalizedInput = {
-    name: input.name.trim(),
-    email: normalizeEmail(input.email),
-    region: input.region,
-    regionsServed: input.regionsServed,
-    services: input.services,
-    website: input.website?.trim() ?? null,
+    name: values.name.trim(),
+    email: normalizeEmail(values.email),
+    region: values.region,
+    regionsServed: values.regionsServed,
+    services: values.services,
+    website: values.website?.trim() ?? null,
     instagramHandle:
-      input.instagramHandle && normalizeHandle(input.instagramHandle),
-    tiktokHandle: input.tiktokHandle && normalizeHandle(input.tiktokHandle),
+      values.instagramHandle && normalizeHandle(values.instagramHandle),
+    tiktokHandle: values.tiktokHandle && normalizeHandle(values.tiktokHandle),
     updatedAt: new Date(),
   }
 
@@ -73,7 +73,7 @@ export async function updateSupplier(
     db
       .update(suppliers)
       .set(normalizedInput)
-      .where(eq(suppliers.id, input.id))
+      .where(eq(suppliers.id, supplierId))
       .returning(),
   )
 

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   createSupplierFormSchema,
   createSupplierSchema,
+  editSupplierProfileFormSchema,
+  updateSupplierProfileSchema,
 } from '@/lib/types/validation-schema'
 
 describe('createSupplierFormSchema', () => {
@@ -11,9 +13,6 @@ describe('createSupplierFormSchema', () => {
       name: '  Foo Bar Studio  ',
       email: 'Foo.Bar@Example.COM',
       region: '',
-      regionsServed: [],
-      services: [],
-      website: '',
       instagramHandle: '@Foo.Bar',
       tiktokHandle: '',
     }
@@ -26,14 +25,38 @@ describe('createSupplierFormSchema', () => {
       name: 'Foo Bar Studio',
       email: 'foo.bar@example.com',
       region: '',
-      regionsServed: [],
-      services: [],
-      website: '',
       instagramHandle: '@foo.bar',
       tiktokHandle: '',
     })
   })
+})
 
+describe('createSupplierSchema', () => {
+  it('strips handle prefixes and preserves null optional fields for the API payload', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
+      region: null,
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: null,
+    }
+
+    // Act
+    const result = createSupplierSchema.parse(input)
+
+    // Assert
+    expect(result).toEqual({
+      name: 'Foo Bar Studio',
+      email: 'foo.bar@example.com',
+      region: null,
+      instagramHandle: 'foo.bar',
+      tiktokHandle: null,
+    })
+  })
+})
+
+describe('editSupplierProfileFormSchema', () => {
   it('rejects duplicate regions served and services', () => {
     // Arrange
     const input = {
@@ -48,15 +71,15 @@ describe('createSupplierFormSchema', () => {
     }
 
     // Act
-    const result = createSupplierFormSchema.safeParse(input)
+    const result = editSupplierProfileFormSchema.safeParse(input)
 
     // Assert
     expect(result.success).toBe(false)
   })
 })
 
-describe('createSupplierSchema', () => {
-  it('strips handle prefixes and preserves null optional fields for the API payload', () => {
+describe('updateSupplierProfileSchema', () => {
+  it('strips handles and keeps profile fields ready for saving', () => {
     // Arrange
     const input = {
       name: '  Foo Bar Studio  ',
@@ -70,7 +93,7 @@ describe('createSupplierSchema', () => {
     }
 
     // Act
-    const result = createSupplierSchema.parse(input)
+    const result = updateSupplierProfileSchema.parse(input)
 
     // Assert
     expect(result).toEqual({

@@ -71,6 +71,13 @@
       "when": 1779699801522,
       "tag": "0009_split_archived_enum_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779947808636,
+      "tag": "0010_smiling_speedball",
+      "breakpoints": true
     }
   ]
 }

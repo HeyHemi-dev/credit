@@ -13,13 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
-import {
-  AUTH_STATUS,
-  REGION,
-  REGION_KEYS,
-  SERVICE,
-  SERVICE_KEYS,
-} from '@/lib/constants'
+import { AUTH_STATUS, REGION, REGION_KEYS } from '@/lib/constants'
 import { useSupplier } from '@/hooks/use-suppliers'
 import {
   createSupplierFormSchema,
@@ -34,9 +28,6 @@ const defaultValues: CreateSupplierForm = {
   name: '',
   email: '',
   region: '',
-  regionsServed: [],
-  services: [],
-  website: '',
   instagramHandle: '',
   tiktokHandle: '',
 }
@@ -70,7 +61,6 @@ export function CreateSupplierForm({
       const supplier = await createMutation.mutateAsync({
         ...value,
         region: emptyStringToNull(value.region),
-        website: emptyStringToNull(value.website),
         instagramHandle: emptyStringToNull(value.instagramHandle),
         tiktokHandle: emptyStringToNull(value.tiktokHandle),
       })
@@ -164,92 +154,6 @@ export function CreateSupplierForm({
                   )
                 })}
               </RadioGroup>
-            </FormField>
-          )}
-        />
-
-        <form.Field
-          name="regionsServed"
-          children={(field) => (
-            <FormField
-              field={field}
-              label="Regions served"
-              description="Optional, where this supplier can work or travel."
-            >
-              <div className="flex flex-wrap gap-2">
-                {REGION_KEYS.map((key) => {
-                  const region = REGION[key]
-                  const isSelected = field.state.value.includes(region)
-
-                  return (
-                    <Button
-                      key={key}
-                      type="button"
-                      variant={isSelected ? 'secondary' : 'outline'}
-                      className="rounded-full"
-                      onClick={() =>
-                        field.handleChange(
-                          toggleSelection(field.state.value, region),
-                        )
-                      }
-                    >
-                      {region}
-                    </Button>
-                  )
-                })}
-              </div>
-            </FormField>
-          )}
-        />
-
-        <form.Field
-          name="services"
-          children={(field) => (
-            <FormField
-              field={field}
-              label="Services"
-              description="Optional, what this supplier offers."
-            >
-              <div className="flex flex-wrap gap-2">
-                {SERVICE_KEYS.map((key) => {
-                  const service = SERVICE[key]
-                  const isSelected = field.state.value.includes(service)
-
-                  return (
-                    <Button
-                      key={key}
-                      type="button"
-                      variant={isSelected ? 'secondary' : 'outline'}
-                      className="rounded-full"
-                      onClick={() =>
-                        field.handleChange(
-                          toggleSelection(field.state.value, service),
-                        )
-                      }
-                    >
-                      {service}
-                    </Button>
-                  )
-                })}
-              </div>
-            </FormField>
-          )}
-        />
-
-        <form.Field
-          name="website"
-          children={(field) => (
-            <FormField
-              field={field}
-              label="Website"
-              description="Optional, full website URL."
-            >
-              <Input
-                id={field.name}
-                value={field.state.value}
-                placeholder="https://example.com"
-                onChange={(event) => field.handleChange(event.target.value)}
-              />
             </FormField>
           )}
         />
@@ -422,9 +326,4 @@ function normalizeTiktokInput(input: string) {
     input = input.slice(0, -1)
   }
   return input
-}
-
-function toggleSelection<T>(items: Array<T>, item: T) {
-  if (items.includes(item)) return items.filter((value) => value !== item)
-  return [...items, item]
 }

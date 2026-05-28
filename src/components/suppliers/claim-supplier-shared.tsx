@@ -1,4 +1,5 @@
 import type { Supplier } from '@/lib/types/front-end'
+import { OptionalDetail } from '@/components/ui/optional-detail'
 
 export function ClaimSupplierSummary({
   supplier,
@@ -10,30 +11,20 @@ export function ClaimSupplierSummary({
       <div className="grid gap-1 text-sm">
         <p className="font-medium">{supplier.name}</p>
         <p className="text-muted-foreground">{supplier.email}</p>
-        {supplier.region && (
-          <p className="text-muted-foreground">Based in {supplier.region}</p>
-        )}
-        {supplier.regionsServed.length > 0 && (
-          <p className="text-muted-foreground">
-            Regions served: {supplier.regionsServed.join(', ')}
-          </p>
-        )}
-        {supplier.services.length > 0 && (
-          <p className="text-muted-foreground">
-            Services: {supplier.services.join(', ')}
-          </p>
-        )}
-        {supplier.website && (
-          <p className="text-muted-foreground">Website: {supplier.website}</p>
-        )}
-        {supplier.instagramHandle && (
-          <p className="text-muted-foreground">
-            Instagram: @{supplier.instagramHandle}
-          </p>
-        )}
-        {supplier.tiktokHandle && (
-          <p className="text-muted-foreground">TikTok: @{supplier.tiktokHandle}</p>
-        )}
+        <OptionalDetail value={supplier.region} prefix="Based in " />
+        <OptionalDetail label="Regions served" value={supplier.regionsServed} />
+        <OptionalDetail label="Services" value={supplier.services} />
+        <OptionalDetail label="Website" value={supplier.website} />
+        <OptionalDetail
+          label="Instagram"
+          value={supplier.instagramHandle}
+          prefix="@"
+        />
+        <OptionalDetail
+          label="TikTok"
+          value={supplier.tiktokHandle}
+          prefix="@"
+        />
       </div>
     </div>
   )

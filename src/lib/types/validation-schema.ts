@@ -185,12 +185,7 @@ export type SearchSuppliers = z.infer<typeof searchSuppliersSchema>
 export const createSupplierFormSchema = z.object({
   name: supplierNameSchema,
   email: emailSchema,
-  // "Based in" is the supplier's primary home region.
   region: optionalField(regionSchema),
-  // "Regions served" is where the supplier can work or travel.
-  regionsServed: regionsServedSchema,
-  services: servicesSchema,
-  website: optionalField(websiteSchema),
   instagramHandle: optionalField(instagramHandleSchema),
   tiktokHandle: optionalField(tiktokHandleSchema),
 })
@@ -200,6 +195,36 @@ export type CreateSupplierForm = z.infer<typeof createSupplierFormSchema>
  * Empty strings must be converted to null before validation.
  */
 export const createSupplierSchema = createSupplierFormSchema.extend({
+  region: regionSchema.nullable(),
+  instagramHandle: instagramHandleSchema
+    .nullable()
+    .transform((val) => val && stripHandleAtSymbol(val)),
+  tiktokHandle: tiktokHandleSchema
+    .nullable()
+    .transform((val) => val && stripHandleAtSymbol(val)),
+})
+export type CreateSupplier = z.infer<typeof createSupplierSchema>
+
+export const editSupplierProfileFormSchema = z.object({
+  name: supplierNameSchema,
+  email: emailSchema,
+  // "Based in" is the supplier's primary home region.
+  region: optionalField(regionSchema),
+  // "Regions served" is where the supplier can work or travel.
+  regionsServed: regionsServedSchema,
+  services: servicesSchema,
+  website: optionalField(websiteSchema),
+  instagramHandle: optionalField(instagramHandleSchema),
+  tiktokHandle: optionalField(tiktokHandleSchema),
+})
+export type EditSupplierProfileForm = z.infer<
+  typeof editSupplierProfileFormSchema
+>
+
+/**
+ * Empty strings must be converted to null before validation.
+ */
+export const updateSupplierProfileSchema = editSupplierProfileFormSchema.extend({
   region: regionSchema.nullable(),
   regionsServed: regionsServedSchema,
   services: servicesSchema,
@@ -211,9 +236,6 @@ export const createSupplierSchema = createSupplierFormSchema.extend({
     .nullable()
     .transform((val) => val && stripHandleAtSymbol(val)),
 })
-export type CreateSupplier = z.infer<typeof createSupplierSchema>
-
-export const updateSupplierProfileSchema = createSupplierSchema
 export type UpdateSupplierProfile = z.infer<typeof updateSupplierProfileSchema>
 
 // ===============================

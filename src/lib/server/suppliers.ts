@@ -80,9 +80,6 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
       name: data.name,
       email: data.email,
       region: data.region,
-      regionsServed: data.regionsServed,
-      services: data.services,
-      website: data.website,
       instagramHandle: data.instagramHandle,
       tiktokHandle: data.tiktokHandle,
     })
@@ -102,8 +99,7 @@ export const updateMySupplierProfileFn = createServerFn({ method: 'POST' })
     const claim = await getCurrentSupplierClaim(user.id)
     if (!claim || claim.status !== 'claimed') throw ERROR.FORBIDDEN()
 
-    const supplier = await updateSupplier({
-      id: claim.supplier.id,
+    const supplier = await updateSupplier(claim.supplier.id, {
       name: data.name,
       email: data.email,
       region: data.region,
