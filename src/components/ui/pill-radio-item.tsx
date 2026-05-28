@@ -11,11 +11,48 @@ type PillRadioItemProps = {
   onClick: () => void
 }
 
-type PillPickerItemProps = {
+type PillShellProps = {
+  children: React.ReactNode
+  htmlFor: string
+  isSelected: boolean
+  label: string
+  onClick?: React.MouseEventHandler<HTMLLabelElement>
+}
+
+type PillCheckboxItemProps = {
   id: string
   label: string
   checked: boolean
   onCheckedChange: (checked: boolean) => void
+}
+
+function PillShell({
+  children,
+  htmlFor,
+  isSelected,
+  label,
+  onClick,
+}: PillShellProps) {
+  return (
+    <FieldLabel
+      htmlFor={htmlFor}
+      className={cn(
+        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 outline-none hover:bg-secondary has-data-checked:bg-secondary has-focus-visible:border-ring has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50',
+        isSelected && 'border-primary/50 bg-secondary hover:bg-secondary',
+      )}
+      onClick={onClick}
+    >
+      <FieldTitle
+        className={cn(
+          'px-3 py-1 text-sm font-normal text-muted-foreground',
+          isSelected && 'text-primary',
+        )}
+      >
+        {label}
+      </FieldTitle>
+      {children}
+    </FieldLabel>
+  )
 }
 
 export function PillRadioItem({
@@ -26,59 +63,35 @@ export function PillRadioItem({
   onClick,
 }: PillRadioItemProps) {
   return (
-    <FieldLabel
+    <PillShell
       htmlFor={id}
-      className={cn(
-        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 outline-none hover:bg-secondary has-data-checked:bg-secondary has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
-        isSelected && 'bg-secondary hover:bg-secondary',
-      )}
+      isSelected={isSelected}
+      label={label}
       onClick={(event) => {
         if (!isSelected) return
         event.preventDefault()
         onClick()
       }}
     >
-      <FieldTitle
-        className={cn(
-          'px-3 py-1 text-sm font-normal text-muted-foreground',
-          isSelected && 'text-primary',
-        )}
-      >
-        {label}
-      </FieldTitle>
       <RadioGroupItem
         id={id}
         value={value}
         aria-label={label}
         className="pointer-events-none absolute top-0 left-0 size-0 overflow-hidden border-0 opacity-0"
       />
-    </FieldLabel>
+    </PillShell>
   )
 }
 
 // Keep this visually aligned with PillRadioItem so single- and multi-select pills stay in sync.
-export function PillPickerItem({
+export function PillCheckboxItem({
   id,
   label,
   checked,
   onCheckedChange,
-}: PillPickerItemProps) {
+}: PillCheckboxItemProps) {
   return (
-    <FieldLabel
-      htmlFor={id}
-      className={cn(
-        'relative flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 outline-none hover:bg-secondary has-data-checked:bg-secondary has-[:focus-visible]:border-ring has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
-        checked && 'border-primary/50 bg-secondary hover:bg-secondary',
-      )}
-    >
-      <FieldTitle
-        className={cn(
-          'px-3 py-1 text-sm font-normal text-muted-foreground',
-          checked && 'text-primary',
-        )}
-      >
-        {label}
-      </FieldTitle>
+    <PillShell htmlFor={id} isSelected={checked} label={label}>
       <Checkbox
         id={id}
         checked={checked}
@@ -86,6 +99,6 @@ export function PillPickerItem({
         onCheckedChange={onCheckedChange}
         className="pointer-events-none absolute top-0 left-0 size-0 overflow-hidden border-0 opacity-0"
       />
-    </FieldLabel>
+    </PillShell>
   )
 }

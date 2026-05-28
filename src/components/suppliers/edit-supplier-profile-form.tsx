@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { RadioGroup } from '@base-ui/react'
-import { PillPickerItem, PillRadioItem } from '../ui/pill-radio-item'
+import { PillCheckboxItem, PillRadioItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
 import type { UpdateSupplierProfileForm } from '@/lib/types/validation-schema'
 import { Input } from '@/components/ui/input'
@@ -159,7 +159,7 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(region)
 
                   return (
-                    <PillPickerItem
+                    <PillCheckboxItem
                       key={key}
                       id={`regions-served-${key}`}
                       label={region}
@@ -191,7 +191,7 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(service)
 
                   return (
-                    <PillPickerItem
+                    <PillCheckboxItem
                       key={key}
                       id={`services-${key}`}
                       label={service}
