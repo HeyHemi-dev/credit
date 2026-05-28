@@ -233,31 +233,35 @@ export function EditSupplierProfileForm({
         />
       </FieldGroup>
 
-      <div className="flex justify-end gap-2">
-        {form.state.isDirty && (
-          <Button
-            type="button"
-            variant="link"
-            disabled={
-              form.state.isSubmitting || updateProfileMutation.isPending
-            }
-            onClick={() => form.reset()}
-          >
-            Discard changes
-          </Button>
+      <form.Subscribe
+        selector={(state) => ({
+          isDirty: state.isDirty,
+          isSubmitting: state.isSubmitting,
+        })}
+        children={({ isDirty, isSubmitting }) => (
+          <div className="flex justify-end gap-2">
+            {isDirty && (
+              <Button
+                type="button"
+                variant="link"
+                disabled={isSubmitting || updateProfileMutation.isPending}
+                onClick={() => form.reset()}
+              >
+                Discard changes
+              </Button>
+            )}
+            <Button
+              type="submit"
+              form="edit-supplier-profile-form"
+              disabled={
+                !isDirty || isSubmitting || updateProfileMutation.isPending
+              }
+            >
+              {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
+            </Button>
+          </div>
         )}
-        <Button
-          type="submit"
-          form="edit-supplier-profile-form"
-          disabled={
-            !form.state.isDirty ||
-            form.state.isSubmitting ||
-            updateProfileMutation.isPending
-          }
-        >
-          {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
-        </Button>
-      </div>
+      />
 
       {updateProfileMutation.error?.message && (
         <FormErrorMessage message={updateProfileMutation.error.message} />
