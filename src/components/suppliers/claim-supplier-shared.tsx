@@ -10,9 +10,9 @@ export function ClaimSupplierSummary({
       <div className="grid gap-1 text-sm">
         <p className="font-medium">{supplier.name}</p>
         <p className="text-muted-foreground">{supplier.email}</p>
-        {renderOptionalDetail({ value: supplier.region, prefix: 'Based in ' })}
+        {renderOptionalDetail({ label: 'Based in', value: supplier.region })}
         {renderOptionalDetail({
-          label: 'Regions served',
+          label: 'Serves',
           value: supplier.regionsServed,
         })}
         {renderOptionalDetail({
@@ -25,13 +25,11 @@ export function ClaimSupplierSummary({
         })}
         {renderOptionalDetail({
           label: 'Instagram',
-          value: supplier.instagramHandle,
-          prefix: '@',
+          value: supplier.instagramHandle && `@${supplier.instagramHandle}`,
         })}
         {renderOptionalDetail({
           label: 'TikTok',
-          value: supplier.tiktokHandle,
-          prefix: '@',
+          value: supplier.tiktokHandle && `@${supplier.tiktokHandle}`,
         })}
       </div>
     </div>
@@ -40,11 +38,9 @@ export function ClaimSupplierSummary({
 
 function renderOptionalDetail({
   label,
-  prefix,
   value,
 }: {
   label?: string
-  prefix?: string
   value: string | Array<string> | null | undefined
 }) {
   const content = Array.isArray(value) ? value.join(', ') : value
@@ -53,7 +49,6 @@ function renderOptionalDetail({
   return (
     <p className="text-muted-foreground">
       {label ? `${label}: ` : ''}
-      {prefix ?? ''}
       {content}
     </p>
   )
