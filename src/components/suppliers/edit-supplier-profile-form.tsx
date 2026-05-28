@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
-import { FieldGroup } from '@/components/ui/field'
+import { FieldGroup, FieldTitle } from '@/components/ui/field'
 import {
   REGION,
   REGION_KEYS,
@@ -23,6 +23,7 @@ import {
   emptyStringToNull,
   nullToEmptyString,
 } from '@/lib/empty-strings'
+import { cn } from '@/lib/utils'
 
 export function EditSupplierProfileForm({
   supplier,
@@ -159,11 +160,9 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(region)
 
                   return (
-                    <Button
+                    <ProfilePickerPill
                       key={key}
-                      type="button"
-                      variant={isSelected ? 'secondary' : 'outline'}
-                      className="rounded-full"
+                      isSelected={isSelected}
                       onClick={() =>
                         field.handleChange(
                           toggleSelection(field.state.value, region),
@@ -171,7 +170,7 @@ export function EditSupplierProfileForm({
                       }
                     >
                       {region}
-                    </Button>
+                    </ProfilePickerPill>
                   )
                 })}
               </div>
@@ -193,11 +192,9 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(service)
 
                   return (
-                    <Button
+                    <ProfilePickerPill
                       key={key}
-                      type="button"
-                      variant={isSelected ? 'secondary' : 'outline'}
-                      className="rounded-full"
+                      isSelected={isSelected}
                       onClick={() =>
                         field.handleChange(
                           toggleSelection(field.state.value, service),
@@ -205,28 +202,10 @@ export function EditSupplierProfileForm({
                       }
                     >
                       {service}
-                    </Button>
+                    </ProfilePickerPill>
                   )
                 })}
               </div>
-            </FormField>
-          )}
-        />
-
-        <form.Field
-          name="website"
-          children={(field) => (
-            <FormField
-              field={field}
-              label="Website"
-              description="Full website URL."
-            >
-              <Input
-                id={field.name}
-                value={field.state.value}
-                placeholder="https://example.com"
-                onChange={(event) => field.handleChange(event.target.value)}
-              />
             </FormField>
           )}
         />
@@ -272,21 +251,34 @@ export function EditSupplierProfileForm({
             </FormField>
           )}
         />
+
+        <form.Field
+          name="website"
+          children={(field) => (
+            <FormField
+              field={field}
+              label="Website"
+              description="Full website URL."
+            >
+              <Input
+                id={field.name}
+                value={field.state.value}
+                placeholder="https://example.com"
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
       </FieldGroup>
 
-      <div className="grid gap-2">
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            form="edit-supplier-profile-form"
-            disabled={form.state.isSubmitting || updateProfileMutation.isPending}
-          >
-            {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
-          </Button>
-        </div>
-        <p className="text-right text-xs text-muted-foreground/60">
-          Keep these details current so couples and photographers can credit you correctly.
-        </p>
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          form="edit-supplier-profile-form"
+          disabled={form.state.isSubmitting || updateProfileMutation.isPending}
+        >
+          {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
+        </Button>
       </div>
 
       {updateProfileMutation.error?.message && (
@@ -324,4 +316,34 @@ function normalizeTiktokInput(input: string) {
 function toggleSelection<T>(items: Array<T>, item: T) {
   if (items.includes(item)) return items.filter((value) => value !== item)
   return [...items, item]
+}
+
+function ProfilePickerPill({
+  children,
+  isSelected,
+  onClick,
+}: {
+  children: React.ReactNode
+  isSelected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        'label flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-background',
+        isSelected && 'bg-secondary hover:bg-secondary',
+      )}
+      onClick={onClick}
+    >
+      <FieldTitle
+        className={cn(
+          'px-3 py-1 text-sm font-normal text-muted-foreground',
+          isSelected && 'text-primary',
+        )}
+      >
+        {children}
+      </FieldTitle>
+    </button>
+  )
 }

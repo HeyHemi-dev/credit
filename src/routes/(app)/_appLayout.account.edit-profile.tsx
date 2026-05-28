@@ -50,10 +50,10 @@ function AccountEditProfileViewClient() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg leading-none font-semibold md:text-xl">
-            Edit supplier profile
+            {`Edit profile for ${claim.supplier.name}`}
           </CardTitle>
           <CardDescription className="text-xs md:text-sm">
-            Update the business details shown for your claimed supplier profile.
+            Update your public business details so you can be credited correctly.
           </CardDescription>
         </CardHeader>
         <CardContent>
