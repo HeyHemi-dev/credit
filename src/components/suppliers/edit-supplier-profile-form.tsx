@@ -1,6 +1,5 @@
 import { useForm } from '@tanstack/react-form'
-import { RadioGroup } from '@base-ui/react'
-import { PillCheckboxItem, PillRadioItem } from '../ui/pill-radio-item'
+import { PillCheckboxItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
 import type { UpdateSupplierProfileForm } from '@/lib/types/validation-schema'
 import { Input } from '@/components/ui/input'
@@ -8,6 +7,13 @@ import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { REGION, REGION_KEYS, SERVICE, SERVICE_KEYS } from '@/lib/constants'
 import { useSupplierProfile } from '@/hooks/use-suppliers'
 import {
@@ -92,30 +98,38 @@ export function EditSupplierProfileForm({
               label="Primary region"
               description="Where this supplier is based"
             >
-              <RadioGroup
-                value={field.state.value}
+              <Select
+                value={
+                  field.state.value === '' ? NO_REGION_VALUE : field.state.value
+                }
                 onValueChange={(value) => {
+                  if (value === NO_REGION_VALUE) {
+                    field.handleChange('')
+                    return
+                  }
+
                   const { data: region } = regionSchema.safeParse(value)
                   field.handleChange(region ?? '')
                 }}
-                className="flex flex-wrap gap-2"
               >
-                {REGION_KEYS.map((key) => {
-                  const region = REGION[key]
-                  const isSelected = field.state.value === region
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue>
+                    {field.state.value === '' ? 'None' : field.state.value}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_REGION_VALUE}>--- None ---</SelectItem>
+                  {REGION_KEYS.map((key) => {
+                    const region = REGION[key]
 
-                  return (
-                    <PillRadioItem
-                      key={key}
-                      id={key}
-                      value={region}
-                      label={region}
-                      isSelected={isSelected}
-                      onClick={() => field.handleChange('')}
-                    />
-                  )
-                })}
-              </RadioGroup>
+                    return (
+                      <SelectItem key={key} value={region}>
+                        {region}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
             </FormField>
           )}
         />
@@ -299,6 +313,8 @@ function toggleSelection<T>(items: Array<T>, item: T) {
   if (items.includes(item)) return items.filter((value) => value !== item)
   return [...items, item]
 }
+
+const NO_REGION_VALUE = '__none__'
 
 function mapSupplierToFormValues(
   supplier: Supplier,
