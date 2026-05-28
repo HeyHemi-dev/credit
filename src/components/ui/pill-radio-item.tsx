@@ -10,6 +10,12 @@ type PillRadioItemProps = {
   onClick: () => void
 }
 
+type PillPickerItemProps = {
+  children: React.ReactNode
+  isSelected: boolean
+  onClick: () => void
+}
+
 export function PillRadioItem({
   id,
   value,
@@ -45,5 +51,32 @@ export function PillRadioItem({
         className="pointer-events-none absolute top-0 left-0 size-0 overflow-hidden border-0 opacity-0"
       />
     </FieldLabel>
+  )
+}
+
+// Keep this visually aligned with PillRadioItem so single- and multi-select pills stay in sync.
+export function PillPickerItem({
+  children,
+  isSelected,
+  onClick,
+}: PillPickerItemProps) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        'flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary',
+        isSelected && 'border-primary/50 bg-secondary hover:bg-secondary',
+      )}
+      onClick={onClick}
+    >
+      <FieldTitle
+        className={cn(
+          'px-3 py-1 text-sm font-normal text-muted-foreground',
+          isSelected && 'text-primary',
+        )}
+      >
+        {children}
+      </FieldTitle>
+    </button>
   )
 }

@@ -1,13 +1,13 @@
 import { useForm } from '@tanstack/react-form'
 import { RadioGroup } from '@base-ui/react'
-import { PillRadioItem } from '../ui/pill-radio-item'
+import { PillPickerItem, PillRadioItem } from '../ui/pill-radio-item'
 import type { Supplier } from '@/lib/types/front-end'
 import type { UpdateSupplierProfileForm } from '@/lib/types/validation-schema'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
-import { FieldGroup, FieldTitle } from '@/components/ui/field'
+import { FieldGroup } from '@/components/ui/field'
 import {
   REGION,
   REGION_KEYS,
@@ -23,7 +23,6 @@ import {
   emptyStringToNull,
   nullToEmptyString,
 } from '@/lib/empty-strings'
-import { cn } from '@/lib/utils'
 
 export function EditSupplierProfileForm({
   supplier,
@@ -160,7 +159,7 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(region)
 
                   return (
-                    <ProfilePickerPill
+                    <PillPickerItem
                       key={key}
                       isSelected={isSelected}
                       onClick={() =>
@@ -170,7 +169,7 @@ export function EditSupplierProfileForm({
                       }
                     >
                       {region}
-                    </ProfilePickerPill>
+                    </PillPickerItem>
                   )
                 })}
               </div>
@@ -192,7 +191,7 @@ export function EditSupplierProfileForm({
                   const isSelected = field.state.value.includes(service)
 
                   return (
-                    <ProfilePickerPill
+                    <PillPickerItem
                       key={key}
                       isSelected={isSelected}
                       onClick={() =>
@@ -202,7 +201,7 @@ export function EditSupplierProfileForm({
                       }
                     >
                       {service}
-                    </ProfilePickerPill>
+                    </PillPickerItem>
                   )
                 })}
               </div>
@@ -316,34 +315,4 @@ function normalizeTiktokInput(input: string) {
 function toggleSelection<T>(items: Array<T>, item: T) {
   if (items.includes(item)) return items.filter((value) => value !== item)
   return [...items, item]
-}
-
-function ProfilePickerPill({
-  children,
-  isSelected,
-  onClick,
-}: {
-  children: React.ReactNode
-  isSelected: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        'flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary',
-        isSelected && 'border-primary/50 bg-secondary hover:bg-secondary',
-      )}
-      onClick={onClick}
-    >
-      <FieldTitle
-        className={cn(
-          'px-3 py-1 text-sm font-normal text-muted-foreground',
-          isSelected && 'text-primary',
-        )}
-      >
-        {children}
-      </FieldTitle>
-    </button>
-  )
 }
