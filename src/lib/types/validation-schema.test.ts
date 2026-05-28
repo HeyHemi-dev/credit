@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createSupplierFormSchema,
   createSupplierSchema,
-  editSupplierProfileFormSchema,
+  updateSupplierProfileFormSchema,
   updateSupplierProfileSchema,
 } from '@/lib/types/validation-schema'
 
@@ -56,7 +56,7 @@ describe('createSupplierSchema', () => {
   })
 })
 
-describe('editSupplierProfileFormSchema', () => {
+describe('updateSupplierProfileFormSchema', () => {
   it('rejects duplicate regions served and services', () => {
     // Arrange
     const input = {
@@ -71,7 +71,7 @@ describe('editSupplierProfileFormSchema', () => {
     }
 
     // Act
-    const result = editSupplierProfileFormSchema.safeParse(input)
+    const result = updateSupplierProfileFormSchema.safeParse(input)
 
     // Assert
     expect(result.success).toBe(false)

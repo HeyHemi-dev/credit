@@ -205,7 +205,7 @@ export const createSupplierSchema = createSupplierFormSchema.extend({
 })
 export type CreateSupplier = z.infer<typeof createSupplierSchema>
 
-export const editSupplierProfileFormSchema = z.object({
+export const updateSupplierProfileFormSchema = z.object({
   name: supplierNameSchema,
   email: emailSchema,
   // "Based in" is the supplier's primary home region.
@@ -217,14 +217,14 @@ export const editSupplierProfileFormSchema = z.object({
   instagramHandle: optionalField(instagramHandleSchema),
   tiktokHandle: optionalField(tiktokHandleSchema),
 })
-export type EditSupplierProfileForm = z.infer<
-  typeof editSupplierProfileFormSchema
+export type UpdateSupplierProfileForm = z.infer<
+  typeof updateSupplierProfileFormSchema
 >
 
 /**
  * Empty strings must be converted to null before validation.
  */
-export const updateSupplierProfileSchema = editSupplierProfileFormSchema.extend({
+export const updateSupplierProfileSchema = updateSupplierProfileFormSchema.extend({
   region: regionSchema.nullable(),
   regionsServed: regionsServedSchema,
   services: servicesSchema,

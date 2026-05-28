@@ -42,15 +42,11 @@ export function useSupplierSearch(eventId: string) {
   }
 }
 
-export function useSupplier(authToken?: AuthToken) {
-  const queryClient = useQueryClient()
+export function useSupplier(authToken: AuthToken) {
   const createSupplier = useServerFn(createSupplierFn)
-  const updateMySupplierProfile = useServerFn(updateMySupplierProfileFn)
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateSupplier) => {
-      if (!authToken) throw new Error('Auth token is required to create a supplier')
-
       const supplier = await createSupplier({
         data: { ...data, authToken },
       })
@@ -58,6 +54,13 @@ export function useSupplier(authToken?: AuthToken) {
       return supplier
     },
   })
+
+  return { createMutation }
+}
+
+export function useSupplierProfile() {
+  const queryClient = useQueryClient()
+  const updateMySupplierProfile = useServerFn(updateMySupplierProfileFn)
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: UpdateSupplierProfile) => {
@@ -75,7 +78,7 @@ export function useSupplier(authToken?: AuthToken) {
     },
   })
 
-  return { createMutation, updateProfileMutation }
+  return { updateProfileMutation }
 }
 
 export function useSupplierPrefill(

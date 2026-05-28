@@ -1,5 +1,4 @@
 import type { Supplier } from '@/lib/types/front-end'
-import { OptionalDetail } from '@/components/ui/optional-detail'
 
 export function ClaimSupplierSummary({
   supplier,
@@ -11,21 +10,51 @@ export function ClaimSupplierSummary({
       <div className="grid gap-1 text-sm">
         <p className="font-medium">{supplier.name}</p>
         <p className="text-muted-foreground">{supplier.email}</p>
-        <OptionalDetail value={supplier.region} prefix="Based in " />
-        <OptionalDetail label="Regions served" value={supplier.regionsServed} />
-        <OptionalDetail label="Services" value={supplier.services} />
-        <OptionalDetail label="Website" value={supplier.website} />
-        <OptionalDetail
-          label="Instagram"
-          value={supplier.instagramHandle}
-          prefix="@"
-        />
-        <OptionalDetail
-          label="TikTok"
-          value={supplier.tiktokHandle}
-          prefix="@"
-        />
+        {renderOptionalDetail({ value: supplier.region, prefix: 'Based in ' })}
+        {renderOptionalDetail({
+          label: 'Regions served',
+          value: supplier.regionsServed,
+        })}
+        {renderOptionalDetail({
+          label: 'Services',
+          value: supplier.services,
+        })}
+        {renderOptionalDetail({
+          label: 'Website',
+          value: supplier.website,
+        })}
+        {renderOptionalDetail({
+          label: 'Instagram',
+          value: supplier.instagramHandle,
+          prefix: '@',
+        })}
+        {renderOptionalDetail({
+          label: 'TikTok',
+          value: supplier.tiktokHandle,
+          prefix: '@',
+        })}
       </div>
     </div>
+  )
+}
+
+function renderOptionalDetail({
+  label,
+  prefix,
+  value,
+}: {
+  label?: string
+  prefix?: string
+  value: string | Array<string> | null | undefined
+}) {
+  const content = Array.isArray(value) ? value.join(', ') : value
+  if (!content) return null
+
+  return (
+    <p className="text-muted-foreground">
+      {label ? `${label}: ` : ''}
+      {prefix ?? ''}
+      {content}
+    </p>
   )
 }
