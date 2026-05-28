@@ -8,21 +8,13 @@ import { Button } from '@/components/ui/button'
 import { FormField } from '@/components/ui/form-field'
 import { FormErrorMessage } from '@/components/ui/form-error-message'
 import { FieldGroup } from '@/components/ui/field'
-import {
-  REGION,
-  REGION_KEYS,
-  SERVICE,
-  SERVICE_KEYS,
-} from '@/lib/constants'
+import { REGION, REGION_KEYS, SERVICE, SERVICE_KEYS } from '@/lib/constants'
 import { useSupplierProfile } from '@/hooks/use-suppliers'
 import {
   regionSchema,
   updateSupplierProfileFormSchema,
 } from '@/lib/types/validation-schema'
-import {
-  emptyStringToNull,
-  nullToEmptyString,
-} from '@/lib/empty-strings'
+import { emptyStringToNull, nullToEmptyString } from '@/lib/empty-strings'
 
 export function EditSupplierProfileForm({
   supplier,
@@ -32,20 +24,7 @@ export function EditSupplierProfileForm({
   onSaved?: (supplier: Supplier) => void
 }) {
   const { updateProfileMutation } = useSupplierProfile()
-  const defaultValues: UpdateSupplierProfileForm = {
-    name: supplier.name,
-    email: supplier.email,
-    region: nullToEmptyString(supplier.region),
-    regionsServed: supplier.regionsServed,
-    services: supplier.services,
-    website: nullToEmptyString(supplier.website),
-    instagramHandle: nullToEmptyString(
-      supplier.instagramHandle ? `@${supplier.instagramHandle}` : null,
-    ),
-    tiktokHandle: nullToEmptyString(
-      supplier.tiktokHandle ? `@${supplier.tiktokHandle}` : null,
-    ),
-  }
+  const defaultValues = mapSupplierToFormValues(supplier)
 
   const form = useForm({
     defaultValues,
@@ -60,6 +39,7 @@ export function EditSupplierProfileForm({
         instagramHandle: emptyStringToNull(value.instagramHandle),
         tiktokHandle: emptyStringToNull(value.tiktokHandle),
       })
+      form.reset(mapSupplierToFormValues(nextSupplier))
       onSaved?.(nextSupplier)
     },
   })
@@ -253,7 +233,19 @@ export function EditSupplierProfileForm({
         />
       </FieldGroup>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {form.state.isDirty && (
+          <Button
+            type="button"
+            variant="link"
+            disabled={
+              form.state.isSubmitting || updateProfileMutation.isPending
+            }
+            onClick={() => form.reset()}
+          >
+            Discard changes
+          </Button>
+        )}
         <Button
           type="submit"
           form="edit-supplier-profile-form"
@@ -302,4 +294,23 @@ function normalizeTiktokInput(input: string) {
 function toggleSelection<T>(items: Array<T>, item: T) {
   if (items.includes(item)) return items.filter((value) => value !== item)
   return [...items, item]
+}
+
+function mapSupplierToFormValues(
+  supplier: Supplier,
+): UpdateSupplierProfileForm {
+  return {
+    name: supplier.name,
+    email: supplier.email,
+    region: nullToEmptyString(supplier.region),
+    regionsServed: supplier.regionsServed,
+    services: supplier.services,
+    website: nullToEmptyString(supplier.website),
+    instagramHandle: nullToEmptyString(
+      supplier.instagramHandle ? `@${supplier.instagramHandle}` : null,
+    ),
+    tiktokHandle: nullToEmptyString(
+      supplier.tiktokHandle ? `@${supplier.tiktokHandle}` : null,
+    ),
+  }
 }
