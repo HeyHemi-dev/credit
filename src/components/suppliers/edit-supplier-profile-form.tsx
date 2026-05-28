@@ -257,7 +257,11 @@ export function EditSupplierProfileForm({
         <Button
           type="submit"
           form="edit-supplier-profile-form"
-          disabled={form.state.isSubmitting || updateProfileMutation.isPending}
+          disabled={
+            !form.state.isDirty ||
+            form.state.isSubmitting ||
+            updateProfileMutation.isPending
+          }
         >
           {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
         </Button>
