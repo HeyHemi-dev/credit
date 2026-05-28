@@ -331,8 +331,8 @@ function ProfilePickerPill({
     <button
       type="button"
       className={cn(
-        'label flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-background',
-        isSelected && 'bg-secondary hover:bg-secondary',
+        'flex cursor-pointer gap-0 rounded-full border border-input bg-input/30 p-0 hover:bg-secondary',
+        isSelected && 'border-primary/50 bg-secondary hover:bg-secondary',
       )}
       onClick={onClick}
     >
