@@ -1,5 +1,4 @@
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
-import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import type { SupplierClaim } from '@/lib/types/front-end'
 import { AccountNav } from '@/components/auth/account-nav'

@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { CopyButton } from '@/components/copy-button'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { useEvents } from '@/hooks/use-events'
+import { formatDate, parseDrizzleDateStringToDate } from '@/lib/format-dates'
 
 import {
   EventListStatus,
@@ -59,7 +60,7 @@ export function EventListItem({ event }: { event: EventListItem }) {
       >
         <div className="font-medium">{event.eventName}</div>
         <div className="text-sm text-muted-foreground">
-          {event.weddingDate}
+          {formatDate(parseDrizzleDateStringToDate(event.weddingDate))}
           {event.supplierCount > 0 && ` • ${event.supplierCount} tags`}
         </div>
       </Link>
