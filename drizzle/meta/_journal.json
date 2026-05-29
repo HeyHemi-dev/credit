@@ -78,6 +78,13 @@
       "when": 1779947808636,
       "tag": "0010_smiling_speedball",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1780021724942,
+      "tag": "0011_large_virginia_dare",
+      "breakpoints": true
     }
   ]
 }
