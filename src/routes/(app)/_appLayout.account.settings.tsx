@@ -101,7 +101,8 @@ function getClaimSupplierCardState(claim: SupplierClaim | null) {
     return {
       state: 'claimed' as const,
       title: 'Supplier profile linked',
-      description: '',
+      description: `${claim.supplier.name} is linked to your account. You can now manage this
+        supplier profile and keep its details up to date.`,
       claim,
     }
   }

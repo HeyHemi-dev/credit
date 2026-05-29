@@ -10,26 +10,10 @@ export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
   const navigate = useNavigate()
 
   return (
-    <div className="grid gap-6">
-      <p className="text-sm text-muted-foreground">
-        {supplier.name} is linked to your account. You can now manage this
-        supplier profile and keep its details up to date.
-      </p>
-
-      <ClaimSupplierSummary supplier={supplier} />
-
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={() => navigate({ to: '/account/edit-profile' })}
-        >
-          Edit supplier profile
-        </Button>
-      </div>
-
-      <div className="grid gap-2">
+    <div className="grid gap-12">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="text-sm text-muted-foreground">
-          Need to stop managing this profile?
+          Stop managing this profile:
         </p>
         <div>
           <Button
@@ -41,7 +25,7 @@ export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
           >
             {archiveClaimMutation.isPending
               ? 'Disconnecting…'
-              : 'Disconnect supplier profile'}
+              : `Disconnect ${supplier.name}`}
           </Button>
         </div>
       </div>
@@ -49,6 +33,19 @@ export function ClaimSupplierVerified({ supplier }: { supplier: Supplier }) {
       {archiveClaimMutation.error?.message && (
         <FormErrorMessage message={archiveClaimMutation.error.message} />
       )}
+
+      <div className="grid gap-6">
+        <ClaimSupplierSummary supplier={supplier} />
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            onClick={() => navigate({ to: '/account/edit-profile' })}
+          >
+            Edit supplier profile
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
