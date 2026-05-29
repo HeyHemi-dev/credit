@@ -46,7 +46,6 @@ function AccountSettingsViewClient() {
   return (
     <AuthUiShell>
       <div className="grid w-full content-start gap-4 md:gap-6">
-        <UpdateNameCard />
         <ClaimSupplierCard />
       </div>
     </AuthUiShell>
