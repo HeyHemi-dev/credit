@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   createSupplierFormSchema,
   createSupplierSchema,
+  updateSupplierProfileFormSchema,
+  updateSupplierProfileSchema,
 } from '@/lib/types/validation-schema'
 
 describe('createSupplierFormSchema', () => {
@@ -10,9 +12,9 @@ describe('createSupplierFormSchema', () => {
     const input = {
       name: '  Foo Bar Studio  ',
       email: 'Foo.Bar@Example.COM',
+      region: '',
       instagramHandle: '@Foo.Bar',
       tiktokHandle: '',
-      region: '',
     }
 
     // Act
@@ -22,9 +24,9 @@ describe('createSupplierFormSchema', () => {
     expect(result).toEqual({
       name: 'Foo Bar Studio',
       email: 'foo.bar@example.com',
+      region: '',
       instagramHandle: '@foo.bar',
       tiktokHandle: '',
-      region: '',
     })
   })
 })
@@ -35,9 +37,9 @@ describe('createSupplierSchema', () => {
     const input = {
       name: '  Foo Bar Studio  ',
       email: 'Foo.Bar@Example.COM',
+      region: null,
       instagramHandle: '@Foo.Bar',
       tiktokHandle: null,
-      region: null,
     }
 
     // Act
@@ -47,9 +49,82 @@ describe('createSupplierSchema', () => {
     expect(result).toEqual({
       name: 'Foo Bar Studio',
       email: 'foo.bar@example.com',
+      region: null,
       instagramHandle: 'foo.bar',
       tiktokHandle: null,
+    })
+  })
+})
+
+describe('updateSupplierProfileFormSchema', () => {
+  it('rejects duplicate regions served and services', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
+      region: '',
+      regionsServed: ['Auckland', 'Auckland'],
+      services: ['Photographer', 'Photographer'],
+      website: '',
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: '',
+    }
+
+    // Act
+    const result = updateSupplierProfileFormSchema.safeParse(input)
+
+    // Assert
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects website URLs that do not use http or https', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
+      region: '',
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'ftp://example.com',
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: '',
+    }
+
+    // Act
+    const result = updateSupplierProfileFormSchema.safeParse(input)
+
+    // Assert
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('updateSupplierProfileSchema', () => {
+  it('strips handles and keeps profile fields ready for saving', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
       region: null,
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'https://example.com',
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: null,
+    }
+
+    // Act
+    const result = updateSupplierProfileSchema.parse(input)
+
+    // Assert
+    expect(result).toEqual({
+      name: 'Foo Bar Studio',
+      email: 'foo.bar@example.com',
+      region: null,
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'https://example.com',
+      instagramHandle: 'foo.bar',
+      tiktokHandle: null,
     })
   })
 })

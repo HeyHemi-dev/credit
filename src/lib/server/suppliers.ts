@@ -7,12 +7,14 @@ import {
   dedupeSuppliersSchema,
   getSupplierSchema,
   searchSuppliersSchema,
+  updateSupplierProfileSchema,
 } from '@/lib/types/validation-schema'
 import {
   createSupplier,
   findSupplierDedupeCandidates,
   getSupplierById,
   searchSuppliers,
+  updateSupplier,
 } from '@/db/queries/suppliers'
 import { isValidAuthToken } from '@/lib/server/auth'
 import { ERROR } from '@/lib/errors'
@@ -77,9 +79,35 @@ export const createSupplierFn = createServerFn({ method: 'POST' })
     const supplier = await createSupplier({
       name: data.name,
       email: data.email,
+      region: data.region,
       instagramHandle: data.instagramHandle,
       tiktokHandle: data.tiktokHandle,
+    })
+
+    return mapSupplierToSearchResult(supplier)
+  })
+
+export const updateMySupplierProfileFn = createServerFn({ method: 'POST' })
+  .inputValidator(updateSupplierProfileSchema)
+  .handler(async ({ data }): Promise<Supplier> => {
+    const { requireValidatedSession } = await import('@/db/queries/auth')
+    const { getCurrentSupplierClaim } = await import(
+      '@/lib/server/supplier-claim-state'
+    )
+
+    const { user } = await requireValidatedSession()
+    const claim = await getCurrentSupplierClaim(user.id)
+    if (!claim || claim.status !== 'claimed') throw ERROR.FORBIDDEN()
+
+    const supplier = await updateSupplier(claim.supplier.id, {
+      name: data.name,
+      email: data.email,
       region: data.region,
+      regionsServed: data.regionsServed,
+      services: data.services,
+      website: data.website,
+      instagramHandle: data.instagramHandle,
+      tiktokHandle: data.tiktokHandle,
     })
 
     return mapSupplierToSearchResult(supplier)
@@ -91,6 +119,9 @@ function mapSupplierToSearchResult(supplier: SupplierRow): Supplier {
     name: supplier.name,
     email: supplier.email,
     region: supplier.region,
+    regionsServed: supplier.regionsServed,
+    services: supplier.services,
+    website: supplier.website,
     instagramHandle: supplier.instagramHandle,
     tiktokHandle: supplier.tiktokHandle,
   }

@@ -1,0 +1,320 @@
+import { useForm } from '@tanstack/react-form'
+import { PillCheckboxItem } from '../ui/pill-radio-item'
+import type { Supplier } from '@/lib/types/front-end'
+import type { UpdateSupplierProfileForm } from '@/lib/types/validation-schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { FormField } from '@/components/ui/form-field'
+import { FormErrorMessage } from '@/components/ui/form-error-message'
+import { FieldGroup } from '@/components/ui/field'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { REGION, REGION_KEYS, SERVICE, SERVICE_KEYS } from '@/lib/constants'
+import { useSupplierProfile } from '@/hooks/use-suppliers'
+import {
+  regionSchema,
+  updateSupplierProfileFormSchema,
+} from '@/lib/types/validation-schema'
+import { emptyStringToNull, nullToEmptyString } from '@/lib/empty-strings'
+import {
+  normalizeInstagramInput,
+  normalizeTiktokInput,
+} from '@/lib/normalize-social-inputs'
+
+export function EditSupplierProfileForm({
+  supplier,
+  onSaved,
+}: {
+  supplier: Supplier
+  onSaved?: (supplier: Supplier) => void
+}) {
+  const { updateProfileMutation } = useSupplierProfile()
+  const defaultValues = mapSupplierToFormValues(supplier)
+
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: updateSupplierProfileFormSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const nextSupplier = await updateProfileMutation.mutateAsync({
+        ...value,
+        region: emptyStringToNull(value.region),
+        website: emptyStringToNull(value.website),
+        instagramHandle: emptyStringToNull(value.instagramHandle),
+        tiktokHandle: emptyStringToNull(value.tiktokHandle),
+      })
+      form.reset(mapSupplierToFormValues(nextSupplier))
+      onSaved?.(nextSupplier)
+    },
+  })
+
+  return (
+    <form
+      id="edit-supplier-profile-form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit()
+      }}
+      className="grid gap-9"
+    >
+      <FieldGroup className="grid gap-6">
+        <form.Field
+          name="name"
+          children={(field) => (
+            <FormField field={field} label="Name" isRequired>
+              <Input
+                id={field.name}
+                placeholder="Business name"
+                autoComplete="off"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="email"
+          children={(field) => (
+            <FormField field={field} label="Contact email" isRequired>
+              <Input
+                id={field.name}
+                placeholder="Email address"
+                autoComplete="off"
+                value={field.state.value}
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="region"
+          children={(field) => (
+            <FormField
+              field={field}
+              label="Primary region"
+              description="Where this supplier is based"
+            >
+              <Select
+                value={
+                  field.state.value === '' ? NO_REGION_VALUE : field.state.value
+                }
+                onValueChange={(value) => {
+                  if (value === NO_REGION_VALUE) {
+                    field.handleChange('')
+                    return
+                  }
+
+                  const { data: region } = regionSchema.safeParse(value)
+                  field.handleChange(region ?? '')
+                }}
+              >
+                <SelectTrigger id={field.name} className="w-full">
+                  <SelectValue>
+                    {field.state.value === '' ? 'None' : field.state.value}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_REGION_VALUE}>--- None ---</SelectItem>
+                  {REGION_KEYS.map((key) => {
+                    const region = REGION[key]
+
+                    return (
+                      <SelectItem key={key} value={region}>
+                        {region}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="regionsServed"
+          children={(field) => (
+            <FormField
+              field={field}
+              label="Regions served"
+              description="Where this supplier can work or travel."
+            >
+              <div className="flex flex-wrap gap-2">
+                {REGION_KEYS.map((key) => {
+                  const region = REGION[key]
+                  const isSelected = field.state.value.includes(region)
+
+                  return (
+                    <PillCheckboxItem
+                      key={key}
+                      id={`regions-served-${key}`}
+                      label={region}
+                      checked={isSelected}
+                      onCheckedChange={() =>
+                        field.handleChange(
+                          toggleSelection(field.state.value, region),
+                        )
+                      }
+                    />
+                  )
+                })}
+              </div>
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="services"
+          children={(field) => (
+            <FormField
+              field={field}
+              label="Services"
+              description="What this supplier offers."
+            >
+              <div className="flex flex-wrap gap-2">
+                {SERVICE_KEYS.map((key) => {
+                  const service = SERVICE[key]
+                  const isSelected = field.state.value.includes(service)
+
+                  return (
+                    <PillCheckboxItem
+                      key={key}
+                      id={`services-${key}`}
+                      label={service}
+                      checked={isSelected}
+                      onCheckedChange={() =>
+                        field.handleChange(
+                          toggleSelection(field.state.value, service),
+                        )
+                      }
+                    />
+                  )
+                })}
+              </div>
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="instagramHandle"
+          children={(field) => (
+            <FormField field={field} label="Instagram handle">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                placeholder="@supplier"
+                onChange={(event) => {
+                  field.handleChange(
+                    normalizeInstagramInput(event.target.value),
+                  )
+                }}
+              />
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="tiktokHandle"
+          children={(field) => (
+            <FormField field={field} label="TikTok handle">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                placeholder="@supplier"
+                onChange={(event) =>
+                  field.handleChange(normalizeTiktokInput(event.target.value))
+                }
+              />
+            </FormField>
+          )}
+        />
+
+        <form.Field
+          name="website"
+          children={(field) => (
+            <FormField field={field} label="Website">
+              <Input
+                id={field.name}
+                value={field.state.value}
+                placeholder="https://example.com"
+                onChange={(event) => field.handleChange(event.target.value)}
+              />
+            </FormField>
+          )}
+        />
+      </FieldGroup>
+
+      <form.Subscribe
+        selector={(state) => ({
+          isDirty: state.isDirty,
+          isSubmitting: state.isSubmitting,
+        })}
+        children={({ isDirty, isSubmitting }) => (
+          <div className="flex justify-end gap-2">
+            {isDirty && (
+              <Button
+                type="button"
+                variant="link"
+                disabled={isSubmitting || updateProfileMutation.isPending}
+                onClick={() => form.reset()}
+              >
+                Discard changes
+              </Button>
+            )}
+            <Button
+              type="submit"
+              form="edit-supplier-profile-form"
+              disabled={
+                !isDirty || isSubmitting || updateProfileMutation.isPending
+              }
+            >
+              {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
+            </Button>
+          </div>
+        )}
+      />
+
+      {updateProfileMutation.error?.message && (
+        <FormErrorMessage message={updateProfileMutation.error.message} />
+      )}
+      {updateProfileMutation.isSuccess && (
+        <p className="text-sm text-muted-foreground">
+          Supplier profile updated.
+        </p>
+      )}
+    </form>
+  )
+}
+
+function toggleSelection<T>(items: Array<T>, item: T) {
+  if (items.includes(item)) return items.filter((value) => value !== item)
+  return [...items, item]
+}
+
+const NO_REGION_VALUE = '__none__'
+
+function mapSupplierToFormValues(
+  supplier: Supplier,
+): UpdateSupplierProfileForm {
+  return {
+    name: supplier.name,
+    email: supplier.email,
+    region: nullToEmptyString(supplier.region),
+    regionsServed: supplier.regionsServed,
+    services: supplier.services,
+    website: nullToEmptyString(supplier.website),
+    instagramHandle: nullToEmptyString(
+      supplier.instagramHandle ? `@${supplier.instagramHandle}` : null,
+    ),
+    tiktokHandle: nullToEmptyString(
+      supplier.tiktokHandle ? `@${supplier.tiktokHandle}` : null,
+    ),
+  }
+}

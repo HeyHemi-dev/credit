@@ -22,14 +22,18 @@ import {
 import { useBack } from '@/components/back-button'
 import { useDedupe } from '@/hooks/use-dedupe'
 import { emptyStringToNull } from '@/lib/empty-strings'
+import {
+  normalizeInstagramInput,
+  normalizeTiktokInput,
+} from '@/lib/normalize-social-inputs'
 import { cn } from '@/lib/utils'
 
 const defaultValues: CreateSupplierForm = {
   name: '',
   email: '',
+  region: '',
   instagramHandle: '',
   tiktokHandle: '',
-  region: '',
 }
 
 export function CreateSupplierForm({
@@ -60,9 +64,9 @@ export function CreateSupplierForm({
 
       const supplier = await createMutation.mutateAsync({
         ...value,
+        region: emptyStringToNull(value.region),
         instagramHandle: emptyStringToNull(value.instagramHandle),
         tiktokHandle: emptyStringToNull(value.tiktokHandle),
-        region: emptyStringToNull(value.region),
       })
       if (onCreated) {
         onCreated(supplier)
@@ -149,7 +153,7 @@ export function CreateSupplierForm({
                       value={region}
                       label={region}
                       isSelected={isSelected}
-                      onClick={() => field.handleChange(region)}
+                      onClick={() => field.handleChange('')}
                     />
                   )
                 })}
@@ -306,24 +310,4 @@ function DedupeCandidates({
       </CardContent>
     </Card>
   )
-}
-
-function normalizeInstagramInput(input: string) {
-  if (input.startsWith('https://www.instagram.com/')) {
-    input = input.replace('https://www.instagram.com/', '@')
-  }
-  if (input.endsWith('/')) {
-    input = input.slice(0, -1)
-  }
-  return input
-}
-
-function normalizeTiktokInput(input: string) {
-  if (input.startsWith('https://www.tiktok.com/')) {
-    input = input.replace('https://www.tiktok.com/', '@')
-  }
-  if (input.endsWith('/')) {
-    input = input.slice(0, -1)
-  }
-  return input
 }

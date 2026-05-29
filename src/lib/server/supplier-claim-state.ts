@@ -40,6 +40,9 @@ export function mapSupplierToClient(supplier: SupplierRow): Supplier {
     name: supplier.name,
     email: supplier.email,
     region: supplier.region,
+    regionsServed: supplier.regionsServed,
+    services: supplier.services,
+    website: supplier.website,
     instagramHandle: supplier.instagramHandle,
     tiktokHandle: supplier.tiktokHandle,
   }

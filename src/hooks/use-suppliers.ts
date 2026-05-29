@@ -1,13 +1,18 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDebouncedState } from '@tanstack/react-pacer'
 import { useServerFn } from '@tanstack/react-start'
-import type { AuthToken, CreateSupplier } from '@/lib/types/validation-schema'
+import type {
+  AuthToken,
+  CreateSupplier,
+  UpdateSupplierProfile,
+} from '@/lib/types/validation-schema'
 import { queryKeys } from '@/hooks/query-keys'
 
 import {
   createSupplierFn,
   getSupplierFn,
   searchSuppliersFn,
+  updateMySupplierProfileFn,
 } from '@/lib/server/suppliers'
 import { DEBOUNCE_INPUT_MS } from '@/lib/constants'
 import { isSessionAuth, isShareAuth } from '@/hooks/use-auth'
@@ -51,6 +56,29 @@ export function useSupplier(authToken: AuthToken) {
   })
 
   return { createMutation }
+}
+
+export function useSupplierProfile() {
+  const queryClient = useQueryClient()
+  const updateMySupplierProfile = useServerFn(updateMySupplierProfileFn)
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: UpdateSupplierProfile) => {
+      return await updateMySupplierProfile({ data })
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.supplierClaim(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['supplier'],
+        }),
+      ])
+    },
+  })
+
+  return { updateProfileMutation }
 }
 
 export function useSupplierPrefill(

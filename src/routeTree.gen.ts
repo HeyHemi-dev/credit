@@ -26,6 +26,7 @@ import { Route as appAppLayoutEventsEventIdRouteImport } from './routes/(app)/_a
 import { Route as appAppLayoutEEventIdRouteImport } from './routes/(app)/_appLayout.e.$eventId'
 import { Route as appAppLayoutAccountSettingsRouteImport } from './routes/(app)/_appLayout.account.settings'
 import { Route as appAppLayoutAccountSecurityRouteImport } from './routes/(app)/_appLayout.account.security'
+import { Route as appAppLayoutAccountEditProfileRouteImport } from './routes/(app)/_appLayout.account.edit-profile'
 
 const ApiSessionRoute = ApiSessionRouteImport.update({
   id: '/api/session',
@@ -118,6 +119,12 @@ const appAppLayoutAccountSecurityRoute =
     path: '/account/security',
     getParentRoute: () => appAppLayoutRoute,
   } as any)
+const appAppLayoutAccountEditProfileRoute =
+  appAppLayoutAccountEditProfileRouteImport.update({
+    id: '/account/edit-profile',
+    path: '/account/edit-profile',
+    getParentRoute: () => appAppLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/api/session': typeof ApiSessionRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
+  '/account/edit-profile': typeof appAppLayoutAccountEditProfileRoute
   '/account/security': typeof appAppLayoutAccountSecurityRoute
   '/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -143,6 +151,7 @@ export interface FileRoutesByTo {
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof publicPublicLayoutIndexRoute
+  '/account/edit-profile': typeof appAppLayoutAccountEditProfileRoute
   '/account/security': typeof appAppLayoutAccountSecurityRoute
   '/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -163,6 +172,7 @@ export interface FileRoutesById {
   '/(public)/_publicLayout/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(public)/_publicLayout/': typeof publicPublicLayoutIndexRoute
+  '/(app)/_appLayout/account/edit-profile': typeof appAppLayoutAccountEditProfileRoute
   '/(app)/_appLayout/account/security': typeof appAppLayoutAccountSecurityRoute
   '/(app)/_appLayout/account/settings': typeof appAppLayoutAccountSettingsRoute
   '/(app)/_appLayout/e/$eventId': typeof appAppLayoutEEventIdRoute
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/auth/$'
     | '/'
+    | '/account/edit-profile'
     | '/account/security'
     | '/account/settings'
     | '/e/$eventId'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/auth/$'
     | '/'
+    | '/account/edit-profile'
     | '/account/security'
     | '/account/settings'
     | '/e/$eventId'
@@ -218,6 +230,7 @@ export interface FileRouteTypes {
     | '/(public)/_publicLayout/terms'
     | '/api/auth/$'
     | '/(public)/_publicLayout/'
+    | '/(app)/_appLayout/account/edit-profile'
     | '/(app)/_appLayout/account/security'
     | '/(app)/_appLayout/account/settings'
     | '/(app)/_appLayout/e/$eventId'
@@ -357,11 +370,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appAppLayoutAccountSecurityRouteImport
       parentRoute: typeof appAppLayoutRoute
     }
+    '/(app)/_appLayout/account/edit-profile': {
+      id: '/(app)/_appLayout/account/edit-profile'
+      path: '/account/edit-profile'
+      fullPath: '/account/edit-profile'
+      preLoaderRoute: typeof appAppLayoutAccountEditProfileRouteImport
+      parentRoute: typeof appAppLayoutRoute
+    }
   }
 }
 
 interface appAppLayoutRouteChildren {
   appAppLayoutCreateSupplierRoute: typeof appAppLayoutCreateSupplierRoute
+  appAppLayoutAccountEditProfileRoute: typeof appAppLayoutAccountEditProfileRoute
   appAppLayoutAccountSecurityRoute: typeof appAppLayoutAccountSecurityRoute
   appAppLayoutAccountSettingsRoute: typeof appAppLayoutAccountSettingsRoute
   appAppLayoutEEventIdRoute: typeof appAppLayoutEEventIdRoute
@@ -372,6 +393,7 @@ interface appAppLayoutRouteChildren {
 
 const appAppLayoutRouteChildren: appAppLayoutRouteChildren = {
   appAppLayoutCreateSupplierRoute: appAppLayoutCreateSupplierRoute,
+  appAppLayoutAccountEditProfileRoute: appAppLayoutAccountEditProfileRoute,
   appAppLayoutAccountSecurityRoute: appAppLayoutAccountSecurityRoute,
   appAppLayoutAccountSettingsRoute: appAppLayoutAccountSettingsRoute,
   appAppLayoutEEventIdRoute: appAppLayoutEEventIdRoute,

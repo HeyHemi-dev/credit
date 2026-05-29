@@ -1,5 +1,4 @@
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
-import { UpdateNameCard } from '@daveyplate/better-auth-ui'
 import React from 'react'
 import type { SupplierClaim } from '@/lib/types/front-end'
 import { AccountNav } from '@/components/auth/account-nav'
@@ -46,7 +45,6 @@ function AccountSettingsViewClient() {
   return (
     <AuthUiShell>
       <div className="grid w-full content-start gap-4 md:gap-6">
-        <UpdateNameCard />
         <ClaimSupplierCard />
       </div>
     </AuthUiShell>
@@ -101,7 +99,8 @@ function getClaimSupplierCardState(claim: SupplierClaim | null) {
     return {
       state: 'claimed' as const,
       title: 'Supplier profile linked',
-      description: '',
+      description: `${claim.supplier.name} is linked to your account. You can now manage this
+        supplier profile and keep its details up to date.`,
       claim,
     }
   }

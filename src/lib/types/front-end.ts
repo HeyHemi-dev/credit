@@ -27,6 +27,9 @@ export type Supplier = {
   name: string
   email: string
   region: Region | null
+  regionsServed: Array<Region>
+  services: Array<Service>
+  website: string | null
   instagramHandle: string | null
   tiktokHandle: string | null
 }
