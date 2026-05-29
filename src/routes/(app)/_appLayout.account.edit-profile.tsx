@@ -1,4 +1,8 @@
-import { ClientOnly, createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  ClientOnly,
+  createFileRoute,
+  useNavigate,
+} from '@tanstack/react-router'
 import React from 'react'
 import { AccountNav } from '@/components/auth/account-nav'
 import { AuthUiShell } from '@/components/auth/auth-ui-shell'
@@ -19,7 +23,7 @@ export const Route = createFileRoute('/(app)/_appLayout/account/edit-profile')({
 })
 
 function AccountEditProfile() {
-  const fallback = <Skeleton className="h-[48rem] w-full" />
+  const fallback = <Skeleton className="h-192 w-full" />
 
   return (
     <Section>
@@ -53,7 +57,8 @@ function AccountEditProfileViewClient() {
             {`Edit profile for ${claim.supplier.name}`}
           </CardTitle>
           <CardDescription className="text-xs md:text-sm">
-            Update your public business details so you can be credited correctly.
+            Update your public business details so you can be credited
+            correctly.
           </CardDescription>
         </CardHeader>
         <CardContent>
