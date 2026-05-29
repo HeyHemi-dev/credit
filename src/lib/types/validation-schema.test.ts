@@ -76,6 +76,26 @@ describe('updateSupplierProfileFormSchema', () => {
     // Assert
     expect(result.success).toBe(false)
   })
+
+  it('rejects website URLs that do not use http or https', () => {
+    // Arrange
+    const input = {
+      name: '  Foo Bar Studio  ',
+      email: 'Foo.Bar@Example.COM',
+      region: '',
+      regionsServed: ['Auckland'],
+      services: ['Photographer'],
+      website: 'ftp://example.com',
+      instagramHandle: '@Foo.Bar',
+      tiktokHandle: '',
+    }
+
+    // Act
+    const result = updateSupplierProfileFormSchema.safeParse(input)
+
+    // Assert
+    expect(result.success).toBe(false)
+  })
 })
 
 describe('updateSupplierProfileSchema', () => {

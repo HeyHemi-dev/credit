@@ -61,9 +61,12 @@ export const eventIdSchema = z.uuid()
 export const regionSchema = z.enum(REGIONS, 'Invalid region')
 export const serviceSchema = z.enum(SERVICES, 'Invalid service')
 export const websiteSchema = z
-  .string()
-  .trim()
   .url('Enter a valid website URL')
+  .refine((value) => {
+    if (!URL.canParse(value)) return false
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  }, 'Website URL must start with http:// or https://')
 export const eventNameSchema = z
   .string()
   .trim()
