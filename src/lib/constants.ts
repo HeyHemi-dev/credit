@@ -1,6 +1,6 @@
 import type { ConstEnum } from '@/lib/types/generic-types'
 
-// New Zealand wedding supplier services
+// New Zealand wedding supplier services. Changing these items requires a DB migration.
 export const SERVICE = {
   // Place & food
   VENUE: 'Venue',
@@ -43,7 +43,7 @@ export const SERVICE_KEYS = Object.keys(SERVICE) as Array<ServiceKey>
 export type Service = (typeof SERVICE)[ServiceKey]
 export const SERVICES = Object.values(SERVICE)
 
-// New Zealand wedding supplier regions
+// New Zealand wedding supplier regions. Changing these items requires a DB migration.
 export const REGION = {
   NORTHLAND: 'Northland',
   AUCKLAND: 'Auckland',
@@ -60,6 +60,7 @@ export const REGION = {
   CANTERBURY: 'Canterbury',
   OTAGO: 'Otago',
   SOUTHLAND: 'Southland',
+  INTERNATIONAL: 'Outside New Zealand',
 } as const satisfies ConstEnum
 
 export type RegionKey = keyof typeof REGION
@@ -67,6 +68,7 @@ export const REGION_KEYS = Object.keys(REGION) as Array<RegionKey>
 export type Region = (typeof REGION)[RegionKey]
 export const REGIONS = Object.values(REGION)
 
+// Statuses for the supplier claim lifecycle. Changing these items requires a DB migration.
 export const SUPPLIER_CLAIM_STATUS = {
   PENDING: 'pending',
   APPROVED: 'approved',
