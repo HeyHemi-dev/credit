@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ApiSessionRouteImport } from './routes/api.session'
 import { Route as publicPublicLayoutRouteImport } from './routes/(public)/_publicLayout'
@@ -28,18 +30,29 @@ import { Route as appAppLayoutAccountSettingsRouteImport } from './routes/(app)/
 import { Route as appAppLayoutAccountSecurityRouteImport } from './routes/(app)/_appLayout.account.security'
 import { Route as appAppLayoutAccountEditProfileRouteImport } from './routes/(app)/_appLayout.account.edit-profile'
 
+const publicRouteImport = createFileRoute('/(public)')()
+const appRouteImport = createFileRoute('/(app)')()
+
+const publicRoute = publicRouteImport.update({
+  id: '/(public)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const appRoute = appRouteImport.update({
+  id: '/(app)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSessionRoute = ApiSessionRouteImport.update({
   id: '/api/session',
   path: '/api/session',
   getParentRoute: () => rootRouteImport,
 } as any)
 const publicPublicLayoutRoute = publicPublicLayoutRouteImport.update({
-  id: '/(public)/_publicLayout',
-  getParentRoute: () => rootRouteImport,
+  id: '/_publicLayout',
+  getParentRoute: () => publicRoute,
 } as any)
 const appAppLayoutRoute = appAppLayoutRouteImport.update({
-  id: '/(app)/_appLayout',
-  getParentRoute: () => rootRouteImport,
+  id: '/_appLayout',
+  getParentRoute: () => appRoute,
 } as any)
 const publicPublicLayoutIndexRoute = publicPublicLayoutIndexRouteImport.update({
   id: '/',
@@ -127,12 +140,12 @@ const appAppLayoutAccountEditProfileRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof publicPublicLayoutIndexRoute
   '/api/session': typeof ApiSessionRoute
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/': typeof publicPublicLayoutIndexRoute
   '/account/edit-profile': typeof appAppLayoutAccountEditProfileRoute
   '/account/security': typeof appAppLayoutAccountSecurityRoute
   '/account/settings': typeof appAppLayoutAccountSettingsRoute
@@ -145,12 +158,12 @@ export interface FileRoutesByFullPath {
   '/events': typeof appAppLayoutEventsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof publicPublicLayoutIndexRoute
   '/api/session': typeof ApiSessionRoute
   '/create-supplier': typeof appAppLayoutCreateSupplierRoute
   '/privacy': typeof publicPublicLayoutPrivacyRoute
   '/terms': typeof publicPublicLayoutTermsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/': typeof publicPublicLayoutIndexRoute
   '/account/edit-profile': typeof appAppLayoutAccountEditProfileRoute
   '/account/security': typeof appAppLayoutAccountSecurityRoute
   '/account/settings': typeof appAppLayoutAccountSettingsRoute
@@ -164,7 +177,9 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/(app)': typeof appRouteWithChildren
   '/(app)/_appLayout': typeof appAppLayoutRouteWithChildren
+  '/(public)': typeof publicRouteWithChildren
   '/(public)/_publicLayout': typeof publicPublicLayoutRouteWithChildren
   '/api/session': typeof ApiSessionRoute
   '/(app)/_appLayout/create-supplier': typeof appAppLayoutCreateSupplierRoute
@@ -186,12 +201,12 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/api/session'
     | '/create-supplier'
     | '/privacy'
     | '/terms'
     | '/api/auth/$'
-    | '/'
     | '/account/edit-profile'
     | '/account/security'
     | '/account/settings'
@@ -204,12 +219,12 @@ export interface FileRouteTypes {
     | '/events'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/api/session'
     | '/create-supplier'
     | '/privacy'
     | '/terms'
     | '/api/auth/$'
-    | '/'
     | '/account/edit-profile'
     | '/account/security'
     | '/account/settings'
@@ -222,7 +237,9 @@ export interface FileRouteTypes {
     | '/events'
   id:
     | '__root__'
+    | '/(app)'
     | '/(app)/_appLayout'
+    | '/(public)'
     | '/(public)/_publicLayout'
     | '/api/session'
     | '/(app)/_appLayout/create-supplier'
@@ -243,14 +260,28 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  appAppLayoutRoute: typeof appAppLayoutRouteWithChildren
-  publicPublicLayoutRoute: typeof publicPublicLayoutRouteWithChildren
+  appRoute: typeof appRouteWithChildren
+  publicRoute: typeof publicRouteWithChildren
   ApiSessionRoute: typeof ApiSessionRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(public)': {
+      id: '/(public)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof publicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(app)': {
+      id: '/(app)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/session': {
       id: '/api/session'
       path: '/api/session'
@@ -260,17 +291,17 @@ declare module '@tanstack/react-router' {
     }
     '/(public)/_publicLayout': {
       id: '/(public)/_publicLayout'
-      path: ''
-      fullPath: ''
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof publicPublicLayoutRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof publicRoute
     }
     '/(app)/_appLayout': {
       id: '/(app)/_appLayout'
-      path: ''
-      fullPath: ''
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof appAppLayoutRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof appRoute
     }
     '/(public)/_publicLayout/': {
       id: '/(public)/_publicLayout/'
@@ -406,6 +437,16 @@ const appAppLayoutRouteWithChildren = appAppLayoutRoute._addFileChildren(
   appAppLayoutRouteChildren,
 )
 
+interface appRouteChildren {
+  appAppLayoutRoute: typeof appAppLayoutRouteWithChildren
+}
+
+const appRouteChildren: appRouteChildren = {
+  appAppLayoutRoute: appAppLayoutRouteWithChildren,
+}
+
+const appRouteWithChildren = appRoute._addFileChildren(appRouteChildren)
+
 interface publicPublicLayoutRouteChildren {
   publicPublicLayoutPrivacyRoute: typeof publicPublicLayoutPrivacyRoute
   publicPublicLayoutTermsRoute: typeof publicPublicLayoutTermsRoute
@@ -427,9 +468,20 @@ const publicPublicLayoutRouteChildren: publicPublicLayoutRouteChildren = {
 const publicPublicLayoutRouteWithChildren =
   publicPublicLayoutRoute._addFileChildren(publicPublicLayoutRouteChildren)
 
-const rootRouteChildren: RootRouteChildren = {
-  appAppLayoutRoute: appAppLayoutRouteWithChildren,
+interface publicRouteChildren {
+  publicPublicLayoutRoute: typeof publicPublicLayoutRouteWithChildren
+}
+
+const publicRouteChildren: publicRouteChildren = {
   publicPublicLayoutRoute: publicPublicLayoutRouteWithChildren,
+}
+
+const publicRouteWithChildren =
+  publicRoute._addFileChildren(publicRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  appRoute: appRouteWithChildren,
+  publicRoute: publicRouteWithChildren,
   ApiSessionRoute: ApiSessionRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
@@ -441,7 +493,6 @@ import type { getRouter } from './router.tsx'
 import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
   }
 }
