@@ -8,24 +8,6 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
-const tanstackDevStylesFallback: Plugin = {
-  name: 'tanstack-dev-styles-fallback',
-  apply: 'serve',
-  configureServer(server: any) {
-    server.middlewares.use((req: any, res: any, next: any) => {
-      if (!req.url?.startsWith('/@tanstack-start/styles.css')) {
-        next()
-        return
-      }
-
-      res.statusCode = 200
-      res.setHeader('Content-Type', 'text/css; charset=utf-8')
-      res.setHeader('Cache-Control', 'no-store')
-      res.end('')
-    })
-  },
-}
-
 /**
  * TanStack Start/Nitro can request Vite boolean asset queries as `?raw=` or
  * `?url=` on LAN dev origins. Vite expects `?raw` / `?url`; without this shim
@@ -230,7 +212,6 @@ const config = defineConfig(({ mode }) => {
       externalizeServerDeps(),
       ...(!isTest ? [nitro()] : []),
       ...(isBuildDiagnosticsEnabled ? [buildDiagnostics()] : []),
-      tanstackDevStylesFallback,
     ],
   }
 })
