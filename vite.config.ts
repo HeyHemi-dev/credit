@@ -1,29 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { relative } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
+import { config as loadDotenv } from 'dotenv'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
-
-const tanstackDevStylesFallback: Plugin = {
-  name: 'tanstack-dev-styles-fallback',
-  apply: 'serve',
-  configureServer(server: any) {
-    server.middlewares.use((req: any, res: any, next: any) => {
-      if (!req.url?.startsWith('/@tanstack-start/styles.css')) {
-        next()
-        return
-      }
-
-      res.statusCode = 200
-      res.setHeader('Content-Type', 'text/css; charset=utf-8')
-      res.setHeader('Cache-Control', 'no-store')
-      res.end('')
-    })
-  },
-}
 
 /**
  * TanStack Start/Nitro can request Vite boolean asset queries as `?raw=` or
@@ -205,6 +188,10 @@ const config = defineConfig(({ mode }) => {
     process.env.VITEST === 'true'
   const isBuildDiagnosticsEnabled = process.env.BUILD_DIAGNOSTICS === '1'
 
+  if (isTest && !process.env.CR_DATABASE_URL) {
+    loadDotenv({ path: '.env.local' })
+  }
+
   return {
     plugins: [
       viteBooleanQueryFallback,
@@ -225,7 +212,6 @@ const config = defineConfig(({ mode }) => {
       externalizeServerDeps(),
       ...(!isTest ? [nitro()] : []),
       ...(isBuildDiagnosticsEnabled ? [buildDiagnostics()] : []),
-      tanstackDevStylesFallback,
     ],
   }
 })

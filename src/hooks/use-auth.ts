@@ -11,6 +11,7 @@ import { ERROR } from '@/lib/errors'
  */
 export function useAuth(shareToken?: string): AuthToken {
   const { data, isPending } = authClient.useSession()
+  const sessionToken = data?.session?.token
 
   // Early return for share token
   if (shareToken) {
@@ -25,12 +26,12 @@ export function useAuth(shareToken?: string): AuthToken {
     return { status: AUTH_STATUS.PENDING }
   }
 
-  if (data?.session.token) {
+  if (sessionToken) {
     return {
       status: AUTH_STATUS.AUTHENTICATED,
       tokenType: AUTH_TOKEN_TYPE.SESSION_TOKEN,
-      token: data.session.token,
-      authUserId: data.session.userId,
+      token: sessionToken,
+      authUserId: data.session?.userId,
     }
   }
 

@@ -6,7 +6,17 @@ import { logger } from '@/lib/logger'
 export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {
-      ANY: async ({ request }) => {
+      GET: async ({ request }) => {
+        return handleAuthRequest(request)
+      },
+      POST: async ({ request }) => {
+        return handleAuthRequest(request)
+      },
+    },
+  },
+})
+
+async function handleAuthRequest(request: Request) {
         const startedAt = Date.now()
         const { pathname } = new URL(request.url)
 
@@ -43,7 +53,4 @@ export const Route = createFileRoute('/api/auth/$')({
           })
           throw error
         }
-      },
-    },
-  },
-})
+}
