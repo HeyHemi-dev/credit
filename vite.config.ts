@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { relative } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
+import { config as loadDotenv } from 'dotenv'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
@@ -204,6 +205,10 @@ const config = defineConfig(({ mode }) => {
     process.env.NODE_ENV === 'test' ||
     process.env.VITEST === 'true'
   const isBuildDiagnosticsEnabled = process.env.BUILD_DIAGNOSTICS === '1'
+
+  if (isTest && !process.env.CR_DATABASE_URL) {
+    loadDotenv({ path: '.env.local' })
+  }
 
   return {
     plugins: [
