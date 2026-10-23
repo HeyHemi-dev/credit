@@ -8,7 +8,14 @@ See [Tech stack](documentation/give-credit_tech-stack.md) for framework, databas
 
 ## Getting started
 
-**Prerequisites:** Node 24+, pnpm, Git CLI, Vercel CLI, Neon CLI.
+**Prerequisites:** Node 24.22.1 or newer in the 24.x line, pnpm, Git CLI, Vercel CLI, Neon CLI.
+
+Use the patched Node version pinned in `.nvmrc` before installing dependencies:
+
+```bash
+nvm install
+nvm use
+```
 
 - `git`: required for local worktree setup and temporary branch workflows
 - `vercel`: used to pull project env into `.env.local`
